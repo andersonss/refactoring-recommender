@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="libs/commons-codec-1.8.jar"/>
+	<classpathentry kind="lib" path="libs/commons-io-2.4-sources.jar"/>
+	<classpathentry kind="lib" path="libs/commons-io-2.4.jar"/>
+	<classpathentry kind="lib" path="libs/commons-lang-2.1.jar"/>
+	<classpathentry kind="lib" path="libs/commons-math-2.0.jar"/>
+	<classpathentry kind="lib" path="libs/log4j.jar"/>
+	<classpathentry kind="lib" path="libs/org.eclipse.jface_3.7.0.v20110928-1505.jar"/>
+	<classpathentry kind="lib" path="libs/ast/org.eclipse.core.contenttype_3.4.200.v20120523-2004.jar"/>
+	<classpathentry kind="lib" path="libs/ast/org.eclipse.core.jobs_3.5.300.v20120912-155018.jar"/>
+	<classpathentry kind="lib" path="libs/ast/org.eclipse.core.resources_3.8.1.v20121114-124432.jar"/>
+	<classpathentry kind="lib" path="libs/ast/org.eclipse.core.runtime_3.8.0.v20120912-155025.jar"/>
+	<classpathentry kind="lib" path="libs/ast/org.eclipse.equinox.common_3.6.100.v20120522-1841.jar"/>
+	<classpathentry kind="lib" path="libs/ast/org.eclipse.equinox.preferences_3.5.1.v20121031-182809.jar"/>
+	<classpathentry kind="lib" path="libs/ast/org.eclipse.jdt.core_3.8.3.v20130121-145325.jar"/>
+	<classpathentry kind="lib" path="libs/ast/org.eclipse.jface.text_3.8.0.v20120531-0600.jar"/>
+	<classpathentry kind="lib" path="libs/ast/org.eclipse.jface.text.source_3.8.0.v20120531-0600.jar"/>
+	<classpathentry kind="lib" path="libs/ast/org.eclipse.osgi_3.8.2.v20130124-134944.jar"/>
+	<classpathentry kind="lib" path="libs/ast/org.eclipse.text_3.5.200.v20120523-1310.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
