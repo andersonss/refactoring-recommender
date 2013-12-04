@@ -4,18 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 import br.ic.ufal.parser.Clazz;
-import br.ic.ufal.refactoring.detections.dataclumps.parameters.DuplicatedParameters;
 import br.ic.ufal.util.ParseUtil;
 
 public class DuplicatedFragments {
 
 	private List<Clazz> classes = new ArrayList<>();
-	private List<VariableDeclarationFragment> fragments = new ArrayList<VariableDeclarationFragment>();
+	private List<VariableDeclaration> fragments = new ArrayList<VariableDeclaration>();
 	
 	public DuplicatedFragments() {
 	}
@@ -44,15 +43,15 @@ public class DuplicatedFragments {
 		return false;
 	}
 	
-	public List<VariableDeclarationFragment> getFragments() {
+	public List<VariableDeclaration> getFragments() {
 		return fragments;
 	}
 	
-	public void setFragments(List<VariableDeclarationFragment> fragments) {
+	public void setFragments(List<VariableDeclaration> fragments) {
 		this.fragments = fragments;
 	}
 	
-	public void addFragment(VariableDeclarationFragment fragment){
+	public void addFragment(VariableDeclaration fragment){
 		this.fragments.add(fragment);
 	}
 	
@@ -90,13 +89,13 @@ public class DuplicatedFragments {
 		return false;
 	}
 	
-	private boolean similar(List<VariableDeclarationFragment> fragments, List<VariableDeclarationFragment> fragments1){
-		for (VariableDeclarationFragment frag : fragments) {
+	private boolean similar(List<VariableDeclaration> fragments, List<VariableDeclaration> fragments1){
+		for (VariableDeclaration frag : fragments) {
 			if (!existFragment(frag, fragments1)) {
 				return false;
 			}
 		}
-		for (VariableDeclarationFragment frag : fragments1) {
+		for (VariableDeclaration frag : fragments1) {
 			if (!existFragment(frag, fragments)) {
 				return false;
 			}
@@ -108,8 +107,8 @@ public class DuplicatedFragments {
 		return true;
 	}
 	
-	private boolean existFragment(VariableDeclarationFragment fragment, List<VariableDeclarationFragment> fragments){
-		for (VariableDeclarationFragment frag : fragments) {
+	private boolean existFragment(VariableDeclaration fragment, List<VariableDeclaration> fragments){
+		for (VariableDeclaration frag : fragments) {
 			if (frag.getInitializer() != null && fragment.getInitializer() != null) {
 				if (frag.getName().getFullyQualifiedName().equals(fragment.getName().getFullyQualifiedName()) &&
 						frag.getInitializer().toString().equalsIgnoreCase((fragment.getInitializer().toString()))) {
