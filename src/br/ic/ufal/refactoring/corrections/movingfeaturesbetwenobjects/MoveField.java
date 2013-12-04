@@ -74,7 +74,7 @@ public class MoveField extends Correction {
 	private CompilationUnit targetCompilationUnit;
 	private ICompilationUnit targetICompilationUnit;
 	private Document targetDocument;
-	private TypeDeclaration targetTypeDeclaration;
+	private TypeDeclaration targetTypeDeclaration = null;
 	private Set<ITypeBinding> requiredImportDeclarationsInExtractedClass;
 	private Map<MethodDeclaration, Set<String>> additionalArgumentsAddedToExtractedMethods;
 	private Map<MethodDeclaration, Set<SingleVariableDeclaration>> additionalParametersAddedToExtractedMethods;
@@ -103,12 +103,16 @@ public class MoveField extends Correction {
 		
 		this.sourceMultiTextEdit = new MultiTextEdit();
 		
-		this.targetCompilationUnit = targetClass.getCompilationUnit();
-		this.targetTypeDeclaration = targetClass.getTypeDeclaration();
-		this.targetICompilationUnit = targetClass.getICompilationUnit();
-		this.targetDocument = targetClass.getDocument();
+		if (targetClass != null) {
+			this.targetCompilationUnit = targetClass.getCompilationUnit();
+			this.targetTypeDeclaration = targetClass.getTypeDeclaration();
+			this.targetICompilationUnit = targetClass.getICompilationUnit();
+			this.targetDocument = targetClass.getDocument();
+			
+			this.extractedTypeName = targetTypeDeclaration.getName().toString();
+		}
 		
-		this.extractedTypeName = targetTypeDeclaration.getName().toString();
+		
 		
 		CompilationUnitChange sourceCompilationUnitChange = new CompilationUnitChange("", this.sourceICompilationUnit);
 		sourceCompilationUnitChange.setEdit(sourceMultiTextEdit);
@@ -130,20 +134,25 @@ public class MoveField extends Correction {
 		
 		removeFieldFragmentsInSourceClass(extractedFieldFragments);
 		
-		Set<ITypeBinding> typeBindings = new LinkedHashSet<ITypeBinding>();
-		TypeVisitor typeVisitor = new TypeVisitor();
-		for(VariableDeclaration fieldFragment : extractedFieldFragments) {
-			fieldFragment.getParent().accept(typeVisitor);
-			for(ITypeBinding typeBinding : typeVisitor.getTypeBindings()) {
-				typeBindings.add(typeBinding);
+		if (targetTypeDeclaration != null) {
+			Set<ITypeBinding> typeBindings = new LinkedHashSet<ITypeBinding>();
+			TypeVisitor typeVisitor = new TypeVisitor();
+			for(VariableDeclaration fieldFragment : extractedFieldFragments) {
+				fieldFragment.getParent().accept(typeVisitor);
+				for(ITypeBinding typeBinding : typeVisitor.getTypeBindings()) {
+					typeBindings.add(typeBinding);
+				}
 			}
+			
+			getSimpleTypeBindings(typeBindings, requiredImportDeclarationsInExtractedClass);
+			
+			moveField();
+			
+			
 		}
 		
-		getSimpleTypeBindings(typeBindings, requiredImportDeclarationsInExtractedClass);
+		//handleInitializationOfExtractedFieldsWithThisExpressionInTheirInitializer();
 		
-		moveField();
-		
-		handleInitializationOfExtractedFieldsWithThisExpressionInTheirInitializer();
 		for(Statement statement : statementRewriteMap.keySet()) {
 			ASTRewrite sourceRewriter = statementRewriteMap.get(statement);
 			TextEdit sourceEdit = sourceRewriter.rewriteAST(this.sourceDocument, null);
@@ -930,6 +939,7 @@ public class MoveField extends Correction {
 	}
 
 	private void removeFieldFragmentsInSourceClass(Set<VariableDeclaration> fieldFragments) {
+		System.out.println("Source Type Declaration: " + this.sourceTypeDeclaration.getName());
 		
 		FieldDeclaration[] fieldDeclarations = sourceTypeDeclaration.getFields();
 		for(FieldDeclaration fieldDeclaration : fieldDeclarations) {
@@ -955,10 +965,6 @@ public class MoveField extends Correction {
 				}
 				TextEdit sourceEdit = sourceRewriter.rewriteAST(this.sourceDocument, null);
 				this.sourceMultiTextEdit.addChild(sourceEdit);
-				/*this.sourceICompilationUnit = (ICompilationUnit)this.sourceCompilationUnit.getJavaElement();
-				CompilationUnitChange change = compilationUnitChanges.get(this.sourceICompilationUnit);
-				change.getEdit().addChild(sourceEdit);
-				change.addTextEditGroup(new TextEditGroup("Remove extracted field", new TextEdit[] {sourceEdit}));*/
 			}
 		}
 	}
