@@ -1,26 +1,26 @@
 package recommender.handlers;
 
-import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import br.ic.ufal.evaluator.Evaluator;
 import br.ic.ufal.evaluator.QualityFactors;
+import br.ic.ufal.parser.Clazz;
 import br.ic.ufal.parser.Parser;
 import br.ic.ufal.parser.Project;
-import br.ic.ufal.refactoring.corrections.movingfeaturesbetwenobjects.MoveField;
-import br.ic.ufal.refactoring.corrections.movingfeaturesbetwenobjects.PushDownFragments;
-import br.ic.ufal.refactoring.detections.duplication.subclasses.fields.down.DownFragments;
-import br.ic.ufal.refactoring.detections.duplication.subclasses.fields.down.DownFragmentsDesc;
+import br.ic.ufal.refactoring.corrections.movingfeaturesbetwenobjects.PullUpFragments;
+import br.ic.ufal.refactoring.detections.dataclumps.fields.DuplicatedFragments;
+import br.ic.ufal.refactoring.detections.duplication.subclasses.fields.up.UpFragments;
 import br.ic.ufal.util.OperationsUtil;
+import br.ic.ufal.util.ParseUtil;
 
 public class Recommender extends AbstractHandler {
 	
@@ -117,24 +117,21 @@ public class Recommender extends AbstractHandler {
 			
 			//------------------------- Up Fields -----------------------------
 			
-			/*System.out.println("Verifying Up Fields");
-			UpFields upFields = new UpFields(proj);
+			System.out.println("Verifying Up Fields");
+			UpFragments upFragments = new UpFragments(proj);
 			
-			if (upFields.check()) {
-				List<DuplicatedFragments> fragmentsToBeUp = upFields.getDuplicatedFragments();
+			if (upFragments.check()) {
+				List<DuplicatedFragments> fragmentsToBeUp = upFragments.getDuplicatedFragments();
 				
-				for (DuplicatedFragments duplicatedFragments : fragmentsToBeUp) {
-				 Type superclasstype =	duplicatedFragments.getClasses().get(0).getTypeDeclaration().getSuperclassType();
-				 Clazz superclass = ParseUtil.getClazz(superclasstype, proj.getClasses());
-				 
-				}
+				PullUpFragments pullUpFragments = new PullUpFragments(fragmentsToBeUp, proj);
+				pullUpFragments.execute();
 				
 				System.out.println(fragmentsToBeUp);
-			}*/
+			}
 			
 			//-----------------------------------------------------------------------
 			//------------------------- Down Fragments ------------------------------
-			System.out.println("Verifying Down Fragments");
+			/*System.out.println("Verifying Down Fragments");
 			DownFragments downFields = new DownFragments(proj);
 			
 			if (downFields.check()) {
@@ -149,7 +146,7 @@ public class Recommender extends AbstractHandler {
 					
 					System.out.println("Applied Move Fragments");
 				}
-			}
+			}*/
 			//-----------------------------------------------------------------------
 			
 			/*DataClass dataClass = new DataClass(proj);
