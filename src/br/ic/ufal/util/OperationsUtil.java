@@ -506,13 +506,11 @@ public class OperationsUtil {
 
 		for (int i = 0; i < duplicatedFragments.size(); i++) {
 			List<Clazz> iClasses = duplicatedFragments.get(i).getClasses();
-			List<VariableDeclarationFragment> iFrags = duplicatedFragments.get(
-					i).getFragments();
+			List<VariableDeclaration> iFrags = duplicatedFragments.get(i).getFragments();
 
 			for (int j = i + 1; j < duplicatedFragments.size(); j++) {
 				List<Clazz> jClasses = duplicatedFragments.get(j).getClasses();
-				List<VariableDeclarationFragment> jFrags = duplicatedFragments
-						.get(j).getFragments();
+				List<VariableDeclaration> jFrags = duplicatedFragments.get(j).getFragments();
 
 				if (similar(iFrags, jFrags)) {
 
@@ -541,14 +539,14 @@ public class OperationsUtil {
 		return duplicatedFragments;
 	}
 
-	private boolean similar(List<VariableDeclarationFragment> fragments,
-			List<VariableDeclarationFragment> fragments1) {
-		for (VariableDeclarationFragment frag : fragments) {
+	private boolean similar(List<VariableDeclaration> fragments,
+			List<VariableDeclaration> fragments1) {
+		for (VariableDeclaration frag : fragments) {
 			if (!existFragment(frag, fragments1)) {
 				return false;
 			}
 		}
-		for (VariableDeclarationFragment frag : fragments1) {
+		for (VariableDeclaration frag : fragments1) {
 			if (!existFragment(frag, fragments)) {
 				return false;
 			}
@@ -648,13 +646,13 @@ public class OperationsUtil {
 
 	private boolean isSub(DuplicatedFragments dcs1, DuplicatedFragments dcs2) {
 
-		for (VariableDeclarationFragment dfrag : dcs1.getFragments()) {
+		for (VariableDeclaration dfrag : dcs1.getFragments()) {
 			if (!existFragment(dfrag, dcs2.getFragments())) {
 				return false;
 			}
 		}
 
-		for (VariableDeclarationFragment dfrag : dcs2.getFragments()) {
+		for (VariableDeclaration dfrag : dcs2.getFragments()) {
 			if (!existFragment(dfrag, dcs1.getFragments())) {
 				return false;
 			}
@@ -682,9 +680,9 @@ public class OperationsUtil {
 		return true;
 	}
 
-	private boolean existFragment(VariableDeclarationFragment fragment,
-			List<VariableDeclarationFragment> fragments) {
-		for (VariableDeclarationFragment frag : fragments) {
+	private boolean existFragment(VariableDeclaration fragment,
+			List<VariableDeclaration> fragments) {
+		for (VariableDeclaration frag : fragments) {
 			if (frag.getInitializer() != null
 					&& fragment.getInitializer() != null) {
 				if (frag.getName().getFullyQualifiedName()
