@@ -1,4 +1,4 @@
-package br.ic.ufal.refactoring.detections.duplication.subclasses.fields;
+package br.ic.ufal.refactoring.detections.duplication.subclasses.fields.up;
 
 import java.util.ArrayList;
 import java.util.List;

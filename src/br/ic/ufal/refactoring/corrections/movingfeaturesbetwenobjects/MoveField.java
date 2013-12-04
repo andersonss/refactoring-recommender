@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -54,13 +53,11 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.core.refactoring.CompilationUnitChange;
-import org.eclipse.jdt.internal.corext.refactoring.changes.CreateCompilationUnitChange;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEdit;
-import org.eclipse.text.edits.TextEditGroup;
 
 import br.ic.ufal.parser.Clazz;
 import br.ic.ufal.parser.Project;
@@ -84,7 +81,6 @@ public class MoveField extends Correction {
 	private Set<String> sourceFieldBindingsWithCreatedGetterMethod;
 	private Set<FieldDeclaration> fieldDeclarationsChangedWithPublicModifier;
 	private Set<VariableDeclaration> extractedFieldFragments;
-	private Set<MethodDeclaration> extractedMethods;
 	private String extractedTypeName;
 	private Map<Statement, ASTRewrite> statementRewriteMap;
 	private Map<MethodDeclaration, Map<VariableDeclaration, Assignment>> constructorFinalFieldAssignmentMap;
@@ -96,8 +92,6 @@ public class MoveField extends Correction {
 			 		 Clazz targetClass,
 					 
 					 Set<VariableDeclaration> extractedFieldFragments, 
-					 Set<MethodDeclaration> extractedMethods, 
-					 Set<MethodDeclaration> delegateMethods, 
 					 Project project) {
 		
 		super(project);
@@ -124,15 +118,10 @@ public class MoveField extends Correction {
 		this.sourceFieldBindingsWithCreatedGetterMethod = new LinkedHashSet<String>();
 		this.fieldDeclarationsChangedWithPublicModifier = new LinkedHashSet<FieldDeclaration>();
 		this.extractedFieldFragments = extractedFieldFragments;
-		this.extractedMethods = extractedMethods;
-		this.extractedTypeName = extractedTypeName;
 		this.statementRewriteMap = new LinkedHashMap<Statement, ASTRewrite>();
 		this.constructorFinalFieldAssignmentMap = new LinkedHashMap<MethodDeclaration, Map<VariableDeclaration, Assignment>>();
 		this.extractedFieldsWithThisExpressionInTheirInitializer = new LinkedHashSet<VariableDeclaration>();
-		for(MethodDeclaration extractedMethod : extractedMethods) {
-			additionalArgumentsAddedToExtractedMethods.put(extractedMethod, new LinkedHashSet<String>());
-			additionalParametersAddedToExtractedMethods.put(extractedMethod, new LinkedHashSet<SingleVariableDeclaration>());
-		}
+		
 		
 	}
 
@@ -306,13 +295,7 @@ public class MoveField extends Correction {
 		return false;
 	}
 
-	private boolean methodBindingCorrespondsToExtractedMethod(IMethodBinding methodBinding) {
-		for(MethodDeclaration extractedMethod : extractedMethods) {
-			if(extractedMethod.resolveBinding().isEqualTo(methodBinding))
-				return true;
-		}
-		return false;
-	}
+	
 
 	private boolean isParentAnonymousClassDeclaration(ASTNode node) {
 		if(node.getParent() instanceof AnonymousClassDeclaration) {
@@ -986,7 +969,6 @@ public class MoveField extends Correction {
 		Set<MethodDeclaration> contextMethods = getAllMethodDeclarationsInSourceClass();
 		String modifiedExtractedTypeName = extractedTypeName.substring(0,1).toLowerCase() + extractedTypeName.substring(1,extractedTypeName.length());
 		for(MethodDeclaration methodDeclaration : contextMethods) {
-			if(!extractedMethods.contains(methodDeclaration)) {
 				Block methodBody = methodDeclaration.getBody();
 				if(methodBody != null) {
 					List<Statement> statements = methodBody.statements();
@@ -1124,7 +1106,7 @@ public class MoveField extends Correction {
 					}
 				}
 			}
-		}
+		
 	}
 
 	private void modifyExtractedFieldAccessesInSourceClass(Set<VariableDeclaration> fieldFragments) {
@@ -1132,7 +1114,6 @@ public class MoveField extends Correction {
 		Set<MethodDeclaration> contextMethods = getAllMethodDeclarationsInSourceClass();
 		String modifiedExtractedTypeName = extractedTypeName.substring(0,1).toLowerCase() + extractedTypeName.substring(1,extractedTypeName.length());
 		for(MethodDeclaration methodDeclaration : contextMethods) {
-			if(!extractedMethods.contains(methodDeclaration)) {
 				Block methodBody = methodDeclaration.getBody();
 				if(methodBody != null) {
 					List<Statement> statements = methodBody.statements();
@@ -1221,7 +1202,7 @@ public class MoveField extends Correction {
 					}
 				}
 			}
-		}
+		
 	}
 
 	private Set<MethodDeclaration> getAllMethodDeclarationsInSourceClass() {
