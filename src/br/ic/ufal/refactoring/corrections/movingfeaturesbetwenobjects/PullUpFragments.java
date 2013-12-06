@@ -39,7 +39,11 @@ public class PullUpFragments extends Correction {
 				
 				Clazz subclass = duplicatedFragments.getClasses().get(j);
 			
-				if (j == duplicatedFragments.getClasses().size()-1) {
+				System.out.println("Subclass: " + subclass.getTypeDeclaration().getName());
+				moveField = new MoveField(subclass, null, fragments, super.getProject());
+				moveField.execute();
+				
+				if (j == 0) {
 					
 					Clazz superclass = ParseUtil.getClazz(subclass.getTypeDeclaration().getSuperclassType(), super.getProject().getClasses());
 					System.out.println("Superclass" + superclass.getTypeDeclaration().getName() + " Subclass: " + subclass.getTypeDeclaration().getName());
@@ -49,8 +53,11 @@ public class PullUpFragments extends Correction {
 				}else{
 					
 					System.out.println("Subclass: " + subclass.getTypeDeclaration().getName());
-					moveField = new MoveField(subclass, null, fragments, super.getProject());
-					moveField.execute();
+					RemoveFragments removeFragments = new RemoveFragments(subclass, fragments, super.getProject());
+					removeFragments.execute();
+					
+					/*moveField = new MoveField(subclass, null, fragments, super.getProject());
+					moveField.execute();*/
 					
 				}
 			}

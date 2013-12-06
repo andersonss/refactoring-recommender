@@ -64,6 +64,7 @@ import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEdit;
 import org.eclipse.text.edits.TextEditGroup;
 
+import br.ic.ufal.parser.Clazz;
 import br.ic.ufal.parser.Project;
 import br.ic.ufal.refactoring.corrections.Correction;
 
@@ -101,21 +102,29 @@ public class MoveMethod extends Correction {
 	private Document sourceDocument;
 	private Document targetDocument;
 	
-	public MoveMethod(CompilationUnit sourceCompilationUnit, CompilationUnit targetCompilationUnit, 
-			TypeDeclaration sourceTypeDeclaration, TypeDeclaration targetTypeDeclaration, MethodDeclaration sourceMethod,
-			Document sourceDocument, Document targetDocument,
-			Map<MethodInvocation, MethodDeclaration> additionalMethodsToBeMoved, boolean leaveDelegate, 
-			String movedMethodName, Project project) {
+	public MoveMethod(Clazz sourceClass, 
+			Clazz targetClazz,
+			MethodDeclaration sourceMethod,
+			Map<MethodInvocation, MethodDeclaration> additionalMethodsToBeMoved, 
+			boolean leaveDelegate, 
+			String movedMethodName, 
+			Project project) {
 		super(project);
 		
-		this.sourceCompilationUnit = sourceCompilationUnit;
-		this.targetCompilationUnit = targetCompilationUnit;
-		this.sourceTypeDeclaration = sourceTypeDeclaration;
-		this.targetTypeDeclaration = targetTypeDeclaration;
+		
+		
+		this.sourceCompilationUnit = sourceClass.getCompilationUnit();
+		this.sourceTypeDeclaration = sourceClass.getTypeDeclaration();
+		this.sourceDocument = sourceClass.getDocument();
+		this.sourceICompilationUnit = sourceClass.getICompilationUnit();
 		this.sourceMethod = sourceMethod;
+		
+		this.targetCompilationUnit = sourceClass.getCompilationUnit();
+		this.targetTypeDeclaration = sourceClass.getTypeDeclaration();
+		this.targetICompilationUnit = sourceClass.getICompilationUnit();
+		this.targetDocument = sourceClass.getDocument();
+		
 		this.targetClassVariableName = null;
-		this.sourceDocument = sourceDocument;
-		this.targetDocument = targetDocument;
 		this.additionalArgumentsAddedToMovedMethod = new LinkedHashSet<String>();
 		this.additionalTypeBindingsToBeImportedInTargetClass = new LinkedHashSet<ITypeBinding>();
 		this.additionalMethodsToBeMoved = additionalMethodsToBeMoved;

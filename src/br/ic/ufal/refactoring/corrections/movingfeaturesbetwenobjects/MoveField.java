@@ -114,8 +114,6 @@ public class MoveField extends Correction {
 		
 		
 		
-		CompilationUnitChange sourceCompilationUnitChange = new CompilationUnitChange("", this.sourceICompilationUnit);
-		sourceCompilationUnitChange.setEdit(sourceMultiTextEdit);
 		this.requiredImportDeclarationsInExtractedClass = new LinkedHashSet<ITypeBinding>();
 		this.additionalArgumentsAddedToExtractedMethods = new LinkedHashMap<MethodDeclaration, Set<String>>();
 		this.additionalParametersAddedToExtractedMethods = new LinkedHashMap<MethodDeclaration, Set<SingleVariableDeclaration>>();
@@ -159,9 +157,14 @@ public class MoveField extends Correction {
 			this.sourceMultiTextEdit.addChild(sourceEdit);
 		}
 		
+		
 		try {
 			this.sourceMultiTextEdit.apply(this.sourceDocument);
 			this.sourceICompilationUnit.getBuffer().setContents(this.sourceDocument.get());
+			
+			System.out.println("Code Source ");
+	        System.out.println(this.sourceDocument.get());
+			
 		} catch (MalformedTreeException e) {
 			e.printStackTrace();
 		} catch (BadLocationException e) {
@@ -281,9 +284,17 @@ public class MoveField extends Correction {
         	}
         	
         TextEdit extractedClassEdit = targetRewriter.rewriteAST(this.targetDocument, null);
+        
+        
         extractedClassEdit.apply(this.targetDocument);
         	
         this.targetICompilationUnit.getBuffer().setContents(this.targetDocument.get());
+        
+        
+        System.out.println("Code Target ");
+        System.out.println(this.targetDocument.get());
+        
+        
         }catch (MalformedTreeException e) {
         	e.printStackTrace();
         } catch (BadLocationException e) {
@@ -947,9 +958,24 @@ public class MoveField extends Correction {
 			int actualNumberOfFragments = fragments.size();
 			Set<VariableDeclaration> fragmentsToBeRemoved = new LinkedHashSet<VariableDeclaration>();
 			for(VariableDeclarationFragment fragment : fragments) {
-				if(fieldFragments.contains(fragment)) {
+				/*if(fieldFragments.contains(fragment)) {
 					fragmentsToBeRemoved.add(fragment);
+				}*/
+				for (VariableDeclaration fieldFragment : fieldFragments) {
+					if (fieldFragment.getInitializer() != null && fragment.getInitializer() != null) {
+						if (fieldFragment.getName().toString().equalsIgnoreCase(fragment.getName().toString()) &&
+							fieldFragment.getInitializer().toString().equalsIgnoreCase(fragment.getInitializer().toString())) {
+							fragmentsToBeRemoved.add(fragment);
+						}
+					}if (fieldFragment.getInitializer() == null && fragment.getInitializer() == null) {
+						if (fieldFragment.getName().toString().equalsIgnoreCase(fragment.getName().toString()) ) {
+							fragmentsToBeRemoved.add(fragment);
+						}
+					}
+						
 				}
+				
+				
 			}
 			if(fragmentsToBeRemoved.size() > 0) {
 				ASTRewrite sourceRewriter = ASTRewrite.create(sourceTypeDeclaration.getAST());

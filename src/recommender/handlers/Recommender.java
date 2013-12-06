@@ -6,21 +6,17 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import br.ic.ufal.evaluator.Evaluator;
 import br.ic.ufal.evaluator.QualityFactors;
-import br.ic.ufal.parser.Clazz;
 import br.ic.ufal.parser.Parser;
 import br.ic.ufal.parser.Project;
-import br.ic.ufal.refactoring.corrections.movingfeaturesbetwenobjects.PullUpFragments;
-import br.ic.ufal.refactoring.detections.dataclumps.fields.DuplicatedFragments;
-import br.ic.ufal.refactoring.detections.duplication.subclasses.fields.up.UpFragments;
+import br.ic.ufal.refactoring.detections.duplication.subclasses.methods.up.UpMethods;
 import br.ic.ufal.util.OperationsUtil;
-import br.ic.ufal.util.ParseUtil;
 
 public class Recommender extends AbstractHandler {
 	
@@ -91,33 +87,31 @@ public class Recommender extends AbstractHandler {
 			//-----------------------------------------------------------------------
 			
 			//------------------------- Up Methods -----------------------------
+			
 			/*System.out.println("Verifying Up Methods");
 			UpMethods upMethods = new UpMethods(proj);
 			
 			if (upMethods.check()) {
-				List<MethodDeclaration> methodsToBeUp = upMethods.getMethodsToBeUp();
-				for (MethodDeclaration methodToBeUp : methodsToBeUp) {
-					System.out.println("Method bo be Up: " + methodToBeUp.getName());
-				}
-			}*/
-			
-			
+				System.out.println(upMethods.getMethodsToBeUp());
+			}
+			*/
 			//-----------------------------------------------------------------------
-			//------------------------- Down Methods -----------------------------
+			
+			//------------------------- Down Methods -------------------------------
 			/*System.out.println("Verifying Down Methods");
 			DownMethods downMethods = new DownMethods(proj);
 			
 			if (downMethods.check()) {
-				List<MethodDeclaration> methodsToBeDown = downMethods.getMethodsToBeUp();
-				for (MethodDeclaration methodToBeDown : methodsToBeDown) {
-					System.out.println("Method bo be Down: " + methodToBeDown.getName());
-				}
+				
+				PushDownMethods pushDownMethods = new PushDownMethods(downMethods.getMethodsToBeDown(), proj);
+				pushDownMethods.execute();
+				
 			}*/
 			//-----------------------------------------------------------------------
 			
-			//------------------------- Up Fields -----------------------------
+			//------------------------- Up Fragments -----------------------------
 			
-			System.out.println("Verifying Up Fields");
+			/*System.out.println("Verifying Up Fields");
 			UpFragments upFragments = new UpFragments(proj);
 			
 			if (upFragments.check()) {
@@ -127,7 +121,7 @@ public class Recommender extends AbstractHandler {
 				pullUpFragments.execute();
 				
 				System.out.println(fragmentsToBeUp);
-			}
+			}*/
 			
 			//-----------------------------------------------------------------------
 			//------------------------- Down Fragments ------------------------------
@@ -139,12 +133,12 @@ public class Recommender extends AbstractHandler {
 				List<DownFragmentsDesc> descs = downFields.getDownFragmentsDescs();
 				for (DownFragmentsDesc downFragmentsDesc : descs) {
 					System.out.println(downFragmentsDesc);
-					System.out.println("Applying Move Fragments.");
+					System.out.println("Applying Push Down Fragments.");
 					
 					PushDownFragments pushDownFragments = new PushDownFragments(downFragmentsDesc.getSuperclass(), downFragmentsDesc.getSubclasses(), downFragmentsDesc.getFragmentsToBeDown(), proj);
 					pushDownFragments.execute();
 					
-					System.out.println("Applied Move Fragments");
+					System.out.println("Applied Push Down Fragments");
 				}
 			}*/
 			//-----------------------------------------------------------------------
