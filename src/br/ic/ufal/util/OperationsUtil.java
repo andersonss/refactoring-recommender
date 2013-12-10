@@ -340,8 +340,7 @@ public class OperationsUtil {
 					IBinding binding = accessedVariable.resolveBinding();
 					if (binding.getKind() == IBinding.VARIABLE) {
 						IVariableBinding accessedVariableBinding = (IVariableBinding) binding;
-						if (accessedVariableBinding.isField() && 
-							verifiedParameter.resolveBinding().isEqualTo(accessedVariableBinding)) {
+						if (verifiedParameter.resolveBinding().isEqualTo(accessedVariableBinding)) {
 							useParameter++;
 						}
 					}
@@ -360,8 +359,7 @@ public class OperationsUtil {
 						IBinding arrayBinding = arrayVariable.resolveBinding();
 						if (arrayBinding.getKind() == IBinding.VARIABLE) {
 							IVariableBinding arrayVariableBinding = (IVariableBinding) arrayBinding;
-							if (arrayVariableBinding.isField() && 
-								verifiedParameter.resolveBinding().isEqualTo(arrayVariableBinding)) {
+							if (verifiedParameter.resolveBinding().isEqualTo(arrayVariableBinding)) {
 								useParameter++;
 							}
 						}

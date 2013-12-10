@@ -13,7 +13,7 @@ import br.ic.ufal.util.OperationsUtil;
 
 public class UnusedFragments extends BadSmell {
 	
-	private List<VariableDeclaration> unusedFragments = new ArrayList<VariableDeclaration>();
+	private List<UnusedFragmentsDesc> unusedFragments = new ArrayList<UnusedFragmentsDesc>();
 	private OperationsUtil operationsUtil = new OperationsUtil();
 	
 	public UnusedFragments(Project project) {
@@ -22,25 +22,32 @@ public class UnusedFragments extends BadSmell {
 
 	@Override
 	public boolean check() {
-		System.out.println("Checking Unused Fragments");
 			for (int i = 0; i < super.getProject().getClasses().size(); i++) {
 				Clazz clazz = super.getProject().getClasses().get(i);
-				System.out.println("Checking Class: " + clazz.getTypeDeclaration().getName() + " Position: " + i);
+				
+				UnusedFragmentsDesc unusedFragmentsDesc = new UnusedFragmentsDesc();
+				unusedFragmentsDesc.setClazz(clazz);
+				
+				System.out.println("Checking Class: " + clazz.getTypeDeclaration().getName());
 				for (FieldDeclaration field : clazz.getTypeDeclaration().getFields()) {
 					List<VariableDeclaration> fragments = field.fragments();
 					for (VariableDeclaration fragment : fragments) {
 						if (operationsUtil.useFragment(fragment, super.getProject()) == 0) {
 							System.out.println("Unused Fragments: " + fragment);
-							this.unusedFragments.add(fragment);
+							unusedFragmentsDesc.addFragment(fragment);
 						}
 					}
+				}
+				
+				if (unusedFragmentsDesc.getFragmentsToBeRemoved().size() > 0) {
+					this.unusedFragments.add(unusedFragmentsDesc);
 				}
 			}
 		
 		return unusedFragments.size() > 0;
 	}
 
-	public List<VariableDeclaration> getUnusedFragments() {
+	public List<UnusedFragmentsDesc> getUnusedFragments() {
 		return unusedFragments;
 	}
 }

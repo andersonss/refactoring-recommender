@@ -3,9 +3,7 @@ package br.ic.ufal.refactoring.detections.use.parameters;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 
 import br.ic.ufal.parser.Clazz;
@@ -15,7 +13,7 @@ import br.ic.ufal.util.OperationsUtil;
 
 public class UnusedParameters extends BadSmell {
 	
-	private List<VariableDeclaration> unusedParameters = new ArrayList<VariableDeclaration>();
+	private List<UnusedParametersDesc> unusedParameters = new ArrayList<UnusedParametersDesc>();
 	private OperationsUtil operationsUtil = new OperationsUtil();
 	
 	public UnusedParameters(Project project) {
@@ -24,19 +22,25 @@ public class UnusedParameters extends BadSmell {
 
 	@Override
 	public boolean check() {
-		System.out.println("Checking Unused Parameters");
 			for (int i = 0; i < super.getProject().getClasses().size(); i++) {
 				Clazz clazz = super.getProject().getClasses().get(i);
-				System.out.println("Checking Class: " + clazz.getTypeDeclaration().getName() + " Position: " + i);
+				
+				
 				for (MethodDeclaration method : clazz.getTypeDeclaration().getMethods()) {
-					System.out.println("Method: " + method.getName());
+				
+					UnusedParametersDesc unusedParametersDesc = new UnusedParametersDesc();
 					
-					List<SingleVariableDeclaration> parameters = method.parameters();
-					for (SingleVariableDeclaration parameter : parameters) {
+					List<VariableDeclaration> parameters = method.parameters();
+					for (VariableDeclaration parameter : parameters) {
 						if (operationsUtil.useParameter(parameter, method, super.getProject()) == 0) {
-							System.out.println("Unused Parameters: " + parameter);
-							this.unusedParameters.add(parameter);
+							unusedParametersDesc.addParameters(parameter);
 						}
+					}
+					
+					if (unusedParametersDesc.getParametersToBeRemoved().size() > 0) {
+						unusedParametersDesc.setClazz(clazz);
+						unusedParametersDesc.setMethod(method);
+						unusedParameters.add(unusedParametersDesc);
 					}
 				}
 			}
@@ -44,7 +48,7 @@ public class UnusedParameters extends BadSmell {
 		return unusedParameters.size() > 0;
 	}
 
-	public List<VariableDeclaration> getUnusedFragments() {
+	public List<UnusedParametersDesc> getUnusedParameters() {
 		return unusedParameters;
 	}
 }

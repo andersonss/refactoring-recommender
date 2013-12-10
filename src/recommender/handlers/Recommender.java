@@ -6,7 +6,6 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
@@ -15,7 +14,8 @@ import br.ic.ufal.evaluator.Evaluator;
 import br.ic.ufal.evaluator.QualityFactors;
 import br.ic.ufal.parser.Parser;
 import br.ic.ufal.parser.Project;
-import br.ic.ufal.refactoring.detections.duplication.subclasses.methods.up.UpMethods;
+import br.ic.ufal.refactoring.detections.use.parameters.UnusedParameters;
+import br.ic.ufal.refactoring.detections.use.parameters.UnusedParametersDesc;
 import br.ic.ufal.util.OperationsUtil;
 
 public class Recommender extends AbstractHandler {
@@ -65,23 +65,34 @@ public class Recommender extends AbstractHandler {
 				System.out.println("Not Exist Unused Methods");
 			}*/
 			
-			
 			//-----------------------------------------------------------------------
 			
 			//------------------------- Unused Fields -----------------------------
 			/*System.out.println("Verifying Unused Fragments");
 			UnusedFragments unusedFragments = new UnusedFragments(proj);
-			unusedFragments.check();*/
-			
-			
-			
+			if (unusedFragments.check()) {
+				System.out.println("Removing Unsued Fragments");
+				
+				for (UnusedFragmentsDesc unusedFrag : unusedFragments.getUnusedFragments()) {
+					RemoveFragments removeFragments = new RemoveFragments(unusedFrag.getClazz(), unusedFrag.getFragmentsToBeRemoved(), proj);
+					removeFragments.execute();
+				}
+				
+				System.out.println("Removed Unused Fragments");
+			}else{
+				System.out.println("Not Exist Unused Fragments");
+			}*/
 			//-----------------------------------------------------------------------
 			
 			//------------------------- Unused Parameters -----------------------------
-			/*System.out.println("Verifying Unused Parameters");
+			System.out.println("Verifying Unused Parameters");
 			UnusedParameters unusedParameters = new UnusedParameters(proj);
-			unusedParameters.check();*/
 			
+			if (unusedParameters.check()) {
+				for (UnusedParametersDesc unusedParametersDesc : unusedParameters.getUnusedParameters()) {
+					System.out.println(unusedParametersDesc);
+				}
+			}
 			
 			
 			//-----------------------------------------------------------------------
