@@ -80,6 +80,36 @@ public class OperationsUtil {
 		
 	}
 	
+	public List<DuplicatedFragments> identifyNotRelatedFragmentsDuplication(List<DuplicatedFragments> duplicatedFragments){
+		
+		List<DuplicatedFragments> notRelatedFragments = new ArrayList<DuplicatedFragments>();
+		
+		for (DuplicatedFragments df : duplicatedFragments) {
+			
+			boolean samesuperclass = true;
+			
+			Type superclass = df.getClasses().get(0).getTypeDeclaration().getSuperclassType();
+			
+			for (int i = 1; i < df.getClasses().size(); i++) {
+				if (superclass != null && 
+					df.getClasses().get(i).getTypeDeclaration().getSuperclassType() != null) {
+					if (!df.getClasses().get(i).getTypeDeclaration().getSuperclassType().resolveBinding().isEqualTo(superclass.resolveBinding())) {
+						samesuperclass = true;
+					}
+				}
+				
+				
+			}
+			
+			if (samesuperclass) {
+				notRelatedFragments.add(df);
+			}
+		}
+		
+		return notRelatedFragments;
+		
+	}
+	
 	public int countMethodsInClasses(MethodDeclaration methodDeclaration, List<Clazz> classes){
 		int count = 0;
 		
@@ -150,6 +180,35 @@ public class OperationsUtil {
 		
 		return subclasses;
 	}
+	
+	public int useMethod(MethodDeclaration verifiedMethod, Clazz clazz, Project project) {
+
+		int usemethod = 0;
+
+		ExpressionExtractor expressionExtractor = new ExpressionExtractor();
+		
+			for (MethodDeclaration method : clazz.getTypeDeclaration().getMethods()) {
+				List<Expression> methodInvocations = expressionExtractor.getMethodInvocations(method.getBody());
+
+				for (Expression expression : methodInvocations) {
+
+					if (expression instanceof MethodInvocation) {
+						MethodInvocation methodInvocation = (MethodInvocation) expression;
+
+						IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
+						if (methodBinding != null && verifiedMethod != null) {
+							if (methodBinding.isEqualTo(verifiedMethod.resolveBinding())) {
+								usemethod++;
+							}
+						}
+					}
+
+				}
+			}
+	
+
+		return usemethod;
+	}
 
 	public int useMethod(MethodDeclaration verifiedMethod, Project project) {
 
@@ -158,8 +217,7 @@ public class OperationsUtil {
 		ExpressionExtractor expressionExtractor = new ExpressionExtractor();
 		for (Clazz clazz : project.getClasses()) {
 
-			for (MethodDeclaration method : clazz.getTypeDeclaration()
-					.getMethods()) {
+			for (MethodDeclaration method : clazz.getTypeDeclaration().getMethods()) {
 				List<Expression> methodInvocations = expressionExtractor
 						.getMethodInvocations(method.getBody());
 
@@ -372,6 +430,8 @@ public class OperationsUtil {
 		return useParameter;
 	}
 
+	
+	
 	public List<DuplicatedFragments> retrieveDuplicatedFragments(Project project) {
 		List<Clazz> clazzs = project.getClasses();
 
@@ -537,7 +597,7 @@ public class OperationsUtil {
 		return duplicatedFragments;
 	}
 
-	private boolean similar(List<VariableDeclaration> fragments,
+	public boolean similar(List<VariableDeclaration> fragments,
 			List<VariableDeclaration> fragments1) {
 		for (VariableDeclaration frag : fragments) {
 			if (!existFragment(frag, fragments1)) {

@@ -58,6 +58,8 @@ public class UpMethodsDesc {
 			subcs = subcs + subclass.getTypeDeclaration().getName() + ", ";
 		}
 		
+		
+		
 		return "UpMethodsDesc [superclass=" + superclass.getTypeDeclaration().getName() + ", subclasses="
 				+ subcs + ", methodsToBeUp=" + methodsToBeUp + "]";
 	}

@@ -162,6 +162,7 @@ public class MoveField extends Correction {
 			this.sourceMultiTextEdit.apply(this.sourceDocument);
 			this.sourceICompilationUnit.getBuffer().setContents(this.sourceDocument.get());
 			
+			
 			System.out.println("Code Source ");
 	        System.out.println(this.sourceDocument.get());
 			

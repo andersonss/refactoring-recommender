@@ -3,21 +3,23 @@ package br.ic.ufal.refactoring.detections.featureenvy;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 
+import br.ic.ufal.parser.Clazz;
+
 public class FeatureEnvyDescription {
 	
-	private TypeDeclaration sourceClass = null;
+	private Clazz sourceClass = null;
 	private MethodDeclaration sourceMethod = null;
-	private TypeDeclaration targetClass = null;
+	private Clazz targetClass = null;
 
 	public FeatureEnvyDescription() {
 		
 	}
 
-	public TypeDeclaration getSourceClass() {
+	public Clazz getSourceClass() {
 		return sourceClass;
 	}
 
-	public void setSourceClass(TypeDeclaration sourceClass) {
+	public void setSourceClass(Clazz sourceClass) {
 		this.sourceClass = sourceClass;
 	}
 
@@ -29,19 +31,19 @@ public class FeatureEnvyDescription {
 		this.sourceMethod = sourceMethod;
 	}
 
-	public TypeDeclaration getTargetClass() {
+	public Clazz getTargetClass() {
 		return targetClass;
 	}
 
-	public void setTargetClass(TypeDeclaration targetClass) {
+	public void setTargetClass(Clazz targetClass) {
 		this.targetClass = targetClass;
 	}
 
 	@Override
 	public String toString() {
-		return "FeatureEnvyDescription [sourceClass=" + sourceClass.getName()
+		return "FeatureEnvyDescription [sourceClass=" + sourceClass.getTypeDeclaration().getName()
 				+ ", sourceMethod=" + sourceMethod.getName() + ", targetClass="
-				+ targetClass.getName() + "]";
+				+ targetClass.getTypeDeclaration().getName() + "]";
 	}
 	
 	

@@ -40,17 +40,9 @@ public class FeatureEnvy extends BadSmell {
 		
 		for (Clazz clazz : super.getProject().getClasses()) {
 			
-			ICompilationUnit iCompilationUnit = clazz.getICompilationUnit();
 			
-			CompilationUnit compilationUnit = clazz.getCompilationUnit();
 			
-			TypeDeclaration typeDeclaration = (TypeDeclaration)compilationUnit.types().get(0);
-			
-			//System.out.println("Analysed Class: " + typeDeclaration.getName().getFullyQualifiedName());
-
-			for (MethodDeclaration method : typeDeclaration.getMethods()) {
-				
-				//System.out.println("\n\n Analysed Method: " + method.getName().getFullyQualifiedName());
+			for (MethodDeclaration method : clazz.getTypeDeclaration().getMethods()) {
 				
 				Map<String, Set<String>> invocations = new HashMap<String, Set<String>>();
 				
@@ -67,8 +59,6 @@ public class FeatureEnvy extends BadSmell {
 						
 						IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
 					
-						//System.out.println("Type: "+ methodBinding.getDeclaringClass().getName() +" Method Invocation: " + methodInvocation.getName());
-						
 						Set<String> values = invocations.get(methodBinding.getDeclaringClass().getName());
 						values.add(methodInvocation.getName().toString());
 						
@@ -78,24 +68,7 @@ public class FeatureEnvy extends BadSmell {
 					
 				}
 				
-				
-				
-				/*Set s=invocations.entrySet();
-
-		        Iterator it=s.iterator();
-
-		        while(it.hasNext())
-		        {
-		            Map.Entry m =(Map.Entry)it.next();
-
-		            String key= (String)m.getKey();
-
-		            Set<String> values=(Set<String>)m.getValue();
-
-		            System.out.println("Key :"+key+"  Values :"+values);
-		        }*/
-				
-		        FeatureEnvyDescription desc = identifyFeatureEnvy(invocations, method, typeDeclaration);
+				FeatureEnvyDescription desc = identifyFeatureEnvy(invocations, method, clazz);
 		        
 		        if ( desc != null) {
 					this.descriptions.add(desc);
@@ -103,39 +76,10 @@ public class FeatureEnvy extends BadSmell {
 			}
 		}
 		
-		
-		
-		/*List<Expression> newVariableInstructions = expressionExtractor.getVariableInstructions(method.getBody());
-		
-		for (Expression expression : newVariableInstructions) {
-			
-			SimpleName sn = (SimpleName)expression;
-			
-			if (sn.getParent() instanceof QualifiedName) {
-				QualifiedName qualifiedName = (QualifiedName)sn.getParent();
-				System.out.println("QN Type: "+ qualifiedName.getQualifier().resolveTypeBinding().getQualifiedName() +" Simple Name: " + qualifiedName.getName());
-			}
-		}
-		
-		List<Expression> fieldAccesses = expressionExtractor.getFieldAccesses(method.getBody());
-		
-		for (Expression expression : fieldAccesses) {
-			FieldAccess fa = (FieldAccess)expression;
-			System.out.println("Field Access: " + fa.getName());
-		}*/
-		
-		/*List<Expression> instanceCreations = expressionExtractor.getClassInstanceCreations(method.getBody());
-		
-		for (Expression expression : instanceCreations) {
-			
-				ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expression;
-				System.out.println("Class Instance Creation: " + classInstanceCreation.getType());
-		}*/
-		
 		return this.descriptions.size() > 0;
 	}
 	
-	private FeatureEnvyDescription identifyFeatureEnvy(Map<String, Set<String>> invocations, MethodDeclaration method, TypeDeclaration sourceClass){
+	private FeatureEnvyDescription identifyFeatureEnvy(Map<String, Set<String>> invocations, MethodDeclaration method, Clazz sourceClass){
 	
 		Set s=invocations.entrySet();
 
@@ -158,11 +102,21 @@ public class FeatureEnvy extends BadSmell {
 			}
         }
         
-        if (amount > invocations.get(sourceClass.getName().getFullyQualifiedName()).size()) {
+        if (amount > invocations.get(sourceClass.getTypeDeclaration().getName().getFullyQualifiedName()).size()) {
 			FeatureEnvyDescription desc = new FeatureEnvyDescription();
 			desc.setSourceClass(sourceClass);
 			desc.setSourceMethod(method);
-			desc.setTargetClass(getClass(highestKey));
+			
+			Clazz targetClazz = getClass(highestKey);
+			
+			if (sourceClass.getTypeDeclaration().getSuperclassType() != null) {
+				if (sourceClass.getTypeDeclaration().getSuperclassType().resolveBinding().isEqualTo(targetClazz.getTypeDeclaration().resolveBinding())) {
+					return null;
+				}
+			}
+			
+			desc.setTargetClass(targetClazz);
+			
 			return desc;
 		}
 		
@@ -170,17 +124,11 @@ public class FeatureEnvy extends BadSmell {
 	}
 	
 	
-	private TypeDeclaration getClass(String name){
-		for (Clazz c : super.getProject().getClasses()) {
-			if (name.equalsIgnoreCase(c.getTypeDeclaration().getName().getFullyQualifiedName())) {
+	private Clazz getClass(String name){
+		for (Clazz clazz : super.getProject().getClasses()) {
+			if (name.equalsIgnoreCase(clazz.getTypeDeclaration().getName().getFullyQualifiedName())) {
 				
-				ICompilationUnit iCompilationUnit = c.getICompilationUnit();
-				
-				CompilationUnit compilationUnit = c.getCompilationUnit();
-				
-				TypeDeclaration typeDeclaration = (TypeDeclaration)compilationUnit.types().get(0);
-				
-				return typeDeclaration;
+				return clazz;
 			}
 		}
 		

@@ -115,14 +115,15 @@ public class MoveMethod extends Correction {
 		
 		this.sourceCompilationUnit = sourceClass.getCompilationUnit();
 		this.sourceTypeDeclaration = sourceClass.getTypeDeclaration();
-		this.sourceDocument = sourceClass.getDocument();
 		this.sourceICompilationUnit = sourceClass.getICompilationUnit();
+		this.sourceDocument = sourceClass.getDocument();
+		
 		this.sourceMethod = sourceMethod;
 		
-		this.targetCompilationUnit = sourceClass.getCompilationUnit();
-		this.targetTypeDeclaration = sourceClass.getTypeDeclaration();
-		this.targetICompilationUnit = sourceClass.getICompilationUnit();
-		this.targetDocument = sourceClass.getDocument();
+		this.targetCompilationUnit = targetClazz.getCompilationUnit();
+		this.targetTypeDeclaration = targetClazz.getTypeDeclaration();
+		this.targetICompilationUnit = targetClazz.getICompilationUnit();
+		this.targetDocument = targetClazz.getDocument();
 		
 		this.targetClassVariableName = null;
 		this.additionalArgumentsAddedToMovedMethod = new LinkedHashSet<String>();
@@ -157,12 +158,15 @@ public class MoveMethod extends Correction {
 
 	@Override
 	public void execute() {
+		
 		createMovedMethod();
+		
 		if(!sourceCompilationUnit.equals(targetCompilationUnit))
 			addRequiredTargetImportDeclarations();
 		
 		moveAdditionalMethods();
 		modifyMovedMethodInvocationInSourceClass();
+		
 		if(leaveDelegate) {
 			addDelegationInSourceMethod();
 		}
@@ -170,14 +174,21 @@ public class MoveMethod extends Correction {
 			removeSourceMethod();
 		}
 		
+		
+		
 		try {
 			this.sourceMultiTextEdit.apply(this.sourceDocument);
 			
 			this.sourceICompilationUnit.getBuffer().setContents(this.sourceDocument.get());
+			System.out.println("Source Class");
+			System.out.println(this.sourceDocument.get());
 			
 			this.targetMultiTextEdit.apply(this.targetDocument);
 			
 			this.targetICompilationUnit.getBuffer().setContents(this.targetDocument.get());
+			System.out.println("Target Class");
+			System.out.println(this.targetDocument.get());
+			
 		} catch (MalformedTreeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -217,6 +228,8 @@ public class MoveMethod extends Correction {
 	}
 
 	private void createMovedMethod() {
+		
+		System.out.println("Create Moved Method");
 		
 		ASTRewrite targetRewriter = ASTRewrite.create(targetCompilationUnit.getAST());
 		AST ast = targetTypeDeclaration.getAST();
@@ -397,7 +410,7 @@ public class MoveMethod extends Correction {
 		
 		TextEdit targetEdit = targetRewriter.rewriteAST(this.targetDocument, this.targetICompilationUnit.getJavaProject().getOptions(true));
 		targetMultiTextEdit.addChild(targetEdit);
-		targetCompilationUnitChange.addTextEditGroup(new TextEditGroup("Add moved method", new TextEdit[] {targetEdit}));
+		//targetCompilationUnitChange.addTextEditGroup(new TextEditGroup("Add moved method", new TextEdit[] {targetEdit}));
 	}
 
 	private void moveAdditionalMethods() {
@@ -416,17 +429,21 @@ public class MoveMethod extends Correction {
 			sourceClassBodyRewrite.remove(methodDeclaration, null);
 			TextEdit sourceEdit = sourceRewriter.rewriteAST(this.sourceDocument, this.sourceICompilationUnit.getJavaProject().getOptions(true));
 			sourceMultiTextEdit.addChild(sourceEdit);
-			sourceCompilationUnitChange.addTextEditGroup(new TextEditGroup("Remove additional moved method", new TextEdit[] {sourceEdit}));
+			//sourceCompilationUnitChange.addTextEditGroup(new TextEditGroup("Remove additional moved method", new TextEdit[] {sourceEdit}));
 		}
 	}
 
 	private void removeSourceMethod() {
+		
+		System.out.println("Remove Source Method");
+		
 		ASTRewrite sourceRewriter = ASTRewrite.create(sourceCompilationUnit.getAST());
 		ListRewrite classBodyRewrite = sourceRewriter.getListRewrite(sourceTypeDeclaration, TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
+		System.out.println(sourceMethod);
 		classBodyRewrite.remove(sourceMethod, null);
 		TextEdit sourceEdit = sourceRewriter.rewriteAST(this.sourceDocument, this.sourceICompilationUnit.getJavaProject().getOptions(true));
 		sourceMultiTextEdit.addChild(sourceEdit);
-		sourceCompilationUnitChange.addTextEditGroup(new TextEditGroup("Remove moved method", new TextEdit[] {sourceEdit}));
+		//sourceCompilationUnitChange.addTextEditGroup(new TextEditGroup("Remove moved method", new TextEdit[] {sourceEdit}));
 	}
 
 	private void addDelegationInSourceMethod() {

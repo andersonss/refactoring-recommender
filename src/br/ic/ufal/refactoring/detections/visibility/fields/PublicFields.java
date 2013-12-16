@@ -45,7 +45,6 @@ public class PublicFields extends BadSmell {
 			if (obj instanceof Modifier) {
 				Modifier modifier = (Modifier) obj;
 				if (modifier.getKeyword().equals(modifierKeyword)) {
-					
 					return true;
 				}
 				

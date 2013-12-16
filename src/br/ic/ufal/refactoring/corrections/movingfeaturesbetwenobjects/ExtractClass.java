@@ -114,8 +114,17 @@ public class ExtractClass extends Correction {
 	private Set<VariableDeclaration> extractedFieldsWithThisExpressionInTheirInitializer;
 	private MultiTextEdit sourceMultiTextEdit;
 
-	public ExtractClass(IFile sourceFile, ICompilationUnit iCompilationUnit, Document sourceDocument, CompilationUnit sourceCompilationUnit, TypeDeclaration sourceTypeDeclaration,
-			Set<VariableDeclaration> extractedFieldFragments, Set<MethodDeclaration> extractedMethods, Set<MethodDeclaration> delegateMethods, String extractedTypeName, Project project) {
+	public ExtractClass(IFile sourceFile, 
+			ICompilationUnit iCompilationUnit, 
+			Document sourceDocument, 
+			CompilationUnit sourceCompilationUnit, 
+			TypeDeclaration sourceTypeDeclaration,
+			Set<VariableDeclaration> extractedFieldFragments, 
+			Set<MethodDeclaration> extractedMethods, 
+			Set<MethodDeclaration> delegateMethods, 
+			String extractedTypeName, 
+			Project project) {
+		
 		super(project);
 		this.sourceFile = sourceFile;
 		this.sourceCompilationUnit = sourceCompilationUnit;
@@ -151,6 +160,7 @@ public class ExtractClass extends Correction {
 			additionalArgumentsAddedToExtractedMethods.put(extractedMethod, new LinkedHashSet<String>());
 			additionalParametersAddedToExtractedMethods.put(extractedMethod, new LinkedHashSet<SingleVariableDeclaration>());
 		}
+		
 	}
 
 	@Override

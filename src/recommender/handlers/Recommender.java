@@ -14,8 +14,8 @@ import br.ic.ufal.evaluator.Evaluator;
 import br.ic.ufal.evaluator.QualityFactors;
 import br.ic.ufal.parser.Parser;
 import br.ic.ufal.parser.Project;
-import br.ic.ufal.refactoring.detections.use.parameters.UnusedParameters;
-import br.ic.ufal.refactoring.detections.use.parameters.UnusedParametersDesc;
+import br.ic.ufal.refactoring.corrections.movingfeaturesbetwenobjects.ExtractClass;
+import br.ic.ufal.refactoring.detections.dataclumps.fields.FragmentsDataClumps;
 import br.ic.ufal.util.OperationsUtil;
 
 public class Recommender extends AbstractHandler {
@@ -51,6 +51,146 @@ public class Recommender extends AbstractHandler {
 			System.out.println("Flexibility: " + factors.evaluateFlexibility());
 			System.out.println("Effectiveness: " + factors.evaluateEffectiveness());
 			
+			// Extract Method
+			
+			/*ClazzDuplication clazzDuplication = new ClazzDuplication(proj);
+			
+			System.out.println("Verifying Clazz Duplication");
+			if (clazzDuplication.check()) {
+				System.out.println("List of Duplications in a Clazz");
+				System.out.println(clazzDuplication.getDuplicatedStatements());
+				
+				ExtractMethod extractMethod = new ExtractMethod(clazzDuplication.getDuplicatedStatements(), proj);
+				extractMethod.execute();
+				
+			}*/
+			
+			
+			// Move Method
+			
+			/*FeatureEnvy featureEnvy = new FeatureEnvy(proj);
+			if (featureEnvy.check()) {
+				System.out.println(featureEnvy.getDescriptions());
+				
+				for (FeatureEnvyDescription desc : featureEnvy.getDescriptions()) {
+					MoveMethod moveMethod = new MoveMethod(desc.getSourceClass(), desc.getTargetClass(), desc.getSourceMethod(), new HashMap<MethodInvocation, MethodDeclaration>(), false, desc.getSourceMethod().getName().getIdentifier(), proj);
+					moveMethod.execute();
+				}
+			}*/
+			
+			// Move Fragments
+			//------------------------- Up Fragments -----------------------------
+			
+			/*System.out.println("Verifying Up Fragments");
+			UpFragments upFragments = new UpFragments(proj);
+			
+			if (upFragments.check()) {
+				List<DuplicatedFragments> fragmentsToBeUp = upFragments.getDuplicatedFragments();
+				
+				System.out.println(fragmentsToBeUp);
+			
+				PullUpFragments pullUpFragments = new PullUpFragments(fragmentsToBeUp, proj);
+				pullUpFragments.execute();
+			}*/
+			
+			// Push Down Field
+			//-----------------------------------------------------------------------
+			//------------------------- Down Fragments ------------------------------
+			/*System.out.println("Verifying Down Fragments");
+			DownFragments downFields = new DownFragments(proj);
+			
+			if (downFields.check()) {
+				
+				List<DownFragmentsDesc> descs = downFields.getDownFragmentsDescs();
+				for (DownFragmentsDesc downFragmentsDesc : descs) {
+					System.out.println(downFragmentsDesc);
+					System.out.println("Applying Push Down Fragments.");
+					
+					PushDownFragments pushDownFragments = new PushDownFragments(downFragmentsDesc.getSuperclass(), downFragmentsDesc.getSubclasses(), downFragmentsDesc.getFragmentsToBeDown(), proj);
+					pushDownFragments.execute();
+					
+					System.out.println("Applied Push Down Fragments");
+				}
+			}*/
+			// Encapsulate Field
+			
+			/*PublicFields publicFields = new PublicFields(proj);
+			if (publicFields.check()) {
+				List<FieldDeclaration> fields = publicFields.getPublicFields();
+				EncapsulateField encapsulateField = new EncapsulateField(fields, proj);
+				encapsulateField.execute();
+			}*/
+			
+			// Encapsulate Collection
+			
+			// Remove Setting Method
+			/*System.out.println("Verifying Unused Methods");
+			UnusedMethods unusedMethods = new UnusedMethods(proj);
+			
+			if (unusedMethods.check()) {
+				System.out.println("Removing Unused Methods");
+				
+				RemoveMethods removeMethods = new RemoveMethods(proj, unusedMethods.getUnusedMethods());
+				removeMethods.execute();
+				System.out.println("Removed Unused Methods");
+			}else{
+				System.out.println("Not Exist Unused Methods");
+			}*/
+			// Push Down Method
+			// Falta inserir uma verificacao que garanta a remocao do metodo somente 
+			//nos casos onde a superclasse nao utilize no body de outros metodos
+			/*System.out.println("Verifying Down Methods");
+			DownMethods downMethods = new DownMethods(proj);
+			
+			if (downMethods.check()) {
+				
+				System.out.println("Methods to be Down: " + downMethods.getMethodsToBeDown());
+				
+				PushDownMethods pushDownMethods = new PushDownMethods(downMethods.getMethodsToBeDown(), proj);
+				pushDownMethods.execute();
+				
+			}*/
+			// Pull Up Method
+			
+			/*System.out.println("Verifying Up Methods");
+			UpMethods upMethods = new UpMethods(proj);
+			
+			if (upMethods.check()) {
+				System.out.println(upMethods.getMethodsToBeUp());
+				
+				PullUpMethods pullUpMethods = new PullUpMethods(upMethods.getMethodsToBeUp(), proj);
+				pullUpMethods.execute();
+				
+			}*/
+			
+			// Collapse Hierarchy
+			// Falta resolver o MoveMethod e Deletar o arquivo que contem a classe.
+			
+			/*AbstractSpeculativeGenerality speculative = new AbstractSpeculativeGenerality(proj, 1);
+			System.out.println("Verifying Speculative Classes");
+			
+			if (speculative.check()) {
+				
+				System.out.println(speculative.getSpeculativeAbsClasses());
+				
+				CollapseHierarchy collapseHierarchy = new CollapseHierarchy(speculative.getSpeculativeAbsClasses(), proj);
+				collapseHierarchy.execute();
+			}*/
+			
+			// Extract Class
+			
+			FragmentsDataClumps fragmentsDataClumps = new FragmentsDataClumps(proj);
+			if (fragmentsDataClumps.check()) {
+				System.out.println(fragmentsDataClumps.getFragsDuplicated());
+			}
+			
+			// Introduce Parameter Object
+			
+			// Inline Method
+			
+			// Inline Class
+			
+			
 			//------------------------- Unused Methods -----------------------------
 			/*System.out.println("Verifying Unused Methods");
 			UnusedMethods unusedMethods = new UnusedMethods(proj);
@@ -85,30 +225,22 @@ public class Recommender extends AbstractHandler {
 			//-----------------------------------------------------------------------
 			
 			//------------------------- Unused Parameters -----------------------------
-			System.out.println("Verifying Unused Parameters");
+			/*System.out.println("Verifying Unused Parameters");
 			UnusedParameters unusedParameters = new UnusedParameters(proj);
 			
 			if (unusedParameters.check()) {
 				for (UnusedParametersDesc unusedParametersDesc : unusedParameters.getUnusedParameters()) {
 					System.out.println(unusedParametersDesc);
+					
+					RemoveParameters removeParameters = new RemoveParameters(unusedParametersDesc.getClazz(), unusedParametersDesc.getMethod(), unusedParametersDesc.getParametersToBeRemoved(), proj);
+					removeParameters.execute();
 				}
-			}
-			
-			
-			//-----------------------------------------------------------------------
-			
-			//------------------------- Up Methods -----------------------------
-			
-			/*System.out.println("Verifying Up Methods");
-			UpMethods upMethods = new UpMethods(proj);
-			
-			if (upMethods.check()) {
-				System.out.println(upMethods.getMethodsToBeUp());
-			}
-			*/
+			}*/
 			//-----------------------------------------------------------------------
 			
 			//------------------------- Down Methods -------------------------------
+			// Falta inserir uma verificacao que garanta a remocao do metodo somente 
+			//nos casos onde a superclasse nao utilize no body de outros metodos
 			/*System.out.println("Verifying Down Methods");
 			DownMethods downMethods = new DownMethods(proj);
 			
@@ -118,6 +250,17 @@ public class Recommender extends AbstractHandler {
 				pushDownMethods.execute();
 				
 			}*/
+			//-----------------------------------------------------------------------
+			
+			//------------------------- Up Methods -----------------------------
+			
+			/*System.out.println("Verifying Up Methods");
+			UpMethods upMethods = new UpMethods(proj);
+			
+			if (upMethods.check()) {
+				System.out.println(upMethods.getMethodsToBeUp());
+			}*/
+			
 			//-----------------------------------------------------------------------
 			
 			//------------------------- Up Fragments -----------------------------

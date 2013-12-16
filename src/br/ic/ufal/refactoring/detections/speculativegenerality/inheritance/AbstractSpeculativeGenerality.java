@@ -10,7 +10,7 @@ import br.ic.ufal.refactoring.detections.BadSmell;
 public class AbstractSpeculativeGenerality extends BadSmell {
 	
 	private Project project = null;
-	private int amountOfSubclasses = 10;
+	private int amountOfSubclasses = 1;
 	private List<Clazz> speculativeAbsClasses = new ArrayList<Clazz>();
 	
 	public AbstractSpeculativeGenerality(Project project, int amountOfSubclasses) {
@@ -24,7 +24,7 @@ public class AbstractSpeculativeGenerality extends BadSmell {
 		for (Clazz clazz : this.project.getClasses()) {
 			List<Clazz> subClasses = checkSubClasses(clazz);
 			
-			if (subClasses.size() >= 1  && subClasses.size() < amountOfSubclasses) {
+			if (subClasses.size() >= 1  && subClasses.size() <= amountOfSubclasses) {
 				this.speculativeAbsClasses.add(clazz);
 			}
 		}
@@ -37,10 +37,12 @@ public class AbstractSpeculativeGenerality extends BadSmell {
 		
 		for (Clazz c : super.getProject().getClasses()) {
 			if (c.getTypeDeclaration().getSuperclassType() != null) {
-				if (c.getTypeDeclaration().getSuperclassType().resolveBinding().isEqualTo(clazz.getTypeDeclaration().getSuperclassType().resolveBinding())) {
-					subclasses.add(c);
+				if (c.getTypeDeclaration().getSuperclassType() != null && 
+					clazz.getTypeDeclaration().getSuperclassType() != null) {
+					if (c.getTypeDeclaration().getSuperclassType().resolveBinding().isEqualTo(clazz.getTypeDeclaration().getSuperclassType().resolveBinding())) {
+						subclasses.add(c);
+					}
 				}
-				
 			}
 		}
 		

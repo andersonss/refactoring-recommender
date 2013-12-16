@@ -48,6 +48,10 @@ public class Clazz {
 		this.document = document;
 	}
 	
-	
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return "Clazz: " + this.typeDeclaration.getName();
+	}
 
 }
