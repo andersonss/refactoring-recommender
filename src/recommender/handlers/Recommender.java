@@ -1,22 +1,37 @@
 package recommender.handlers;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.text.Document;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import br.ic.ufal.evaluator.Evaluator;
 import br.ic.ufal.evaluator.QualityFactors;
+import br.ic.ufal.parser.Clazz;
 import br.ic.ufal.parser.Parser;
 import br.ic.ufal.parser.Project;
 import br.ic.ufal.refactoring.corrections.movingfeaturesbetwenobjects.ExtractClass;
+import br.ic.ufal.refactoring.detections.dataclumps.fields.DuplicatedFragments;
 import br.ic.ufal.refactoring.detections.dataclumps.fields.FragmentsDataClumps;
+import br.ic.ufal.refactoring.detections.dataclumps.parameters.ParametersDataClumps;
 import br.ic.ufal.util.OperationsUtil;
+import br.ic.ufal.util.ParseUtil;
 
 public class Recommender extends AbstractHandler {
 	
@@ -179,16 +194,61 @@ public class Recommender extends AbstractHandler {
 			
 			// Extract Class
 			
-			FragmentsDataClumps fragmentsDataClumps = new FragmentsDataClumps(proj);
+			/*FragmentsDataClumps fragmentsDataClumps = new FragmentsDataClumps(proj);
 			if (fragmentsDataClumps.check()) {
-				System.out.println(fragmentsDataClumps.getFragsDuplicated());
-			}
+				
+					DuplicatedFragments duplicatedFragments = fragmentsDataClumps.getFragsDuplicated().get(0);
+				
+					System.out.println(duplicatedFragments);
+					
+					
+					List<Clazz> clazzDataClumps = duplicatedFragments.getClasses();
+					
+					Clazz clazz = clazzDataClumps.get(0);
+					
+					String clazzPackage = clazz.getCompilationUnit().getPackage().getName().getFullyQualifiedName();
+					
+					IPackageFragmentRoot[] packages = proj.getPackages();
+					IPackageFragment iPackageFragment = packages[0].getPackageFragment(clazzPackage);
+					ICompilationUnit icompilationUnit = null;
+					try {
+						icompilationUnit = iPackageFragment.createCompilationUnit("Testando.java", new String(), true, null);
+					} catch (JavaModelException e) {
+						e.printStackTrace();
+					}
+					
+					if (icompilationUnit != null) {
+						System.out.println("CU Created: " + icompilationUnit.getElementName());
+					}else{
+						System.out.println("Not Created");
+					}
+					
+					List<VariableDeclaration> fragsDataClumps = duplicatedFragments.getFragments();
+					Set<VariableDeclaration> fragments = new HashSet<VariableDeclaration>();
+					
+					for (VariableDeclaration variableDeclaration : fragsDataClumps) {
+						fragments.add(variableDeclaration);
+					}
+					
+					IFile sourceFile = (IFile)clazz.getICompilationUnit().getResource();
+					
+					ICompilationUnit sourceICompilationUnit = clazz.getICompilationUnit();
+					Document sourceDocument = clazz.getDocument();
+					CompilationUnit sourceCompilationUnit = clazz.getCompilationUnit();
+					TypeDeclaration sourceTypeDeclaration = clazz.getTypeDeclaration();
+					
+					
+					ExtractClass extractClass = new ExtractClass(sourceFile, sourceICompilationUnit, sourceDocument, sourceCompilationUnit, sourceTypeDeclaration, fragments, new HashSet<MethodDeclaration>(), new HashSet<MethodDeclaration>(), "Testando", proj);
+				
+					extractClass.execute();
+			}*/
 			
 			// Introduce Parameter Object
 			
 			// Inline Method
 			
 			// Inline Class
+			
 			
 			
 			//------------------------- Unused Methods -----------------------------

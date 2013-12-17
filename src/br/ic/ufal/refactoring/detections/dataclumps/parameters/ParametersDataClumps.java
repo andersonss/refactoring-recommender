@@ -11,6 +11,9 @@ import br.ic.ufal.parser.Project;
 import br.ic.ufal.refactoring.detections.BadSmell;
 
 public class ParametersDataClumps extends BadSmell{
+	
+	List<DuplicatedParameters> duplicatedParametersList = new ArrayList<DuplicatedParameters>();
+	
 
 	public ParametersDataClumps(Project project) {
 		super(project);
@@ -23,7 +26,6 @@ public class ParametersDataClumps extends BadSmell{
 
 	public List<DuplicatedParameters> retrieveDuplicatedParameters(Project project){
 		
-		List<DuplicatedParameters> duplicatedParametersList = new ArrayList<DuplicatedParameters>();
 		
 		DuplicatedParameters duplicatedParameters = new DuplicatedParameters();
 		
@@ -302,5 +304,9 @@ public class ParametersDataClumps extends BadSmell{
 		}
 		
 		return true;
+	}
+	
+	public List<DuplicatedParameters> getDuplicatedParametersList() {
+		return duplicatedParametersList;
 	}
 }

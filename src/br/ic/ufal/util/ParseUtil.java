@@ -61,6 +61,19 @@ public class ParseUtil {
 		return null;
 	}
 	
+	
+	public static Clazz getClazz(CompilationUnit compilationUnit, List<Clazz> classes){
+		
+		TypeDeclaration typeDeclaration = getTypeDeclaration(compilationUnit);
+		
+		for (Clazz clazz : classes) {
+			if (typeDeclaration.resolveBinding().isEqualTo(clazz.getTypeDeclaration().resolveBinding())) {
+				return clazz;
+			}
+		}
+		return null;
+	}
+	
 	public static Clazz getClazz(TypeDeclaration typeDeclaration, List<Clazz> classes){
 		
 		for (Clazz clazz : classes) {
