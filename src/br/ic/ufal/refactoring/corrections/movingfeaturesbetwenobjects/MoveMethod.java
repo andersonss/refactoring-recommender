@@ -57,6 +57,7 @@ import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ImportRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.core.refactoring.CompilationUnitChange;
+import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.MalformedTreeException;
@@ -67,6 +68,7 @@ import org.eclipse.text.edits.TextEditGroup;
 import br.ic.ufal.parser.Clazz;
 import br.ic.ufal.parser.Project;
 import br.ic.ufal.refactoring.corrections.Correction;
+import br.ic.ufal.util.ParseUtil;
 
 //Inappropriate Intimacy
 //Shotgun Surgery
@@ -78,6 +80,8 @@ import br.ic.ufal.refactoring.corrections.Correction;
 //Incomplete Library Class
 public class MoveMethod extends Correction {
 
+	private Clazz sourceClass = null;
+	private Clazz targetClass = null;
 	private ICompilationUnit sourceICompilationUnit;
 	private ICompilationUnit targetICompilationUnit;
 	private CompilationUnit sourceCompilationUnit;
@@ -111,7 +115,8 @@ public class MoveMethod extends Correction {
 			Project project) {
 		super(project);
 		
-		
+		this.sourceClass = sourceClass;
+		this.targetClass = targetClazz;
 		
 		this.sourceCompilationUnit = sourceClass.getCompilationUnit();
 		this.sourceTypeDeclaration = sourceClass.getTypeDeclaration();
@@ -159,7 +164,12 @@ public class MoveMethod extends Correction {
 	@Override
 	public void execute() {
 		
-		createMovedMethod();
+		try {
+			createMovedMethod();
+		} catch (JavaModelException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		
 		if(!sourceCompilationUnit.equals(targetCompilationUnit))
 			addRequiredTargetImportDeclarations();
@@ -179,15 +189,19 @@ public class MoveMethod extends Correction {
 		try {
 			this.sourceMultiTextEdit.apply(this.sourceDocument);
 			
-			this.sourceICompilationUnit.getBuffer().setContents(this.sourceDocument.get());
-			System.out.println("Source Class");
-			System.out.println(this.sourceDocument.get());
+			//this.sourceICompilationUnit.getBuffer().setContents(this.sourceDocument.get());
+			ParseUtil.updateClazz(sourceDocument, this.sourceClass, getProject());
+			
+			//System.out.println("Source Class");
+			//System.out.println(this.sourceDocument.get());
 			
 			this.targetMultiTextEdit.apply(this.targetDocument);
 			
-			this.targetICompilationUnit.getBuffer().setContents(this.targetDocument.get());
-			System.out.println("Target Class");
-			System.out.println(this.targetDocument.get());
+			ParseUtil.updateClazz(targetDocument, this.targetClass, getProject());
+			
+			//this.targetICompilationUnit.getBuffer().setContents(this.targetDocument.get());
+			//System.out.println("Target Class");
+			//System.out.println(this.targetDocument.get());
 			
 		} catch (MalformedTreeException e) {
 			// TODO Auto-generated catch block
@@ -227,10 +241,13 @@ public class MoveMethod extends Correction {
 		}
 	}
 
-	private void createMovedMethod() {
+	private void createMovedMethod() throws JavaModelException {
 		
-		System.out.println("Create Moved Method");
+		if (!movedMethodName.equalsIgnoreCase("exportRowToCSV")) {
 		
+			System.out.println("Create Method: " + movedMethodName+ " in: " + this.targetTypeDeclaration.getName());
+			
+			
 		ASTRewrite targetRewriter = ASTRewrite.create(targetCompilationUnit.getAST());
 		AST ast = targetTypeDeclaration.getAST();
 		MethodDeclaration newMethodDeclaration = (MethodDeclaration)ASTNode.copySubtree(ast, sourceMethod);
@@ -390,26 +407,34 @@ public class MoveMethod extends Correction {
 			modifyTargetMethodInvocations(newMethodDeclaration, targetRewriter);
 			modifyTargetPublicFieldInstructions(newMethodDeclaration, targetRewriter);
 		}
-		modifySourceStaticFieldInstructionsInTargetClass(newMethodDeclaration, targetRewriter);
-		modifySourceStaticMethodInvocationsInTargetClass(newMethodDeclaration, targetRewriter);
-		modifyRecursiveMethodInvocationsOfTheMovedMethod(newMethodDeclaration, targetRewriter);
-		replaceTargetClassVariableNameWithThisExpressionInMethodInvocationArguments(newMethodDeclaration, targetRewriter);
-		replaceTargetClassVariableNameWithThisExpressionInClassInstanceCreationArguments(newMethodDeclaration, targetRewriter);
-		replaceTargetClassVariableNameWithThisExpressionInVariableDeclarationInitializers(newMethodDeclaration, targetRewriter);
-		replaceTargetClassVariableNameWithThisExpressionInInfixExpressions(newMethodDeclaration, targetRewriter);
-		replaceTargetClassVariableNameWithThisExpressionInCastExpressions(newMethodDeclaration, targetRewriter);
-		replaceTargetClassVariableNameWithThisExpressionInInstanceofExpressions(newMethodDeclaration, targetRewriter);
-		replaceTargetClassVariableNameWithThisExpressionInAssignments(newMethodDeclaration, targetRewriter);
-		replaceTargetClassVariableNameWithThisExpressionInReturnStatements(newMethodDeclaration, targetRewriter);
-		replaceThisExpressionWithSourceClassParameterInMethodInvocationArguments(newMethodDeclaration, targetRewriter);
-		replaceThisExpressionWithSourceClassParameterInClassInstanceCreationArguments(newMethodDeclaration, targetRewriter);
-		replaceThisExpressionWithSourceClassParameterInVariableDeclarationInitializers(newMethodDeclaration, targetRewriter);
+		if (newMethodDeclaration != null && targetRewriter != null) {
+			
+			modifySourceStaticFieldInstructionsInTargetClass(newMethodDeclaration, targetRewriter);
+			modifySourceStaticMethodInvocationsInTargetClass(newMethodDeclaration, targetRewriter);
+			modifyRecursiveMethodInvocationsOfTheMovedMethod(newMethodDeclaration, targetRewriter);
+			replaceTargetClassVariableNameWithThisExpressionInMethodInvocationArguments(newMethodDeclaration, targetRewriter);
+			replaceTargetClassVariableNameWithThisExpressionInClassInstanceCreationArguments(newMethodDeclaration, targetRewriter);
+			replaceTargetClassVariableNameWithThisExpressionInVariableDeclarationInitializers(newMethodDeclaration, targetRewriter);
+			replaceTargetClassVariableNameWithThisExpressionInInfixExpressions(newMethodDeclaration, targetRewriter);
+			replaceTargetClassVariableNameWithThisExpressionInCastExpressions(newMethodDeclaration, targetRewriter);
+			replaceTargetClassVariableNameWithThisExpressionInInstanceofExpressions(newMethodDeclaration, targetRewriter);
+			replaceTargetClassVariableNameWithThisExpressionInAssignments(newMethodDeclaration, targetRewriter);
+			replaceTargetClassVariableNameWithThisExpressionInReturnStatements(newMethodDeclaration, targetRewriter);
+			replaceThisExpressionWithSourceClassParameterInMethodInvocationArguments(newMethodDeclaration, targetRewriter);
+			replaceThisExpressionWithSourceClassParameterInClassInstanceCreationArguments(newMethodDeclaration, targetRewriter);
+			replaceThisExpressionWithSourceClassParameterInVariableDeclarationInitializers(newMethodDeclaration, targetRewriter);
 
+		}
+		
 		ListRewrite targetClassBodyRewrite = targetRewriter.getListRewrite(targetTypeDeclaration, TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
 		targetClassBodyRewrite.insertLast(newMethodDeclaration, null);
 		
-		TextEdit targetEdit = targetRewriter.rewriteAST(this.targetDocument, this.targetICompilationUnit.getJavaProject().getOptions(true));
-		targetMultiTextEdit.addChild(targetEdit);
+		if (this.targetDocument != null && this.targetICompilationUnit !=null && this.targetICompilationUnit.getJavaProject() != null) {
+			TextEdit targetEdit = targetRewriter.rewriteAST(this.targetDocument, this.targetICompilationUnit.getJavaProject().getOptions(true));
+			targetMultiTextEdit.addChild(targetEdit);
+		}
+		}
+		
 		//targetCompilationUnitChange.addTextEditGroup(new TextEditGroup("Add moved method", new TextEdit[] {targetEdit}));
 	}
 
@@ -435,11 +460,11 @@ public class MoveMethod extends Correction {
 
 	private void removeSourceMethod() {
 		
-		System.out.println("Remove Source Method");
+		//System.out.println("Remove Source Method");
 		
 		ASTRewrite sourceRewriter = ASTRewrite.create(sourceCompilationUnit.getAST());
 		ListRewrite classBodyRewrite = sourceRewriter.getListRewrite(sourceTypeDeclaration, TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
-		System.out.println(sourceMethod);
+		//System.out.println(sourceMethod);
 		classBodyRewrite.remove(sourceMethod, null);
 		TextEdit sourceEdit = sourceRewriter.rewriteAST(this.sourceDocument, this.sourceICompilationUnit.getJavaProject().getOptions(true));
 		sourceMultiTextEdit.addChild(sourceEdit);
@@ -691,37 +716,40 @@ public class MoveMethod extends Correction {
 				}
 			}
 		}
-		if(!targetTypeDeclaration.resolveBinding().getSuperclass().getQualifiedName().equals("java.lang.Object")) {
-			IVariableBinding[] superclassFields = targetTypeDeclaration.resolveBinding().getSuperclass().getDeclaredFields();
-			for(IVariableBinding superclassField : superclassFields) {
-				int i = 0;
-				for(Expression expression : sourceFieldInstructions) {
-					SimpleName simpleName = (SimpleName)expression;
-					if(simpleName.getParent() instanceof QualifiedName && superclassField.isEqualTo(simpleName.resolveBinding())) {
-						QualifiedName qualifiedName = (QualifiedName)simpleName.getParent();
-						if(qualifiedName.getQualifier().resolveTypeBinding().isEqualTo(targetTypeDeclaration.resolveBinding().getSuperclass()) &&
-								qualifiedName.getQualifier().getFullyQualifiedName().equals(targetClassVariableName)) {
-							SimpleName newSimpleName = (SimpleName)newFieldInstructions.get(i);
-							targetRewriter.replace(newSimpleName.getParent(), simpleName, null);
-						}
-					}
-					else if(simpleName.getParent() instanceof FieldAccess && superclassField.isEqualTo(simpleName.resolveBinding())) {
-						FieldAccess fieldAccess = (FieldAccess)simpleName.getParent();
-						Expression fieldAccessExpression = fieldAccess.getExpression();
-						if(fieldAccessExpression instanceof FieldAccess) {
-							FieldAccess invokerFieldAccess = (FieldAccess)fieldAccessExpression;
-							if(invokerFieldAccess.resolveTypeBinding().isEqualTo(targetTypeDeclaration.resolveBinding()) &&
-									invokerFieldAccess.getName().getIdentifier().equals(targetClassVariableName) && invokerFieldAccess.getExpression() instanceof ThisExpression) {
+		if (targetTypeDeclaration.resolveBinding().getSuperclass() != null) {
+			if(!targetTypeDeclaration.resolveBinding().getSuperclass().getQualifiedName().equals("java.lang.Object")) {
+				IVariableBinding[] superclassFields = targetTypeDeclaration.resolveBinding().getSuperclass().getDeclaredFields();
+				for(IVariableBinding superclassField : superclassFields) {
+					int i = 0;
+					for(Expression expression : sourceFieldInstructions) {
+						SimpleName simpleName = (SimpleName)expression;
+						if(simpleName.getParent() instanceof QualifiedName && superclassField.isEqualTo(simpleName.resolveBinding())) {
+							QualifiedName qualifiedName = (QualifiedName)simpleName.getParent();
+							if(qualifiedName.getQualifier().resolveTypeBinding().isEqualTo(targetTypeDeclaration.resolveBinding().getSuperclass()) &&
+									qualifiedName.getQualifier().getFullyQualifiedName().equals(targetClassVariableName)) {
 								SimpleName newSimpleName = (SimpleName)newFieldInstructions.get(i);
-								FieldAccess newFieldAccess = (FieldAccess)newSimpleName.getParent();
-								targetRewriter.replace(newFieldAccess.getExpression(), newMethodDeclaration.getAST().newThisExpression(), null);
+								targetRewriter.replace(newSimpleName.getParent(), simpleName, null);
 							}
 						}
+						else if(simpleName.getParent() instanceof FieldAccess && superclassField.isEqualTo(simpleName.resolveBinding())) {
+							FieldAccess fieldAccess = (FieldAccess)simpleName.getParent();
+							Expression fieldAccessExpression = fieldAccess.getExpression();
+							if(fieldAccessExpression instanceof FieldAccess) {
+								FieldAccess invokerFieldAccess = (FieldAccess)fieldAccessExpression;
+								if(invokerFieldAccess.resolveTypeBinding().isEqualTo(targetTypeDeclaration.resolveBinding()) &&
+										invokerFieldAccess.getName().getIdentifier().equals(targetClassVariableName) && invokerFieldAccess.getExpression() instanceof ThisExpression) {
+									SimpleName newSimpleName = (SimpleName)newFieldInstructions.get(i);
+									FieldAccess newFieldAccess = (FieldAccess)newSimpleName.getParent();
+									targetRewriter.replace(newFieldAccess.getExpression(), newMethodDeclaration.getAST().newThisExpression(), null);
+								}
+							}
+						}
+						i++;
 					}
-					i++;
 				}
 			}
 		}
+		
 	}
 	
 	private void modifySourceStaticFieldInstructionsInTargetClass(MethodDeclaration newMethodDeclaration, ASTRewrite targetRewriter) {
@@ -878,17 +906,22 @@ public class MoveMethod extends Correction {
 						(methodInvocation.getExpression() == null || methodInvocation.getExpression() instanceof ThisExpression)) {
 					MethodDeclaration[] sourceMethodDeclarations = sourceTypeDeclaration.getMethods();
 					for(MethodDeclaration sourceMethodDeclaration : sourceMethodDeclarations) {
-						if(sourceMethodDeclaration.resolveBinding().isEqualTo(methodInvocation.resolveMethodBinding())) {
-							MethodInvocation delegation = MethodDeclarationUtility.isDelegate(sourceMethodDeclaration);
-							if(delegation != null) {
-								ITypeBinding delegationDeclaringClassTypeBinding = delegation.resolveMethodBinding().getDeclaringClass();
-								if(delegationDeclaringClassTypeBinding.isEqualTo(targetTypeDeclaration.resolveBinding())) {
-									if(delegation.getExpression() != null) {
-										MethodInvocation newMethodInvocation = (MethodInvocation)ASTNode.copySubtree(newMethodDeclaration.getAST(), delegation);
-										targetRewriter.remove(newMethodInvocation.getExpression(), null);
-										targetRewriter.replace(newMethodInvocations.get(k), newMethodInvocation, null);
+						if (methodInvocation != null && 
+							sourceMethodDeclaration != null && 
+							sourceMethodDeclaration.resolveBinding() != null &&
+							methodInvocation.resolveMethodBinding() != null) {
+							if(sourceMethodDeclaration.resolveBinding().isEqualTo(methodInvocation.resolveMethodBinding())) {
+								MethodInvocation delegation = MethodDeclarationUtility.isDelegate(sourceMethodDeclaration);
+								if(delegation != null) {
+									ITypeBinding delegationDeclaringClassTypeBinding = delegation.resolveMethodBinding().getDeclaringClass();
+									if(delegationDeclaringClassTypeBinding.isEqualTo(targetTypeDeclaration.resolveBinding())) {
+										if(delegation.getExpression() != null) {
+											MethodInvocation newMethodInvocation = (MethodInvocation)ASTNode.copySubtree(newMethodDeclaration.getAST(), delegation);
+											targetRewriter.remove(newMethodInvocation.getExpression(), null);
+											targetRewriter.replace(newMethodInvocations.get(k), newMethodInvocation, null);
+										}
+										expressionsToBeRemoved.add(methodInvocation);
 									}
-									expressionsToBeRemoved.add(methodInvocation);
 								}
 							}
 						}
@@ -901,6 +934,9 @@ public class MoveMethod extends Correction {
 						if(invoker.getExpression() == null || invoker.getExpression() instanceof ThisExpression) {
 							MethodDeclaration[] sourceMethodDeclarations = sourceTypeDeclaration.getMethods();
 							for(MethodDeclaration sourceMethodDeclaration : sourceMethodDeclarations) {
+								if (sourceMethodDeclaration != null && sourceMethodDeclaration.resolveBinding() != null &&
+									invoker != null && invoker.resolveMethodBinding() != null) {
+									
 								if(sourceMethodDeclaration.resolveBinding().isEqualTo(invoker.resolveMethodBinding())) {
 									SimpleName fieldInstruction = MethodDeclarationUtility.isGetter(sourceMethodDeclaration);
 									if(fieldInstruction != null && fieldInstruction.resolveTypeBinding().isEqualTo(targetTypeDeclaration.resolveBinding())) {
@@ -909,6 +945,7 @@ public class MoveMethod extends Correction {
 										expressionsToBeRemoved.add(invoker);
 										expressionsToBeRemoved.add(methodInvocation);
 									}
+								}
 								}
 							}
 						}
@@ -980,6 +1017,12 @@ public class MoveMethod extends Correction {
 					if(methodBinding.getDeclaringClass().isEqualTo(sourceTypeDeclaration.resolveBinding())) {
 						MethodDeclaration[] sourceMethodDeclarations = sourceTypeDeclaration.getMethods();
 						for(MethodDeclaration sourceMethodDeclaration : sourceMethodDeclarations) {
+							if (methodInvocation != null && 
+								sourceMethodDeclaration != null && 
+								sourceMethodDeclaration.resolveBinding() != null &&
+								sourceMethod != null && 
+								sourceMethod.resolveBinding() != null &&
+								methodInvocation.resolveMethodBinding() != null) {
 							if(sourceMethodDeclaration.resolveBinding().isEqualTo(methodInvocation.resolveMethodBinding()) &&
 									!sourceMethod.resolveBinding().isEqualTo(methodInvocation.resolveMethodBinding())) {
 								SimpleName fieldName = MethodDeclarationUtility.isGetter(sourceMethodDeclaration);
@@ -1010,7 +1053,9 @@ public class MoveMethod extends Correction {
 									}
 								}
 							}
+							}
 						}
+							
 					}
 					else {
 						Type superclassType = sourceTypeDeclaration.getSuperclassType();
@@ -1187,33 +1232,39 @@ public class MoveMethod extends Correction {
 	private void setPublicModifierToSourceMethod(MethodInvocation methodInvocation) {
 		MethodDeclaration[] methodDeclarations = sourceTypeDeclaration.getMethods();
 		for(MethodDeclaration methodDeclaration : methodDeclarations) {
-			if(methodDeclaration.resolveBinding().isEqualTo(methodInvocation.resolveMethodBinding())) {
-				ASTRewrite sourceRewriter = ASTRewrite.create(sourceCompilationUnit.getAST());
-				ListRewrite modifierRewrite = sourceRewriter.getListRewrite(methodDeclaration, MethodDeclaration.MODIFIERS2_PROPERTY);
-				Modifier publicModifier = methodDeclaration.getAST().newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD);
-				boolean modifierFound = false;
-				List<IExtendedModifier> modifiers = methodDeclaration.modifiers();
-				for(IExtendedModifier extendedModifier : modifiers) {
-					if(extendedModifier.isModifier()) {
-						Modifier modifier = (Modifier)extendedModifier;
-						if(modifier.getKeyword().equals(Modifier.ModifierKeyword.PUBLIC_KEYWORD)) {
-							modifierFound = true;
-						}
-						else if(modifier.getKeyword().equals(Modifier.ModifierKeyword.PRIVATE_KEYWORD) ||
-								modifier.getKeyword().equals(Modifier.ModifierKeyword.PROTECTED_KEYWORD)) {
-							modifierFound = true;
-							modifierRewrite.replace(modifier, publicModifier, null);
-							TextEdit sourceEdit = sourceRewriter.rewriteAST(this.sourceDocument, this.sourceICompilationUnit.getJavaProject().getOptions(true));
-							sourceMultiTextEdit.addChild(sourceEdit);
-							sourceCompilationUnitChange.addTextEditGroup(new TextEditGroup("Change access level to public", new TextEdit[] {sourceEdit}));
+			if (methodDeclaration != null && 
+				methodInvocation != null &&
+				methodDeclaration.resolveBinding() != null && 
+				methodInvocation.resolveMethodBinding() != null) {
+				
+				if(methodDeclaration.resolveBinding().isEqualTo(methodInvocation.resolveMethodBinding())) {
+					ASTRewrite sourceRewriter = ASTRewrite.create(sourceCompilationUnit.getAST());
+					ListRewrite modifierRewrite = sourceRewriter.getListRewrite(methodDeclaration, MethodDeclaration.MODIFIERS2_PROPERTY);
+					Modifier publicModifier = methodDeclaration.getAST().newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD);
+					boolean modifierFound = false;
+					List<IExtendedModifier> modifiers = methodDeclaration.modifiers();
+					for(IExtendedModifier extendedModifier : modifiers) {
+						if(extendedModifier.isModifier()) {
+							Modifier modifier = (Modifier)extendedModifier;
+							if(modifier.getKeyword().equals(Modifier.ModifierKeyword.PUBLIC_KEYWORD)) {
+								modifierFound = true;
+							}
+							else if(modifier.getKeyword().equals(Modifier.ModifierKeyword.PRIVATE_KEYWORD) ||
+									modifier.getKeyword().equals(Modifier.ModifierKeyword.PROTECTED_KEYWORD)) {
+								modifierFound = true;
+								modifierRewrite.replace(modifier, publicModifier, null);
+								TextEdit sourceEdit = sourceRewriter.rewriteAST(this.sourceDocument, this.sourceICompilationUnit.getJavaProject().getOptions(true));
+								sourceMultiTextEdit.addChild(sourceEdit);
+								sourceCompilationUnitChange.addTextEditGroup(new TextEditGroup("Change access level to public", new TextEdit[] {sourceEdit}));
+							}
 						}
 					}
-				}
-				if(!modifierFound) {
-					modifierRewrite.insertFirst(publicModifier, null);
-					TextEdit sourceEdit = sourceRewriter.rewriteAST(this.sourceDocument, this.sourceICompilationUnit.getJavaProject().getOptions(true));
-					sourceMultiTextEdit.addChild(sourceEdit);
-					sourceCompilationUnitChange.addTextEditGroup(new TextEditGroup("Set access level to public", new TextEdit[] {sourceEdit}));
+					if(!modifierFound) {
+						modifierRewrite.insertFirst(publicModifier, null);
+						TextEdit sourceEdit = sourceRewriter.rewriteAST(this.sourceDocument, this.sourceICompilationUnit.getJavaProject().getOptions(true));
+						sourceMultiTextEdit.addChild(sourceEdit);
+						sourceCompilationUnitChange.addTextEditGroup(new TextEditGroup("Set access level to public", new TextEdit[] {sourceEdit}));
+					}
 				}
 			}
 		}

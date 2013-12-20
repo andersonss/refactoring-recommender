@@ -57,15 +57,17 @@ public class FeatureEnvy extends BadSmell {
 					if (expression instanceof MethodInvocation) {
 						MethodInvocation methodInvocation = (MethodInvocation) expression;
 						
-						IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
-					
-						Set<String> values = invocations.get(methodBinding.getDeclaringClass().getName());
-						values.add(methodInvocation.getName().toString());
-						
-						invocations.put(methodBinding.getDeclaringClass().getName(), values);
-						
+						if (methodInvocation.getName() != null) {
+							IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
+							
+							Set<String> values = invocations.get(methodBinding.getDeclaringClass().getName());
+							if (values != null) {
+								values.add(methodInvocation.getName().toString());
+							}
+							
+							invocations.put(methodBinding.getDeclaringClass().getName(), values);
+						}
 					}
-					
 				}
 				
 				FeatureEnvyDescription desc = identifyFeatureEnvy(invocations, method, clazz);
@@ -96,9 +98,11 @@ public class FeatureEnvy extends BadSmell {
 
             Set<String> values=(Set<String>)m.getValue();
 
-            if (values.size() > amount) {
-				highestKey = key;
-				amount = values.size();
+            if (values != null) {
+            	if (values.size() > amount) {
+    				highestKey = key;
+    				amount = values.size();
+    			}
 			}
         }
         

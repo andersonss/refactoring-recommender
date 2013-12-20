@@ -31,181 +31,205 @@ public class OperationsUtil {
 
 	public OperationsUtil() {
 	}
-	
-	public boolean classContainFragment(VariableDeclaration fragment, Clazz clazz){
-		//TODO Melhorar condicional
-		for (FieldDeclaration fieldDeclaration : clazz.getTypeDeclaration().getFields()) {
-			List<VariableDeclaration> fragments = fieldDeclaration.fragments();
-			for (VariableDeclaration frag : fragments) {
-				if (frag.getName().getFullyQualifiedName().equals(fragment.getName().getFullyQualifiedName()) ) {
-					return true;
+
+	public boolean classContainFragment(VariableDeclaration fragment,
+			Clazz clazz) {
+		// TODO Melhorar condicional
+		if (clazz != null) {
+			if (clazz.getTypeDeclaration() != null) {
+				if (clazz.getTypeDeclaration().getFields() != null) {
+					
+				for (FieldDeclaration fieldDeclaration : clazz.getTypeDeclaration().getFields()) {
+					List<VariableDeclaration> fragments = fieldDeclaration.fragments();
+					for (VariableDeclaration frag : fragments) {
+						if (frag.getName().getFullyQualifiedName().equals(fragment.getName().getFullyQualifiedName())) {
+							return true;
+						}
+					}
+				}
 				}
 			}
 		}
-		
-		
+
 		return false;
 	}
-	
-	public List<DuplicatedFragments> identifyRelatedFragmentsDuplication(List<DuplicatedFragments> duplicatedFragments){
-		
+
+	public List<DuplicatedFragments> identifyRelatedFragmentsDuplication(
+			List<DuplicatedFragments> duplicatedFragments) {
+
+		System.out.println("Identifying Related Fragments Duplication");
+
 		List<DuplicatedFragments> relatedFragments = new ArrayList<DuplicatedFragments>();
-		
+
 		for (DuplicatedFragments df : duplicatedFragments) {
-			
+
 			boolean samesuperclass = true;
-			
-			Type superclass = df.getClasses().get(0).getTypeDeclaration().getSuperclassType();
-			
+
+			Type superclass = df.getClasses().get(0).getTypeDeclaration()
+					.getSuperclassType();
+
 			if (superclass == null) {
 				samesuperclass = false;
 			}
-			
+
 			for (int i = 1; i < df.getClasses().size(); i++) {
-				if (superclass != null && df.getClasses().get(i).getTypeDeclaration().getSuperclassType() != null) {
-					if (!df.getClasses().get(i).getTypeDeclaration().getSuperclassType().resolveBinding().isEqualTo(superclass.resolveBinding())) {
+				if (superclass != null
+						&& df.getClasses().get(i).getTypeDeclaration()
+								.getSuperclassType() != null) {
+					if (!df.getClasses().get(i).getTypeDeclaration()
+							.getSuperclassType().resolveBinding()
+							.isEqualTo(superclass.resolveBinding())) {
 						samesuperclass = false;
 					}
 				}
-				
-				
+
 			}
-			
+
 			if (samesuperclass) {
 				relatedFragments.add(df);
 			}
 		}
-		
+
 		return relatedFragments;
-		
+
 	}
-	
-	public List<DuplicatedFragments> identifyNotRelatedFragmentsDuplication(List<DuplicatedFragments> duplicatedFragments){
-		
+
+	public List<DuplicatedFragments> identifyNotRelatedFragmentsDuplication(
+			List<DuplicatedFragments> duplicatedFragments) {
+
 		List<DuplicatedFragments> notRelatedFragments = new ArrayList<DuplicatedFragments>();
-		
+
 		for (DuplicatedFragments df : duplicatedFragments) {
-			
+
 			boolean samesuperclass = true;
-			
-			Type superclass = df.getClasses().get(0).getTypeDeclaration().getSuperclassType();
-			
+
+			Type superclass = df.getClasses().get(0).getTypeDeclaration()
+					.getSuperclassType();
+
 			for (int i = 1; i < df.getClasses().size(); i++) {
-				if (superclass != null && 
-					df.getClasses().get(i).getTypeDeclaration().getSuperclassType() != null) {
-					if (!df.getClasses().get(i).getTypeDeclaration().getSuperclassType().resolveBinding().isEqualTo(superclass.resolveBinding())) {
+				if (superclass != null
+						&& df.getClasses().get(i).getTypeDeclaration()
+								.getSuperclassType() != null) {
+					if (!df.getClasses().get(i).getTypeDeclaration()
+							.getSuperclassType().resolveBinding()
+							.isEqualTo(superclass.resolveBinding())) {
 						samesuperclass = true;
 					}
 				}
-				
-				
+
 			}
-			
+
 			if (samesuperclass) {
 				notRelatedFragments.add(df);
 			}
 		}
-		
+
 		return notRelatedFragments;
-		
+
 	}
-	
-	public int countMethodsInClasses(MethodDeclaration methodDeclaration, List<Clazz> classes){
+
+	public int countMethodsInClasses(MethodDeclaration methodDeclaration,
+			List<Clazz> classes) {
 		int count = 0;
-		
+
 		for (Clazz clazz : classes) {
-			
+
 			if (classContatinMethod(methodDeclaration, clazz)) {
-				count=count +1;
+				count = count + 1;
 			}
 		}
-		
+
 		return count;
 	}
-	
-	public int countFragmentsInClasses(VariableDeclaration fragment, List<Clazz> classes){
+
+	public int countFragmentsInClasses(VariableDeclaration fragment,
+			List<Clazz> classes) {
 		int count = 0;
-		
+
 		for (Clazz clazz : classes) {
-			
+
 			if (useFragment(fragment, clazz) > 0) {
-				count=count +1;
+				count = count + 1;
 			}
 		}
-		
+
 		return count;
 	}
-	
-	//TODO Melhorar a comparacao entre metodos
-	public boolean classContatinMethod(MethodDeclaration methodDeclaration, Clazz clazz){
+
+	// TODO Melhorar a comparacao entre metodos
+	public boolean classContatinMethod(MethodDeclaration methodDeclaration,
+			Clazz clazz) {
 		for (MethodDeclaration method : clazz.getTypeDeclaration().getMethods()) {
-			if (method.getName().toString().equals(methodDeclaration.getName().toString())) {
+			if (method.getName().toString()
+					.equals(methodDeclaration.getName().toString())) {
 				return true;
 			}
-			/*if (!method.modifiers().equals(methodDeclaration.modifiers())) {
-				return false;
-			}
-			if (!method.getReturnType2().resolveBinding().isEqualTo(methodDeclaration.getReturnType2().resolveBinding())) {
-				return false;
-			}
-			if (!method.parameters().equals(methodDeclaration.parameters())) {
-				return false;
-			}*/
-			
-			
+			/*
+			 * if (!method.modifiers().equals(methodDeclaration.modifiers())) {
+			 * return false; } if
+			 * (!method.getReturnType2().resolveBinding().isEqualTo
+			 * (methodDeclaration.getReturnType2().resolveBinding())) { return
+			 * false; } if
+			 * (!method.parameters().equals(methodDeclaration.parameters())) {
+			 * return false; }
+			 */
+
 		}
-		
+
 		return false;
 	}
-	
-	
-	
-	public List<Clazz> getSubclasses(Clazz clazz, List<Clazz> classes){
-		
+
+	public List<Clazz> getSubclasses(Clazz clazz, List<Clazz> classes) {
+
 		List<Clazz> subclasses = new ArrayList<Clazz>();
-		
+
 		TypeDeclaration classTypeDeclaration = clazz.getTypeDeclaration();
-		
+
 		for (Clazz subclass : classes) {
-			
-			TypeDeclaration subclassTypeDeclaration = subclass.getTypeDeclaration();
+
+			TypeDeclaration subclassTypeDeclaration = subclass
+					.getTypeDeclaration();
 			Type superclass = subclassTypeDeclaration.getSuperclassType();
 			if (superclass != null) {
-				if (superclass.resolveBinding().isEqualTo(classTypeDeclaration.resolveBinding())) {
+				if (superclass.resolveBinding().isEqualTo(
+						classTypeDeclaration.resolveBinding())) {
 					subclasses.add(subclass);
 				}
 			}
-			
+
 		}
-		
+
 		return subclasses;
 	}
-	
-	public int useMethod(MethodDeclaration verifiedMethod, Clazz clazz, Project project) {
+
+	public int useMethod(MethodDeclaration verifiedMethod, Clazz clazz,
+			Project project) {
 
 		int usemethod = 0;
 
 		ExpressionExtractor expressionExtractor = new ExpressionExtractor();
-		
-			for (MethodDeclaration method : clazz.getTypeDeclaration().getMethods()) {
-				List<Expression> methodInvocations = expressionExtractor.getMethodInvocations(method.getBody());
 
-				for (Expression expression : methodInvocations) {
+		for (MethodDeclaration method : clazz.getTypeDeclaration().getMethods()) {
+			List<Expression> methodInvocations = expressionExtractor
+					.getMethodInvocations(method.getBody());
 
-					if (expression instanceof MethodInvocation) {
-						MethodInvocation methodInvocation = (MethodInvocation) expression;
+			for (Expression expression : methodInvocations) {
 
-						IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
-						if (methodBinding != null && verifiedMethod != null) {
-							if (methodBinding.isEqualTo(verifiedMethod.resolveBinding())) {
-								usemethod++;
-							}
+				if (expression instanceof MethodInvocation) {
+					MethodInvocation methodInvocation = (MethodInvocation) expression;
+
+					IMethodBinding methodBinding = methodInvocation
+							.resolveMethodBinding();
+					if (methodBinding != null && verifiedMethod != null) {
+						if (methodBinding.isEqualTo(verifiedMethod
+								.resolveBinding())) {
+							usemethod++;
 						}
 					}
-
 				}
+
 			}
-	
+		}
 
 		return usemethod;
 	}
@@ -217,7 +241,8 @@ public class OperationsUtil {
 		ExpressionExtractor expressionExtractor = new ExpressionExtractor();
 		for (Clazz clazz : project.getClasses()) {
 
-			for (MethodDeclaration method : clazz.getTypeDeclaration().getMethods()) {
+			for (MethodDeclaration method : clazz.getTypeDeclaration()
+					.getMethods()) {
 				List<Expression> methodInvocations = expressionExtractor
 						.getMethodInvocations(method.getBody());
 
@@ -248,69 +273,64 @@ public class OperationsUtil {
 		int useFragment = 0;
 
 		ExpressionExtractor expressionExtractor = new ExpressionExtractor();
-		
-			for (MethodDeclaration methodDeclaration : clazz
-					.getTypeDeclaration().getMethods()) {
-				Block methodBody = methodDeclaration.getBody();
-				if (methodBody != null) {
-					List<Statement> statements = methodBody.statements();
-					for (Statement statement : statements) {
 
-						List<Expression> accessedVariables = expressionExtractor
-								.getVariableInstructions(statement);
-						List<Expression> arrayAccesses = expressionExtractor
-								.getArrayAccesses(statement);
+		for (MethodDeclaration methodDeclaration : clazz.getTypeDeclaration()
+				.getMethods()) {
+			Block methodBody = methodDeclaration.getBody();
+			if (methodBody != null) {
+				List<Statement> statements = methodBody.statements();
+				for (Statement statement : statements) {
 
-						for (Expression expression : accessedVariables) {
-							SimpleName accessedVariable = (SimpleName) expression;
-							IBinding binding = accessedVariable
+					List<Expression> accessedVariables = expressionExtractor
+							.getVariableInstructions(statement);
+					List<Expression> arrayAccesses = expressionExtractor
+							.getArrayAccesses(statement);
+
+					for (Expression expression : accessedVariables) {
+						SimpleName accessedVariable = (SimpleName) expression;
+						IBinding binding = accessedVariable.resolveBinding();
+						if (binding.getKind() == IBinding.VARIABLE) {
+							IVariableBinding accessedVariableBinding = (IVariableBinding) binding;
+							if (accessedVariableBinding.isField()
+									&& verifiedFragment.resolveBinding()
+											.isEqualTo(accessedVariableBinding)) {
+								useFragment++;
+							}
+						}
+					}
+					for (Expression expression : arrayAccesses) {
+						ArrayAccess arrayAccess = (ArrayAccess) expression;
+						Expression arrayExpression = arrayAccess.getArray();
+						SimpleName arrayVariable = null;
+						if (arrayExpression instanceof SimpleName) {
+							arrayVariable = (SimpleName) arrayExpression;
+						} else if (arrayExpression instanceof FieldAccess) {
+							FieldAccess fieldAccess = (FieldAccess) arrayExpression;
+							arrayVariable = fieldAccess.getName();
+						}
+						if (arrayVariable != null) {
+							IBinding arrayBinding = arrayVariable
 									.resolveBinding();
-							if (binding.getKind() == IBinding.VARIABLE) {
-								IVariableBinding accessedVariableBinding = (IVariableBinding) binding;
-								if (accessedVariableBinding.isField()
+							if (arrayBinding.getKind() == IBinding.VARIABLE) {
+								IVariableBinding arrayVariableBinding = (IVariableBinding) arrayBinding;
+								if (arrayVariableBinding.isField()
 										&& verifiedFragment
 												.resolveBinding()
-												.isEqualTo(
-														accessedVariableBinding)) {
+												.isEqualTo(arrayVariableBinding)) {
 									useFragment++;
 								}
 							}
 						}
-						for (Expression expression : arrayAccesses) {
-							ArrayAccess arrayAccess = (ArrayAccess) expression;
-							Expression arrayExpression = arrayAccess.getArray();
-							SimpleName arrayVariable = null;
-							if (arrayExpression instanceof SimpleName) {
-								arrayVariable = (SimpleName) arrayExpression;
-							} else if (arrayExpression instanceof FieldAccess) {
-								FieldAccess fieldAccess = (FieldAccess) arrayExpression;
-								arrayVariable = fieldAccess.getName();
-							}
-							if (arrayVariable != null) {
-								IBinding arrayBinding = arrayVariable
-										.resolveBinding();
-								if (arrayBinding.getKind() == IBinding.VARIABLE) {
-									IVariableBinding arrayVariableBinding = (IVariableBinding) arrayBinding;
-									if (arrayVariableBinding.isField()
-											&& verifiedFragment
-													.resolveBinding()
-													.isEqualTo(
-															arrayVariableBinding)) {
-										useFragment++;
-									}
-								}
-							}
-						}
 					}
-
 				}
 
 			}
-		
+
+		}
 
 		return useFragment;
 	}
-	
+
 	public int useFragment(VariableDeclaration verifiedFragment, Project project) {
 
 		int useFragment = 0;
@@ -380,7 +400,8 @@ public class OperationsUtil {
 		return useFragment;
 	}
 
-	public int useParameter(VariableDeclaration verifiedParameter, MethodDeclaration methodDeclaration, Project project) {
+	public int useParameter(VariableDeclaration verifiedParameter,
+			MethodDeclaration methodDeclaration, Project project) {
 
 		int useParameter = 0;
 
@@ -390,15 +411,18 @@ public class OperationsUtil {
 			List<Statement> statements = methodBody.statements();
 			for (Statement statement : statements) {
 
-				List<Expression> accessedVariables = expressionExtractor.getVariableInstructions(statement);
-				List<Expression> arrayAccesses = expressionExtractor.getArrayAccesses(statement);
+				List<Expression> accessedVariables = expressionExtractor
+						.getVariableInstructions(statement);
+				List<Expression> arrayAccesses = expressionExtractor
+						.getArrayAccesses(statement);
 
 				for (Expression expression : accessedVariables) {
 					SimpleName accessedVariable = (SimpleName) expression;
 					IBinding binding = accessedVariable.resolveBinding();
 					if (binding.getKind() == IBinding.VARIABLE) {
 						IVariableBinding accessedVariableBinding = (IVariableBinding) binding;
-						if (verifiedParameter.resolveBinding().isEqualTo(accessedVariableBinding)) {
+						if (verifiedParameter.resolveBinding().isEqualTo(
+								accessedVariableBinding)) {
 							useParameter++;
 						}
 					}
@@ -417,7 +441,8 @@ public class OperationsUtil {
 						IBinding arrayBinding = arrayVariable.resolveBinding();
 						if (arrayBinding.getKind() == IBinding.VARIABLE) {
 							IVariableBinding arrayVariableBinding = (IVariableBinding) arrayBinding;
-							if (verifiedParameter.resolveBinding().isEqualTo(arrayVariableBinding)) {
+							if (verifiedParameter.resolveBinding().isEqualTo(
+									arrayVariableBinding)) {
 								useParameter++;
 							}
 						}
@@ -430,8 +455,6 @@ public class OperationsUtil {
 		return useParameter;
 	}
 
-	
-	
 	public List<DuplicatedFragments> retrieveDuplicatedFragments(Project project) {
 		List<Clazz> clazzs = project.getClasses();
 
@@ -440,7 +463,11 @@ public class OperationsUtil {
 		for (int i = 0; i < clazzs.size(); i++) {
 
 			Clazz c1 = clazzs.get(i);
+
 			TypeDeclaration td1 = c1.getTypeDeclaration();
+
+			System.out.println("Analysing Class: " + td1.getName()
+					+ " Position: " + i);
 
 			for (int j = i + 1; j < clazzs.size(); j++) {
 
@@ -552,9 +579,10 @@ public class OperationsUtil {
 	public List<DuplicatedFragments> review(
 			List<DuplicatedFragments> duplicatedFragments) {
 
+		System.out.println("Reviewing Duplicated Fragments");
 		duplicatedFragments = unifier(duplicatedFragments);
-		duplicatedFragments = removeDuplicatinos(duplicatedFragments);
-		duplicatedFragments = removeSubSet(duplicatedFragments);
+		// duplicatedFragments = removeDuplicatinos(duplicatedFragments);
+		// duplicatedFragments = removeSubSet(duplicatedFragments);
 
 		return duplicatedFragments;
 	}
@@ -564,11 +592,13 @@ public class OperationsUtil {
 
 		for (int i = 0; i < duplicatedFragments.size(); i++) {
 			List<Clazz> iClasses = duplicatedFragments.get(i).getClasses();
-			List<VariableDeclaration> iFrags = duplicatedFragments.get(i).getFragments();
+			List<VariableDeclaration> iFrags = duplicatedFragments.get(i)
+					.getFragments();
 
 			for (int j = i + 1; j < duplicatedFragments.size(); j++) {
 				List<Clazz> jClasses = duplicatedFragments.get(j).getClasses();
-				List<VariableDeclaration> jFrags = duplicatedFragments.get(j).getFragments();
+				List<VariableDeclaration> jFrags = duplicatedFragments.get(j)
+						.getFragments();
 
 				if (similar(iFrags, jFrags)) {
 

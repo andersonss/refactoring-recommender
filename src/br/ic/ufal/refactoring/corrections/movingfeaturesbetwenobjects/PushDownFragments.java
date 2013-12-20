@@ -32,9 +32,15 @@ public class PushDownFragments extends Correction {
 	@Override
 	public void execute() {
 		
+		int position = 1;
 		for (Clazz subclass : this.targetClasses) {
+			
+			System.out.println("Applying Down Fragments in Class: " + subclass.getTypeDeclaration().getName()+" Position: " + position);
+			
 			MoveField moveField = new MoveField(this.sourceClass, subclass, this.extractedFieldFragments, super.getProject());
 			moveField.execute();
+			
+			position++;
 		}
 		
 		

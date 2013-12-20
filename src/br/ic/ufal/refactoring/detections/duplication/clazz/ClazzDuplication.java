@@ -21,73 +21,102 @@ public class ClazzDuplication extends BadSmell {
 	@Override
 	public boolean check() {
 
-		this.duplicatedStatements = retrieveDuplicatedParameters(getProject());
-		this.duplicatedStatements = review(duplicatedStatements);
+		this.duplicatedStatements = retrieveDuplicatedStatements(getProject());
+		this.duplicatedStatements = filterDuplicatedStatements(this.duplicatedStatements, 2);
+		this.duplicatedStatements = review(this.duplicatedStatements);
 
 		return this.duplicatedStatements.size() > 0;
 	}
 
-	public List<DuplicatedStatements> retrieveDuplicatedParameters(Project project) {
+	private List<DuplicatedStatements> filterDuplicatedStatements(List<DuplicatedStatements> duplicatedStatements, int amount) {
+		
+		List<DuplicatedStatements> dsList = new ArrayList<DuplicatedStatements>();
+		
+		for (DuplicatedStatements ds : duplicatedStatements) {
+			if (ds.getBlock().getStatementsBlock().size() > amount) {
+				dsList.add(ds);
+			}
+		}
+		
+		return dsList;
+	}
+	
+	
+	public List<DuplicatedStatements> retrieveDuplicatedStatements(Project project) {
 
 		List<DuplicatedStatements> duplicatedStatementsList = new ArrayList<DuplicatedStatements>();
 
 		DuplicatedStatements duplicatedStatements = new DuplicatedStatements();
 
+		int position = 1;
+		
 		for (Clazz c1 : project.getClasses()) {
-
+			
+			System.out.println("Verifying Statements Duplication in Class: " + c1.getTypeDeclaration().getName()+ " Position: " + position);
+			
+			position++;
+			
 			MethodDeclaration ms1[] = c1.getTypeDeclaration().getMethods();
 
 			MethodDeclaration ms2[] = c1.getTypeDeclaration().getMethods();
 			
-			
-
 			for (MethodDeclaration m1 : ms1) {
 
-				List<Statement> m1Statements = m1.getBody().statements();
-				
-				System.out.println("Method 1: " + m1.getName());
-
-				for (MethodDeclaration m2 : ms2) {
+				if (m1.getBody() != null) {
 					
-					List<Statement> m2Statements = m2.getBody().statements();
+					List<Statement> m1Statements = m1.getBody().statements();
+					
+					for (MethodDeclaration m2 : ms2) {
+						
+						if (m2.getBody() != null) {
+							List<Statement> m2Statements = m2.getBody().statements();
 
-					if (!m1.getName().getFullyQualifiedName().equalsIgnoreCase(m2.getName().getFullyQualifiedName())) {
-						
-						StatementsBlock block = new StatementsBlock();
-						
-						int aux = -1;
-						
-						for (int i = 0; i < m1Statements.size(); i++) {
-							
-							
-							int stmt = existStatement(m1Statements.get(i), m2Statements);
-							if (stmt != -1) {
-								if (aux == -1 || aux == stmt -1) {
-									block.addStatement(m1Statements.get(i));
-									aux = stmt;
+							if (!m1.getName().getFullyQualifiedName().equalsIgnoreCase(m2.getName().getFullyQualifiedName())) {
+								
+								StatementsBlock block = new StatementsBlock();
+								
+								int aux = -1;
+								
+								for (int i = 0; i < m1Statements.size(); i++) {
+									
+									
+									int stmt = existStatement(m1Statements.get(i), m2Statements);
+									if (stmt != -1) {
+										if (aux == -1 || aux == stmt -1) {
+											block.addStatement(m1Statements.get(i));
+											aux = stmt;
+										}
+									}
+									
+									if ( (block.getStatementsBlock().size() > 0 && stmt == -1) ||
+										 (block.getStatementsBlock().size() > 0 && i == m1Statements.size() -1) ) {
+
+										duplicatedStatements.setBlock(block);
+										duplicatedStatements.addDuplicatedMethod(m1);
+										duplicatedStatements.addDuplicatedMethod(m2);
+										
+										duplicatedStatementsList.add(duplicatedStatements);
+										
+										duplicatedStatements.addDuplicatedClass(c1);
+
+										duplicatedStatements = new DuplicatedStatements();
+
+										block = new StatementsBlock();
+										aux = -1;
+									}
 								}
 							}
-							
-							if ( (block.getStatementsBlock().size() > 0 && stmt == -1) ||
-								 (block.getStatementsBlock().size() > 0 && i == m1Statements.size() -1) ) {
-
-								duplicatedStatements.setBlock(block);
-								duplicatedStatements.addDuplicatedMethod(m1);
-								duplicatedStatements.addDuplicatedMethod(m2);
-								
-								duplicatedStatementsList.add(duplicatedStatements);
-								
-								duplicatedStatements.addDuplicatedClass(c1);
-
-								duplicatedStatements = new DuplicatedStatements();
-
-								block = new StatementsBlock();
-								aux = -1;
-							}
 						}
+						
+						
 					}
 				}
+				
+				
 			}
+			
+			System.out.println("Statements Duplication in Class Verified: " + c1.getTypeDeclaration().getName());
+
 		}
 
 		return duplicatedStatementsList;
@@ -112,16 +141,26 @@ public class ClazzDuplication extends BadSmell {
 
 	public List<DuplicatedStatements> review(List<DuplicatedStatements> duplicatedStatements) {
 
+		System.out.println("Review of Duplicated Statements ");
+		
+		System.out.println("Unifying ");
 		duplicatedStatements = unifier(duplicatedStatements);
+		
+		System.out.println("Removing Duplications");
 		duplicatedStatements = removeDuplicatinos(duplicatedStatements);
+		
+		System.out.println("Removing Sub Set ");
 		duplicatedStatements = removeSubSet(duplicatedStatements);
 
+		System.out.println("Reviewed Duplicated Statements");
+		
 		return duplicatedStatements;
 	}
 
 	private List<DuplicatedStatements> unifier(List<DuplicatedStatements> duplicatedStatements) {
-
+		
 		for (int i = 0; i < duplicatedStatements.size(); i++) {
+			
 			List<MethodDeclaration> iDuplicatedMethods = duplicatedStatements.get(i).getDuplicatedMethods();
 			StatementsBlock iStatementsBlock = duplicatedStatements.get(i).getBlock();
 
@@ -205,6 +244,9 @@ public class ClazzDuplication extends BadSmell {
 		List<DuplicatedStatements> removed = new ArrayList<DuplicatedStatements>();
 
 		for (int i = 0; i < duplicatedStatements.size(); i++) {
+			
+			System.out.println("Verifying Duplicated Statement: " + i + " of: " + duplicatedStatements.size());
+			
 			for (int j = i + 1; j < duplicatedStatements.size(); j++) {
 
 				if (duplicatedStatements.get(i).equals(duplicatedStatements.get(j))) {

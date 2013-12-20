@@ -62,11 +62,14 @@ import org.eclipse.text.edits.TextEdit;
 import br.ic.ufal.parser.Clazz;
 import br.ic.ufal.parser.Project;
 import br.ic.ufal.refactoring.corrections.Correction;
+import br.ic.ufal.util.ParseUtil;
 //Shotgun Surgery
 //Parallel Inheritance Hierarchies
 //Inappropriate Intimacy
 public class MoveField extends Correction {
 	
+	private Clazz sourceClass = null;
+	private Clazz targetClass = null;
 	private CompilationUnit sourceCompilationUnit;
 	private ICompilationUnit sourceICompilationUnit;
 	private Document sourceDocument;
@@ -100,6 +103,8 @@ public class MoveField extends Correction {
 		this.sourceICompilationUnit = sourceClass.getICompilationUnit();
 		this.sourceDocument = sourceClass.getDocument();
 		
+		this.sourceClass = sourceClass;
+		this.targetClass = targetClass;
 		
 		this.sourceMultiTextEdit = new MultiTextEdit();
 		
@@ -162,9 +167,10 @@ public class MoveField extends Correction {
 			this.sourceMultiTextEdit.apply(this.sourceDocument);
 			this.sourceICompilationUnit.getBuffer().setContents(this.sourceDocument.get());
 			
+			ParseUtil.updateClazz(this.sourceDocument, this.sourceClass, getProject());
 			
-			System.out.println("Code Source ");
-	        System.out.println(this.sourceDocument.get());
+			//System.out.println("Code Source ");
+	        //System.out.println(this.sourceDocument.get());
 			
 		} catch (MalformedTreeException e) {
 			e.printStackTrace();
@@ -289,11 +295,13 @@ public class MoveField extends Correction {
         
         extractedClassEdit.apply(this.targetDocument);
         	
-        this.targetICompilationUnit.getBuffer().setContents(this.targetDocument.get());
+        ParseUtil.updateClazz(this.targetDocument, this.targetClass, getProject());
+        
+       // this.targetICompilationUnit.getBuffer().setContents(this.targetDocument.get());
         
         
-        System.out.println("Code Target ");
-        System.out.println(this.targetDocument.get());
+        //System.out.println("Code Target ");
+        //System.out.println(this.targetDocument.get());
         
         
         }catch (MalformedTreeException e) {
@@ -302,7 +310,7 @@ public class MoveField extends Correction {
         	e.printStackTrace();
         } catch (JavaModelException e) {
 			e.printStackTrace();
-		}
+		} 
         
 	}
 
@@ -951,7 +959,7 @@ public class MoveField extends Correction {
 	}
 
 	private void removeFieldFragmentsInSourceClass(Set<VariableDeclaration> fieldFragments) {
-		System.out.println("Source Type Declaration: " + this.sourceTypeDeclaration.getName());
+		//System.out.println("Source Type Declaration: " + this.sourceTypeDeclaration.getName());
 		
 		FieldDeclaration[] fieldDeclarations = sourceTypeDeclaration.getFields();
 		for(FieldDeclaration fieldDeclaration : fieldDeclarations) {

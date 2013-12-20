@@ -68,12 +68,12 @@ public class EncapsulateField extends Correction {
 			TypeDeclaration td = ParseUtil.getTypeDeclaration((CompilationUnit)fieldDeclaration.getRoot());
 			
 			
-			Clazz clazz = ParseUtil.getClazz(td, super.getProject().getClasses());
+			Clazz sourceClass = ParseUtil.getClazz(td, super.getProject().getClasses());
 			
-			this.sourceCompilationUnit = clazz.getCompilationUnit();
-			this.sourceTypeDeclaration = clazz.getTypeDeclaration();
-			this.sourceDocument = clazz.getDocument();
-			this.sourceICompilationUnit = clazz.getICompilationUnit();
+			this.sourceCompilationUnit = sourceClass.getCompilationUnit();
+			this.sourceTypeDeclaration = sourceClass.getTypeDeclaration();
+			this.sourceDocument = sourceClass.getDocument();
+			this.sourceICompilationUnit = sourceClass.getICompilationUnit();
 			
 			createSetterMethodInSourceClass(fieldDeclaration);
 			createGetterMethodInSourceClass(fieldDeclaration);
@@ -82,7 +82,9 @@ public class EncapsulateField extends Correction {
 			try {
 				this.sourceMultiTextEdit.apply(this.sourceDocument);
 				
-				clazz.getICompilationUnit().getBuffer().setContents(clazz.getDocument().get());
+				ParseUtil.updateClazz(this.sourceDocument, sourceClass, getProject());
+				
+				/*clazz.getICompilationUnit().getBuffer().setContents(clazz.getDocument().get());
 				
 				CompilationUnit compilationUnit = ParseUtil.toCompilationUnit(clazz.getICompilationUnit());
 				
@@ -101,7 +103,7 @@ public class EncapsulateField extends Correction {
 				} catch (JavaModelException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				}
+				}*/
 				
 			} catch (MalformedTreeException e) {
 				// TODO Auto-generated catch block

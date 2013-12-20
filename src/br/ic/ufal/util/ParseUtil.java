@@ -14,14 +14,27 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jface.text.Document;
 
 import br.ic.ufal.parser.Clazz;
+import br.ic.ufal.parser.Project;
 
 public class ParseUtil {
 
 	public ParseUtil() {
 		
 	}
+	
+	public static void updateClazz(Document document, Clazz clazz, Project proj) throws JavaModelException{
+		for (Clazz c : proj.getClasses()) {
+			if (c.getTypeDeclaration().getName().getIdentifier().equalsIgnoreCase(clazz.getTypeDeclaration().getName().getIdentifier())) {
+				c.setDocument(document);
+				c.getICompilationUnit().getBuffer().setContents(c.getDocument().get());
+				c.setCompilationUnit(toCompilationUnit(c.getICompilationUnit()));
+				c.setTypeDeclaration(getTypeDeclaration(c.getCompilationUnit()));
+			}
+		}
+	}
 
 	public static CompilationUnit toCompilationUnit(ICompilationUnit unit) {
+		
 		System.out.println(unit.getElementName());
 	    ASTParser parser = ASTParser.newParser(AST.JLS4);
 	    parser.setKind(ASTParser.K_COMPILATION_UNIT);
@@ -29,9 +42,7 @@ public class ParseUtil {
 	    parser.setResolveBindings(true);
 	    
 	    return (CompilationUnit) parser.createAST(null);
-	    
-	   
-    }
+	}
 	
 	public static TypeDeclaration getTypeDeclaration(ITypeBinding iTypeBinding, List<Clazz> classes){
 		

@@ -23,6 +23,7 @@ public class UpMethods extends BadSmell {
 	public boolean check() {
 	
 		for (Clazz superclass : super.getProject().getClasses()) {
+			System.out.println("Analysing Class: " + superclass.getTypeDeclaration().getName() );
 			boolean upMethods = false;
 			UpMethodsDesc upMethodsDesc = new UpMethodsDesc();
 			

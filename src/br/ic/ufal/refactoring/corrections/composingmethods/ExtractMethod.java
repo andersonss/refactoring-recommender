@@ -1,5 +1,6 @@
 package br.ic.ufal.refactoring.corrections.composingmethods;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jdt.core.JavaModelException;
@@ -20,6 +21,7 @@ import br.ic.ufal.parser.Project;
 import br.ic.ufal.refactoring.corrections.Correction;
 import br.ic.ufal.refactoring.detections.duplication.clazz.DuplicatedStatements;
 import br.ic.ufal.refactoring.detections.duplication.clazz.StatementsBlock;
+import br.ic.ufal.util.ParseUtil;
 
 //TODO Extract Method
 public class ExtractMethod extends Correction {
@@ -38,6 +40,9 @@ public class ExtractMethod extends Correction {
 	public void execute() {
 		
 		for (int i = 0; i < this.duplicatedStatements.size(); i++) {
+			
+			System.out.println("Solving Duplication Statements: " + i + " of: " + this.duplicatedStatements.size());
+			
 			this.targetMultiTextEdit = new MultiTextEdit();
 			
 			DuplicatedStatements duplicatedStatement = this.duplicatedStatements.get(i);
@@ -46,25 +51,29 @@ public class ExtractMethod extends Correction {
 			List<MethodDeclaration> methods = duplicatedStatement.getDuplicatedMethods();
 			StatementsBlock statementsBlock = duplicatedStatement.getBlock();
 			
-			createMethod(clazz, i);
-			
-			try {
+				createMethod(clazz, i);
 				
-				this.targetMultiTextEdit.apply(clazz.getDocument());
+				try {
+					
+					this.targetMultiTextEdit.apply(clazz.getDocument());
+					
+					ParseUtil.updateClazz(clazz.getDocument(), clazz, getProject());
 				
-				clazz.getICompilationUnit().getBuffer().setContents(clazz.getDocument().get());
-			} catch (MalformedTreeException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (BadLocationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (JavaModelException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+					//System.out.println(ParseUtil.getClazz(clazz.getTypeDeclaration(), getProject().getClasses()).getDocument().get());
+
+				} catch (MalformedTreeException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (BadLocationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (JavaModelException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
-		}
 	}
+	
 	
 	private void createMethod(Clazz clazz, int i){
 		

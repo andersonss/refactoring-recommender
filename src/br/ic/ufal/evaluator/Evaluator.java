@@ -104,8 +104,12 @@ public class Evaluator {
 	private boolean existFieldClass(FieldDeclaration fieldDeclaration){
 		
 		for (Clazz clazz : this.project.getClasses()) {
-			if (fieldDeclaration.getType().resolveBinding().isEqualTo(clazz.getTypeDeclaration().resolveBinding())) {
-				return true;
+			if (fieldDeclaration.getType() != null && clazz.getTypeDeclaration() != null) {
+				if (fieldDeclaration.getType().resolveBinding() != null && clazz.getTypeDeclaration().resolveBinding() != null ) {
+					if (fieldDeclaration.getType().resolveBinding().isEqualTo(clazz.getTypeDeclaration().resolveBinding())) {
+						return true;
+					}
+				}
 			}
 		}
 		
@@ -136,9 +140,16 @@ public class Evaluator {
 								for (FieldDeclaration fieldDeclaration : clazz.getTypeDeclaration().getFields()) {
 									List<VariableDeclarationFragment> fragments = fieldDeclaration.fragments();
 									for (VariableDeclarationFragment fragment : fragments) {
+										
+										if (accessedVariableBinding != null && fragment.resolveBinding() != null) {
+											
 										if (accessedVariableBinding.isEqualTo(fragment.resolveBinding().getVariableDeclaration())) {
 											cohesion++;
 										}
+										
+										}
+										
+										
 									}
 								}
 							}
@@ -197,9 +208,11 @@ public class Evaluator {
 					for (MethodDeclaration method : clazz.getTypeDeclaration().getMethods()) {
 						IMethodBinding iMethodBinding = method.resolveBinding();
 						for (IMethodBinding meth : superclass.resolveBinding().getDeclaredMethods()) {
-							if (iMethodBinding.isSubsignature(meth) &&
-								!meth.toString().contains("init")) {
-								inheritanceClasse++;
+							if (iMethodBinding != null) {
+								if (iMethodBinding.isSubsignature(meth) &&
+										!meth.toString().contains("init")) {
+										inheritanceClasse++;
+								}
 							}
 						}
 					}
@@ -225,17 +238,28 @@ public class Evaluator {
 					cclazz.getTypeDeclaration() != null &&	
 					!clazz.getTypeDeclaration().equals(cclazz.getTypeDeclaration())) {
 					for (FieldDeclaration field : cclazz.getTypeDeclaration().getFields()) {
-						if (field.getType(). resolveBinding().isEqualTo((clazz.getTypeDeclaration().resolveBinding()))) {
-							individualCoupling++;
+						
+						if (field.getType() != null &&  clazz.getTypeDeclaration() != null ) {
+							if (field.getType().resolveBinding() != null && clazz.getTypeDeclaration().resolveBinding() != null) {
+							if (field.getType(). resolveBinding().isEqualTo((clazz.getTypeDeclaration().resolveBinding()))) {
+								individualCoupling++;
+							}
+							}
 						}
 					}
 					
 					for (MethodDeclaration method : cclazz.getTypeDeclaration().getMethods()) {
 						List<SingleVariableDeclaration> parameters = method.parameters();
 						for (SingleVariableDeclaration parameter : parameters) {
+							if (parameter.getType() != null && parameter.getType().resolveBinding() != null &&
+								clazz.getTypeDeclaration() != null && clazz.getTypeDeclaration().resolveBinding() != null) {
+								
 							if (parameter.getType().resolveBinding().isEqualTo(clazz.getTypeDeclaration().resolveBinding())) {
 								individualCoupling++;
 							}
+							
+							}
+							
 						}
 					}
 				}

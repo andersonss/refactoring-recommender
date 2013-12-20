@@ -38,21 +38,26 @@ public class PullUpFragments extends Correction {
 			for (int j = 0; j < duplicatedFragments.getClasses().size(); j++) {
 				
 				Clazz subclass = duplicatedFragments.getClasses().get(j);
+				
+				System.out.println("Moving Fragments from Class: " + subclass.getTypeDeclaration().getName() + " Class: " + j + " of: " + duplicatedFragments.getClasses().size());
 			
-				System.out.println("Subclass: " + subclass.getTypeDeclaration().getName());
+				//System.out.println("Subclass: " + subclass.getTypeDeclaration().getName());
 				moveField = new MoveField(subclass, null, fragments, super.getProject());
 				moveField.execute();
 				
 				if (j == 0) {
 					
 					Clazz superclass = ParseUtil.getClazz(subclass.getTypeDeclaration().getSuperclassType(), super.getProject().getClasses());
-					System.out.println("Superclass" + superclass.getTypeDeclaration().getName() + " Subclass: " + subclass.getTypeDeclaration().getName());
-					moveField = new MoveField(subclass, superclass, fragments, super.getProject());
-					moveField.execute();
+					
+					if (superclass != null) {
+						//System.out.println("Superclass" + superclass.getTypeDeclaration().getName() + " Subclass: " + subclass.getTypeDeclaration().getName());
+						moveField = new MoveField(subclass, superclass, fragments, super.getProject());
+						moveField.execute();
+					}
 					
 				}else{
 					
-					System.out.println("Subclass: " + subclass.getTypeDeclaration().getName());
+					//System.out.println("Subclass: " + subclass.getTypeDeclaration().getName());
 					RemoveFragments removeFragments = new RemoveFragments(subclass, fragments, super.getProject());
 					removeFragments.execute();
 					

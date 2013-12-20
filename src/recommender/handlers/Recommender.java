@@ -1,37 +1,22 @@
 package recommender.handlers;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.text.Document;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import br.ic.ufal.evaluator.Evaluator;
 import br.ic.ufal.evaluator.QualityFactors;
-import br.ic.ufal.parser.Clazz;
 import br.ic.ufal.parser.Parser;
 import br.ic.ufal.parser.Project;
-import br.ic.ufal.refactoring.corrections.movingfeaturesbetwenobjects.ExtractClass;
-import br.ic.ufal.refactoring.detections.dataclumps.fields.DuplicatedFragments;
-import br.ic.ufal.refactoring.detections.dataclumps.fields.FragmentsDataClumps;
-import br.ic.ufal.refactoring.detections.dataclumps.parameters.ParametersDataClumps;
+import br.ic.ufal.refactoring.corrections.composingmethods.ExtractMethod;
+import br.ic.ufal.refactoring.detections.duplication.clazz.ClazzDuplication;
 import br.ic.ufal.util.OperationsUtil;
-import br.ic.ufal.util.ParseUtil;
 
 public class Recommender extends AbstractHandler {
 	
@@ -68,29 +53,36 @@ public class Recommender extends AbstractHandler {
 			
 			// Extract Method
 			
-			/*ClazzDuplication clazzDuplication = new ClazzDuplication(proj);
+			ClazzDuplication clazzDuplication = new ClazzDuplication(proj);
 			
-			System.out.println("Verifying Clazz Duplication");
+			System.out.println("Verifying Clazz Duplication Statements");
 			if (clazzDuplication.check()) {
-				System.out.println("List of Duplications in a Clazz");
-				System.out.println(clazzDuplication.getDuplicatedStatements());
-				
+				//System.out.println("List of Duplications in a Clazz");
+				//System.out.println(clazzDuplication.getDuplicatedStatements());
+				System.out.println("Applying Extract Method");
 				ExtractMethod extractMethod = new ExtractMethod(clazzDuplication.getDuplicatedStatements(), proj);
 				extractMethod.execute();
+				System.out.println("Extract Method Applied");
 				
-			}*/
-			
+			}else{
+				System.out.println("Not Exist Duplication in Clazz");
+			}
 			
 			// Move Method
 			
-			/*FeatureEnvy featureEnvy = new FeatureEnvy(proj);
+			/*System.out.println("Analysing Feature Envy");
+			FeatureEnvy featureEnvy = new FeatureEnvy(proj);
 			if (featureEnvy.check()) {
-				System.out.println(featureEnvy.getDescriptions());
+				//System.out.println(featureEnvy.getDescriptions());
 				
 				for (FeatureEnvyDescription desc : featureEnvy.getDescriptions()) {
+					System.out.println("Applying Move Method");
 					MoveMethod moveMethod = new MoveMethod(desc.getSourceClass(), desc.getTargetClass(), desc.getSourceMethod(), new HashMap<MethodInvocation, MethodDeclaration>(), false, desc.getSourceMethod().getName().getIdentifier(), proj);
 					moveMethod.execute();
+					System.out.println("Applied Move Method");
 				}
+			}else{
+				System.out.println("Not Exist Feature Envy");
 			}*/
 			
 			// Move Fragments
@@ -128,12 +120,15 @@ public class Recommender extends AbstractHandler {
 				}
 			}*/
 			// Encapsulate Field
-			
-			/*PublicFields publicFields = new PublicFields(proj);
+			/*System.out.println("Analysing Public Fields");
+			PublicFields publicFields = new PublicFields(proj);
 			if (publicFields.check()) {
 				List<FieldDeclaration> fields = publicFields.getPublicFields();
+				System.out.println(fields);
+				System.out.println("Applying Encapsulate Fields");
 				EncapsulateField encapsulateField = new EncapsulateField(fields, proj);
 				encapsulateField.execute();
+				System.out.println("Applied Encapsulate Fields");
 			}*/
 			
 			// Encapsulate Collection
@@ -151,6 +146,7 @@ public class Recommender extends AbstractHandler {
 			}else{
 				System.out.println("Not Exist Unused Methods");
 			}*/
+			
 			// Push Down Method
 			// Falta inserir uma verificacao que garanta a remocao do metodo somente 
 			//nos casos onde a superclasse nao utilize no body de outros metodos
@@ -171,10 +167,11 @@ public class Recommender extends AbstractHandler {
 			UpMethods upMethods = new UpMethods(proj);
 			
 			if (upMethods.check()) {
-				System.out.println(upMethods.getMethodsToBeUp());
-				
+				//System.out.println(upMethods.getMethodsToBeUp());
+				System.out.println("Applying Pull Up Methods");
 				PullUpMethods pullUpMethods = new PullUpMethods(upMethods.getMethodsToBeUp(), proj);
 				pullUpMethods.execute();
+				System.out.println("Applied Pull Up Methods");
 				
 			}*/
 			

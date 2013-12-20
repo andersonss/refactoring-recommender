@@ -23,6 +23,9 @@ public class UnusedMethods extends BadSmell {
 	public boolean check() {
 			for (int i = 0; i < super.getProject().getClasses().size(); i++) {
 				Clazz clazz = super.getProject().getClasses().get(i);
+				
+				System.out.println("Analysing Unused Method in Class: " + clazz.getTypeDeclaration().getName() + " Position: " + i);
+				
 				for (MethodDeclaration method : clazz.getTypeDeclaration().getMethods()) {
 					if (operationsUtil.useMethod(method, super.getProject()) == 0 && 
 						!method.isConstructor()) {

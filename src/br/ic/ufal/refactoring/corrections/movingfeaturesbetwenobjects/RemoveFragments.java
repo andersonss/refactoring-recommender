@@ -21,9 +21,11 @@ import org.eclipse.text.edits.TextEdit;
 import br.ic.ufal.parser.Clazz;
 import br.ic.ufal.parser.Project;
 import br.ic.ufal.refactoring.corrections.Correction;
+import br.ic.ufal.util.ParseUtil;
 
 public class RemoveFragments extends Correction {
 	
+	private Clazz sourceClass = null;
 	private TypeDeclaration sourceTypeDeclaration = null;
 	private ICompilationUnit sourceICompilationUnit = null;
 	private Document sourceDocument = null;
@@ -34,6 +36,8 @@ public class RemoveFragments extends Correction {
 	
 	public RemoveFragments(Clazz clazz, Set<VariableDeclaration> fragments, Project project) {
 		super(project);
+		
+		this.sourceClass = clazz;
 		
 		this.sourceTypeDeclaration = clazz.getTypeDeclaration();
 		this.sourceICompilationUnit = clazz.getICompilationUnit();
@@ -51,10 +55,12 @@ public class RemoveFragments extends Correction {
 		
 		try {
 			this.sourceMultiTextEdit.apply(this.sourceDocument);
-			this.sourceICompilationUnit.getBuffer().setContents(this.sourceDocument.get());
+			//this.sourceICompilationUnit.getBuffer().setContents(this.sourceDocument.get());
 			
-			System.out.println("Code Source ");
-	        System.out.println(this.sourceDocument.get());
+			ParseUtil.updateClazz(this.sourceDocument, this.sourceClass, getProject());
+			
+			//System.out.println("Code Source ");
+	        //System.out.println(this.sourceDocument.get());
 			
 		} catch (MalformedTreeException e) {
 			e.printStackTrace();

@@ -25,8 +25,10 @@ public class UpFragments extends BadSmell {
 	@Override
 	public boolean check() {
 		
+		System.out.println("Retrieving Duplicated Fragments");
 		this.duplicatedFragmentsList = operationsUtil.retrieveDuplicatedFragments(super.getProject());
 		
+		System.out.println("Identifying Related Fragments Duplication");
 		this.duplicatedFragmentsList = operationsUtil.identifyRelatedFragmentsDuplication(duplicatedFragmentsList);
 		
 		
