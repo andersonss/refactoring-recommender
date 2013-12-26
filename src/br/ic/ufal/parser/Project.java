@@ -6,13 +6,24 @@ import java.util.List;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 
-public class Project {
+public class Project implements Cloneable {
 	
 	private String name = new String();
 	private IJavaProject javaProject = null;
 	private IPackageFragmentRoot[] packages = null;
 	private List<Clazz> classes = new ArrayList<Clazz>();
 	
+	
+	
+	public Project(String name, IJavaProject javaProject,
+			IPackageFragmentRoot[] packages, List<Clazz> classes) {
+		super();
+		this.name = name;
+		this.javaProject = javaProject;
+		this.packages = packages;
+		this.classes = classes;
+	}
+
 	public Project() {
 	
 	}
@@ -51,6 +62,16 @@ public class Project {
 	
 	public void addClazz(Clazz clazz){
 		this.classes.add(clazz);
+	}
+	
+	public Project getClone(){
+		try {
+			return (Project) super.clone();
+		} catch (CloneNotSupportedException e) {
+			System.out.println("Cloning not allowed.");
+			return this;
+		}
+		
 	}
 	
 }

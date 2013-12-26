@@ -164,7 +164,7 @@ public class ExtractClass extends Correction {
 	}
 
 	@Override
-	public void execute() {
+	public void apply() {
 		if(leaveDelegateForPublicMethods) {
 			for(MethodDeclaration method : extractedMethods) {
 				int modifiers = method.getModifiers();

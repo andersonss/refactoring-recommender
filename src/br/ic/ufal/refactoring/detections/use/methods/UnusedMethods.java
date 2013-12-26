@@ -15,8 +15,11 @@ public class UnusedMethods extends BadSmell {
 	private List<MethodDeclaration> unusedMethods = new ArrayList<MethodDeclaration>();
 	private OperationsUtil operationsUtil = new OperationsUtil();
 	
-	public UnusedMethods(Project project) {
+	private int threshold = 0;
+	
+	public UnusedMethods(Project project, int threshold) {
 		super(project);
+		this.threshold = threshold;
 	}
 
 	@Override
@@ -27,7 +30,7 @@ public class UnusedMethods extends BadSmell {
 				System.out.println("Analysing Unused Method in Class: " + clazz.getTypeDeclaration().getName() + " Position: " + i);
 				
 				for (MethodDeclaration method : clazz.getTypeDeclaration().getMethods()) {
-					if (operationsUtil.useMethod(method, super.getProject()) == 0 && 
+					if (operationsUtil.useMethod(method, super.getProject()) == this.threshold && 
 						!method.isConstructor()) {
 						this.unusedMethods.add(method);
 					}

@@ -37,7 +37,9 @@ public class ExtractMethod extends Correction {
 	}
 
 	@Override
-	public void execute() {
+	public void apply() {
+		
+		System.out.println("Applying Extract Method");
 		
 		for (int i = 0; i < this.duplicatedStatements.size(); i++) {
 			
@@ -72,6 +74,8 @@ public class ExtractMethod extends Correction {
 					e.printStackTrace();
 				}
 			}
+		
+		System.out.println("Applied Extract Method");
 	}
 	
 	

@@ -30,7 +30,7 @@ public class CollapseHierarchy extends Correction {
 	}
 
 	@Override
-	public void execute() {
+	public void apply() {
 			for (Clazz clazz : this.speculatives) {
 				Type superclazzType = clazz.getTypeDeclaration().getSuperclassType();
 			
@@ -48,13 +48,13 @@ public class CollapseHierarchy extends Correction {
 					}
 					
 					MoveField moveField = new MoveField(clazz, superclazz, fragments, getProject());
-					moveField.execute();
+					moveField.apply();
 					
 				}
 				
 				for (MethodDeclaration method : typeDeclaration.getMethods()) {
 					MoveMethod moveMethod = new MoveMethod(clazz, superclazz, method, new HashMap<MethodInvocation, MethodDeclaration>(), false, method.getName().getIdentifier(),getProject());
-					moveMethod.execute();
+					moveMethod.apply();
 				}
 				
 				

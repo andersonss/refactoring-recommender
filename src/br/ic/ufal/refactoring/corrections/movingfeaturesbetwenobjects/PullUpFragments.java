@@ -23,7 +23,9 @@ public class PullUpFragments extends Correction {
 	}
 
 	@Override
-	public void execute() {
+	public void apply() {
+		
+		System.out.println("Applying Pull Up Fragments");
 		
 		MoveField moveField = null;
 		
@@ -43,7 +45,7 @@ public class PullUpFragments extends Correction {
 			
 				//System.out.println("Subclass: " + subclass.getTypeDeclaration().getName());
 				moveField = new MoveField(subclass, null, fragments, super.getProject());
-				moveField.execute();
+				moveField.apply();
 				
 				if (j == 0) {
 					
@@ -52,14 +54,14 @@ public class PullUpFragments extends Correction {
 					if (superclass != null) {
 						//System.out.println("Superclass" + superclass.getTypeDeclaration().getName() + " Subclass: " + subclass.getTypeDeclaration().getName());
 						moveField = new MoveField(subclass, superclass, fragments, super.getProject());
-						moveField.execute();
+						moveField.apply();
 					}
 					
 				}else{
 					
 					//System.out.println("Subclass: " + subclass.getTypeDeclaration().getName());
 					RemoveFragments removeFragments = new RemoveFragments(subclass, fragments, super.getProject());
-					removeFragments.execute();
+					removeFragments.apply();
 					
 					/*moveField = new MoveField(subclass, null, fragments, super.getProject());
 					moveField.execute();*/
@@ -69,6 +71,7 @@ public class PullUpFragments extends Correction {
 			
 		}
 	
+		System.out.println("Applied Pull Up Fragments");
 	}
 
 }

@@ -23,11 +23,17 @@ public class PushDownMethods extends Correction {
 	}
 
 	@Override
-	public void execute() {
+	public void apply() {
+		
+		System.out.println("Pushing Down Methods" );
+		
+		int count = 1;
 		
 		for (DownMethodsDesc downMethodsDesc : this.downMethodsDescs) {
 			
-			System.out.println(downMethodsDesc);
+			System.out.println("Push Down Method " + count + " of " + this.downMethodsDescs.size());
+			
+			//System.out.println(downMethodsDesc);
 			
 			Clazz superclass = downMethodsDesc.getSuperclass();
 			
@@ -35,11 +41,15 @@ public class PushDownMethods extends Correction {
 			
 				//if (operationsUtil.useMethod(methodDeclaration, superclass, getProject()) == 0) {
 					RemoveMethod removeMethod = new RemoveMethod(superclass, methodDeclaration, super.getProject());
-					removeMethod.execute();
+					removeMethod.apply();
 				//} 
 			}
 			
+			count++;
+			
 		}
+		
+		System.out.println("Pushed Down Methods" );
 		
 		
 	}

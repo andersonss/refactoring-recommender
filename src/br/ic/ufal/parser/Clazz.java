@@ -17,6 +17,7 @@ public class Clazz {
 	}
 
 	public CompilationUnit getCompilationUnit() {
+		
 		return compilationUnit;
 	}
 

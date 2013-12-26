@@ -16,8 +16,11 @@ import org.eclipse.text.edits.TextEdit;
 import br.ic.ufal.parser.Clazz;
 import br.ic.ufal.parser.Project;
 import br.ic.ufal.refactoring.corrections.Correction;
+import br.ic.ufal.util.ParseUtil;
 
 public class RemoveMethod extends Correction {
+	
+	private Clazz sourceClass = null;
 	
 	private CompilationUnit sourceCompilationUnit = null;
 	private ICompilationUnit sourceICompilationUnit = null;
@@ -38,12 +41,14 @@ public class RemoveMethod extends Correction {
 		
 		this.methodToBeRemoved = methodDeclaration;
 		
+		this.sourceClass = sourceClass;
+		
 		this.sourceMultiTextEdit = new MultiTextEdit();
 		
 	}
 
 	@Override
-	public void execute() {
+	public void apply() {
 		
 		removeMethod();
 		
@@ -51,9 +56,7 @@ public class RemoveMethod extends Correction {
 			
 			this.sourceMultiTextEdit.apply(this.sourceDocument);
 			
-			this.sourceICompilationUnit.getBuffer().setContents(this.sourceDocument.get());
-			
-			System.out.println(this.sourceDocument.get());
+			ParseUtil.updateClazz(this.sourceDocument, sourceClass, getProject());
 			
 		} catch (MalformedTreeException e) {
 			e.printStackTrace();
@@ -69,10 +72,14 @@ public class RemoveMethod extends Correction {
 		ListRewrite classBodyRewrite = sourceRewriter.getListRewrite(sourceTypeDeclaration, TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
 		
 		for (MethodDeclaration methodDeclaration : this.sourceTypeDeclaration.getMethods()) {
-			
-			if (methodToBeRemoved.resolveBinding().isSubsignature(methodDeclaration.resolveBinding()) ) {
-				classBodyRewrite.remove(methodDeclaration, null);
+			if (methodToBeRemoved != null && methodDeclaration != null) {
+				if (methodToBeRemoved.resolveBinding() != null && methodDeclaration.resolveBinding() != null) {
+					if (methodToBeRemoved.resolveBinding().isSubsignature(methodDeclaration.resolveBinding()) ) {
+						classBodyRewrite.remove(methodDeclaration, null);
+					}
+				}
 			}
+			
 			
 		}
 		

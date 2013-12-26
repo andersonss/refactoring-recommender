@@ -10,7 +10,7 @@ public class RemoveMiddleMan extends Correction {
 	}
 
 	@Override
-	public void execute() {
+	public void apply() {
 		// TODO Auto-generated method stub
 		System.out.println("Executing Remove Middle Man");
 	}

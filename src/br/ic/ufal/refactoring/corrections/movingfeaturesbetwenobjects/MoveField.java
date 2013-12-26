@@ -133,7 +133,7 @@ public class MoveField extends Correction {
 	}
 
 	@Override
-	public void execute() {
+	public void apply() {
 		
 		removeFieldFragmentsInSourceClass(extractedFieldFragments);
 		

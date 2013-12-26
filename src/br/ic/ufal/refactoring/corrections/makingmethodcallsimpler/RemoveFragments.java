@@ -32,7 +32,7 @@ public class RemoveFragments extends Correction {
 	}
 	
 	@Override
-	public void execute() {
+	public void apply() {
 		for (Clazz clazz : super.getProject().getClasses()) {
 			MultiTextEdit sourceMultiTextEdit = new MultiTextEdit();
 			ASTRewrite sourceRewriter = ASTRewrite.create(clazz.getCompilationUnit().getAST());

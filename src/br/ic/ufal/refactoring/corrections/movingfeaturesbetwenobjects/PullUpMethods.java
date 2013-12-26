@@ -22,9 +22,17 @@ public class PullUpMethods extends Correction {
 	}
 
 	@Override
-	public void execute() {
+	public void apply() {
+		
+		System.out.println("Applying Pull Up Methods");
+		
+		
+		int count = 0;
 		
 		for (UpMethodsDesc desc : this.upMethodsDescs) {
+			
+			System.out.println("Up Method " + count + " of " + this.upMethodsDescs.size());
+			
 			Clazz superclazz = desc.getSuperclass();
 			List<Clazz> subclasses = desc.getSubclasses();
 			List<MethodDeclaration> methodsToBeUp = desc.getMethodsToBeUp();
@@ -32,16 +40,27 @@ public class PullUpMethods extends Correction {
 			for (MethodDeclaration methodDeclaration : methodsToBeUp) {
 				Clazz sourceClazz = clazzContainMethod(methodDeclaration, subclasses);
 				
-				System.out.println("Moving Method: " + methodDeclaration.getName());
+			//	System.out.println("Moving Method: " + methodDeclaration.getName());
+			
+				if (sourceClazz != null &&superclazz != null && methodDeclaration != null) {
+					if (methodDeclaration.getName().getIdentifier() != null) {
+						MoveMethod moveMethod = new MoveMethod(sourceClazz, superclazz, methodDeclaration, new HashMap<MethodInvocation, MethodDeclaration>(), false, methodDeclaration.getName().getIdentifier(), getProject());
+						moveMethod.apply();
+						
+					}
+				}
 				
-				MoveMethod moveMethod = new MoveMethod(sourceClazz, superclazz, methodDeclaration, new HashMap<MethodInvocation, MethodDeclaration>(), false, methodDeclaration.getName().getIdentifier(), getProject());
-				moveMethod.execute();
 				
-				System.out.println("Moved Method: " + methodDeclaration.getName());
+			//	System.out.println("Moved Method: " + methodDeclaration.getName());
 				
 			}
 			
+			count++;
+			
 		}
+		
+		
+		System.out.println("Applyed Pull Up Methods");
 		
 	}
 	

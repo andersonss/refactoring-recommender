@@ -10,7 +10,7 @@ public abstract class Correction {
 		this.project = project;
 	}
 	
-	public abstract void execute();
+	public abstract void apply();
 
 	public Project getProject() {
 		return project;

@@ -59,8 +59,12 @@ public class UpMethods extends BadSmell {
 	private boolean classContainMethod(MethodDeclaration methodDeclaration, Clazz clazz){
 		
 		for (MethodDeclaration method : clazz.getTypeDeclaration().getMethods()) {
-			if (methodDeclaration.resolveBinding().isSubsignature(method.resolveBinding())) {
-				return true;
+			if (methodDeclaration != null && method != null) {
+				if (methodDeclaration.resolveBinding() != null && method.resolveBinding() != null) {
+					if (methodDeclaration.resolveBinding().isSubsignature(method.resolveBinding())) {
+						return true;
+					}
+				}
 			}
 		}
 		

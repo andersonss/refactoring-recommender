@@ -3,13 +3,11 @@ package br.ic.ufal.refactoring.corrections.makingmethodcallsimpler;
 import java.util.List;
 
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEdit;
@@ -30,20 +28,32 @@ public class RemoveMethods extends Correction {
 	}
 	
 	@Override
-	public void execute() {
+	public void apply() {
+		
+		System.out.println("Removing Unused Methods");
+		
+		
+		int count = 0;
+		
 		for (Clazz clazz : super.getProject().getClasses()) {
+			
+			System.out.println("Removing Unsued Methods in Class: " + count + " of " + super.getProject().getClasses().size());
+			
 			MultiTextEdit sourceMultiTextEdit = new MultiTextEdit();
 			ASTRewrite sourceRewriter = ASTRewrite.create(clazz.getCompilationUnit().getAST());
 			ListRewrite classBodyRewrite = sourceRewriter.getListRewrite(clazz.getTypeDeclaration(), TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
 		
 			for (MethodDeclaration methodToBeRemoved : this.methodsToBeRemoved) {
 				for (MethodDeclaration method : clazz.getTypeDeclaration().getMethods()) {
-					
-					if (methodToBeRemoved.resolveBinding().isEqualTo(method.resolveBinding())) {
-						classBodyRewrite.remove(method, null);
-					}else{
-						if (methodToBeRemoved.resolveBinding().isSubsignature(method.resolveBinding())) {
-							classBodyRewrite.remove(method, null);
+					if (methodToBeRemoved != null && method != null) {
+						if (methodToBeRemoved.resolveBinding() != null && method.resolveBinding() != null) {
+							if (methodToBeRemoved.resolveBinding().isEqualTo(method.resolveBinding())) {
+								classBodyRewrite.remove(method, null);
+							}else{
+								if (methodToBeRemoved.resolveBinding().isSubsignature(method.resolveBinding())) {
+									classBodyRewrite.remove(method, null);
+								}
+							}
 						}
 					}
 				}
@@ -55,21 +65,7 @@ public class RemoveMethods extends Correction {
 			try {
 				sourceMultiTextEdit.apply(clazz.getDocument());
 				
-				clazz.getICompilationUnit().getBuffer().setContents(clazz.getDocument().get());
-				
-				CompilationUnit compilationUnit = ParseUtil.toCompilationUnit(clazz.getICompilationUnit());
-				
-				clazz.setCompilationUnit(compilationUnit);
-				
-				TypeDeclaration typeDeclaration = ParseUtil.getTypeDeclaration(compilationUnit);
-				if (typeDeclaration != null) {
-					clazz.setTypeDeclaration(typeDeclaration);
-				}
-				
-				Document document = null;
-				
-				document = new Document(clazz.getICompilationUnit().getBuffer().getContents());
-				clazz.setDocument(document);
+				ParseUtil.updateClazz(clazz.getDocument(), clazz, getProject());
 				
 				
 			} catch (MalformedTreeException e) {
@@ -79,8 +75,13 @@ public class RemoveMethods extends Correction {
 			} catch (JavaModelException e) {
 				e.printStackTrace();
 			}
+			
+			count++;
 		
 		}
+		
+		System.out.println("Removed Unused Methods");
+		
 		
 	}
 

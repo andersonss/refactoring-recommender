@@ -49,7 +49,7 @@ public class RemoveParameters extends Correction {
 	}
 
 	@Override
-	public void execute() {
+	public void apply() {
 		
 		removeParametersInSourceMethod();
 		

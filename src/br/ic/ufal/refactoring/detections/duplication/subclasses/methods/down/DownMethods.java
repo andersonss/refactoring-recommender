@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.swt.internal.theme.Theme;
 
 import br.ic.ufal.parser.Clazz;
 import br.ic.ufal.parser.Project;
@@ -15,8 +16,11 @@ public class DownMethods extends BadSmell {
 	private OperationsUtil operationsUtil = new OperationsUtil();
 	private List<DownMethodsDesc> downMethodsDescs = new ArrayList<DownMethodsDesc>();
 	
-	public DownMethods(Project project) {
+	private int threshold = 1;
+	
+	public DownMethods(Project project, int threshold) {
 		super(project);
+		this.threshold = threshold;
 	}
 
 	@Override
@@ -32,7 +36,7 @@ public class DownMethods extends BadSmell {
 					if (!methodDeclaration.isConstructor()) {
 						int count = operationsUtil.countMethodsInClasses(methodDeclaration, subClasses);
 						
-						if (count == 1 ) {
+						if (count == this.threshold) {
 							
 							
 							DownMethodsDesc desc = retrieveDownMethodDesc(superclass);
@@ -72,9 +76,14 @@ public class DownMethods extends BadSmell {
 	private boolean classContainMethod(MethodDeclaration methodDeclaration, Clazz clazz){
 		
 		for (MethodDeclaration method : clazz.getTypeDeclaration().getMethods()) {
-			if (methodDeclaration.resolveBinding().isSubsignature(method.resolveBinding())) {
-				return true;
+			if (methodDeclaration != null && method != null) {
+				if (methodDeclaration.resolveBinding() != null && method.resolveBinding() != null) {
+					if (methodDeclaration.resolveBinding().isSubsignature(method.resolveBinding())) {
+						return true;
+					}
+				}
 			}
+			
 		}
 		
 		return false;

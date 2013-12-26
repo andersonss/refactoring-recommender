@@ -16,8 +16,11 @@ public class DownFragments extends BadSmell {
 	private OperationsUtil operationsUtil = new OperationsUtil();
 	private List<DownFragmentsDesc> downFragmentsDescs = new ArrayList<DownFragmentsDesc>();
 	
-	public DownFragments(Project project) {
+	private int threshold = 0;
+	
+	public DownFragments(Project project, int threshold) {
 		super(project);
+		this.threshold = threshold;
 	}
 
 	@Override
@@ -46,14 +49,16 @@ public class DownFragments extends BadSmell {
 								downFragmentsDesc.setSuperclass(superclass);
 								
 								for (Clazz subclass : subClasses) {
-									if (operationsUtil.useFragment(fragment, subclass) > 0) {
+									if (operationsUtil.useFragment(fragment, subclass) > this.threshold) {
 										downFragmentsDesc.addSubclass(subclass);
 									}
 								}
 								
-								downFragmentsDesc.addFragment(fragment);
-								
-								this.downFragmentsDescs.add(downFragmentsDesc);
+								if (downFragmentsDesc.getSubclasses().size() > 0) {
+									downFragmentsDesc.addFragment(fragment);
+									
+									this.downFragmentsDescs.add(downFragmentsDesc);
+								}
 							}
 						}
 					}

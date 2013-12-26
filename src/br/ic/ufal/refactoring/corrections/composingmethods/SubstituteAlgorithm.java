@@ -10,7 +10,7 @@ public class SubstituteAlgorithm extends Correction {
 	}
 
 	@Override
-	public void execute() {
+	public void apply() {
 	}
 
 	

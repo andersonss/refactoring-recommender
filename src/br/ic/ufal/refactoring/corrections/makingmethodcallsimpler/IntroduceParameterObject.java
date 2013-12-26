@@ -11,7 +11,7 @@ public class IntroduceParameterObject extends Correction {
 	}
 
 	@Override
-	public void execute() {
+	public void apply() {
 	}
 
 	

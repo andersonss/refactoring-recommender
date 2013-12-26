@@ -11,7 +11,7 @@ public class ReplaceErrorCodeWithException extends Correction {
 	}
 
 	@Override
-	public void execute() {
+	public void apply() {
 	}
 
 	

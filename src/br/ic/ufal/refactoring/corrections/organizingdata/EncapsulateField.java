@@ -59,9 +59,15 @@ public class EncapsulateField extends Correction {
 	}
 
 	@Override
-	public void execute() {
+	public void apply() {
+		
+		System.out.println("Applying Encapsulate Fields");
+		
+		int count = 0;
 		
 		for (FieldDeclaration fieldDeclaration : fields) {
+			
+			System.out.println("Encapsulate Field: " + count + " of " + fields.size());
 			
 			this.sourceMultiTextEdit = new MultiTextEdit();
 			
@@ -116,7 +122,11 @@ public class EncapsulateField extends Correction {
 				e.printStackTrace();
 			}
 			
+		
+			count++;
 		}
+		
+		System.out.println("Applied Encapsulate Fields");
 		
 		
 	}

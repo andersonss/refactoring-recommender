@@ -289,14 +289,19 @@ public class OperationsUtil {
 					for (Expression expression : accessedVariables) {
 						SimpleName accessedVariable = (SimpleName) expression;
 						IBinding binding = accessedVariable.resolveBinding();
-						if (binding.getKind() == IBinding.VARIABLE) {
-							IVariableBinding accessedVariableBinding = (IVariableBinding) binding;
-							if (accessedVariableBinding.isField()
-									&& verifiedFragment.resolveBinding()
-											.isEqualTo(accessedVariableBinding)) {
-								useFragment++;
+						if (binding != null) {
+							if (binding.getKind() == IBinding.VARIABLE) {
+								IVariableBinding accessedVariableBinding = (IVariableBinding) binding;
+								if (accessedVariableBinding != null && verifiedFragment.resolveBinding() != null) {
+									if (accessedVariableBinding.isField()
+											&& verifiedFragment.resolveBinding().isEqualTo(accessedVariableBinding)) {
+										useFragment++;
+									}
+								}
+								
 							}
 						}
+						
 					}
 					for (Expression expression : arrayAccesses) {
 						ArrayAccess arrayAccess = (ArrayAccess) expression;
@@ -455,7 +460,7 @@ public class OperationsUtil {
 		return useParameter;
 	}
 
-	public List<DuplicatedFragments> retrieveDuplicatedFragments(Project project) {
+	public List<DuplicatedFragments> retrieveDuplicatedFragments(Project project, int threshold) {
 		List<Clazz> clazzs = project.getClasses();
 
 		List<DuplicatedFragments> duplicatedFragments = new ArrayList<DuplicatedFragments>();
@@ -565,8 +570,8 @@ public class OperationsUtil {
 						}
 					}
 				}
-				if (description.getFragments().size() > 0) {
-
+				if (description.getFragments().size() > threshold) {
+					
 					duplicatedFragments.add(description);
 				}
 			}
@@ -576,21 +581,22 @@ public class OperationsUtil {
 		return review(duplicatedFragments);
 	}
 
-	public List<DuplicatedFragments> review(
-			List<DuplicatedFragments> duplicatedFragments) {
+	public List<DuplicatedFragments> review(List<DuplicatedFragments> duplicatedFragments) {
 
 		System.out.println("Reviewing Duplicated Fragments");
 		duplicatedFragments = unifier(duplicatedFragments);
-		// duplicatedFragments = removeDuplicatinos(duplicatedFragments);
-		// duplicatedFragments = removeSubSet(duplicatedFragments);
+		duplicatedFragments = removeDuplicatinos(duplicatedFragments);
+		duplicatedFragments = removeSubSet(duplicatedFragments);
 
 		return duplicatedFragments;
 	}
 
-	private List<DuplicatedFragments> unifier(
-			List<DuplicatedFragments> duplicatedFragments) {
-
+	private List<DuplicatedFragments> unifier(List<DuplicatedFragments> duplicatedFragments) {
+		System.out.println("Unifying Duplicated Fragments");
 		for (int i = 0; i < duplicatedFragments.size(); i++) {
+			
+			System.out.println("Fragment: " + i + " of " + duplicatedFragments.size());
+			
 			List<Clazz> iClasses = duplicatedFragments.get(i).getClasses();
 			List<VariableDeclaration> iFrags = duplicatedFragments.get(i)
 					.getFragments();
@@ -674,12 +680,18 @@ public class OperationsUtil {
 		return clazzs;
 	}
 
-	private List<DuplicatedFragments> removeDuplicatinos(
-			List<DuplicatedFragments> duplicatedFragments) {
+	private List<DuplicatedFragments> removeDuplicatinos(List<DuplicatedFragments> duplicatedFragments) {
+		
+		System.out.println("Removing Duplications");
+		
 		List<DuplicatedFragments> reviewed = copy(duplicatedFragments);
 		List<DuplicatedFragments> removed = new ArrayList<DuplicatedFragments>();
 
 		for (int i = 0; i < duplicatedFragments.size(); i++) {
+			
+			System.out.println("Fragment: " + i + " of " + duplicatedFragments.size());
+			
+			
 			for (int j = i + 1; j < duplicatedFragments.size(); j++) {
 
 				if (duplicatedFragments.get(i).equals(
@@ -699,20 +711,24 @@ public class OperationsUtil {
 		return reviewed;
 	}
 
-	private List<DuplicatedFragments> removeSubSet(
-			List<DuplicatedFragments> duplicatedParameters) {
+	private List<DuplicatedFragments> removeSubSet(List<DuplicatedFragments> duplicatedFragments) {
 
-		List<DuplicatedFragments> reviewed = copy(duplicatedParameters);
+		System.out.println("Removing Sub Set");
+		
+		List<DuplicatedFragments> reviewed = copy(duplicatedFragments);
 
-		for (int i = 0; i < duplicatedParameters.size(); i++) {
-			for (int j = i + 1; j < duplicatedParameters.size(); j++) {
-				if (isSub(duplicatedParameters.get(i),
-						duplicatedParameters.get(j))) {
-					reviewed.remove(duplicatedParameters.get(j));
+		for (int i = 0; i < duplicatedFragments.size(); i++) {
+			
+			System.out.println("Fragment: " + i + " of " + duplicatedFragments.size());
+			
+			for (int j = i + 1; j < duplicatedFragments.size(); j++) {
+				if (isSub(duplicatedFragments.get(i),
+						duplicatedFragments.get(j))) {
+					reviewed.remove(duplicatedFragments.get(j));
 				} else {
-					if (isSub(duplicatedParameters.get(j),
-							duplicatedParameters.get(i))) {
-						reviewed.remove(duplicatedParameters.get(i));
+					if (isSub(duplicatedFragments.get(j),
+							duplicatedFragments.get(i))) {
+						reviewed.remove(duplicatedFragments.get(i));
 					}
 				}
 			}

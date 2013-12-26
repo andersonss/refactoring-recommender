@@ -18,14 +18,17 @@ public class FragmentsDataClumps extends BadSmell {
 	private List<DuplicatedFragments> fragsDuplicated = new ArrayList<DuplicatedFragments>();
 	private OperationsUtil operationsUtil = new OperationsUtil();
 	
-	public FragmentsDataClumps(Project project) {
+	private int threshold = 0;
+	
+	public FragmentsDataClumps(Project project, int threshold) {
 		super(project);
+		this.threshold = threshold;
 	}
 
 	@Override
 	public boolean check() {
 		
-		this.fragsDuplicated = operationsUtil.retrieveDuplicatedFragments(getProject());
+		this.fragsDuplicated = operationsUtil.retrieveDuplicatedFragments(getProject(), threshold);
 		
 		this.fragsDuplicated = review(fragsDuplicated);
 	

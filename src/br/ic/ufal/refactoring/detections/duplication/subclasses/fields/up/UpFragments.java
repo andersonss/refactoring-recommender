@@ -18,15 +18,18 @@ public class UpFragments extends BadSmell {
 	private List<DuplicatedFragments> duplicatedFragmentsList = new ArrayList<DuplicatedFragments>();
 	private OperationsUtil operationsUtil = new OperationsUtil();
 	
-	public UpFragments(Project project) {
+	private int threshold = 0;
+	
+	public UpFragments(Project project, int threshold) {
 		super(project);
+		this.threshold = threshold;
 	}
 
 	@Override
 	public boolean check() {
 		
 		System.out.println("Retrieving Duplicated Fragments");
-		this.duplicatedFragmentsList = operationsUtil.retrieveDuplicatedFragments(super.getProject());
+		this.duplicatedFragmentsList = operationsUtil.retrieveDuplicatedFragments(super.getProject(), this.threshold);
 		
 		System.out.println("Identifying Related Fragments Duplication");
 		this.duplicatedFragmentsList = operationsUtil.identifyRelatedFragmentsDuplication(duplicatedFragmentsList);

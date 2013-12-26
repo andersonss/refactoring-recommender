@@ -25,10 +25,11 @@ import br.ic.ufal.refactoring.detections.BadSmell;
 public class FeatureEnvy extends BadSmell {
 
 	private List<FeatureEnvyDescription> descriptions = new ArrayList<FeatureEnvyDescription>();
+	private int envyLevel = 1;
 	
-	public FeatureEnvy(Project project) {
+	public FeatureEnvy(Project project, int envyLevel) {
 		super(project);
-		
+		this.envyLevel = envyLevel;
 	}
 
 	@Override
@@ -65,7 +66,7 @@ public class FeatureEnvy extends BadSmell {
 								values.add(methodInvocation.getName().toString());
 							}
 							
-							invocations.put(methodBinding.getDeclaringClass().getName(), values);
+							invocations.put(methodBinding.getDeclaringClass().getQualifiedName(), values);
 						}
 					}
 				}
@@ -105,24 +106,35 @@ public class FeatureEnvy extends BadSmell {
     			}
 			}
         }
-        
-        if (amount > invocations.get(sourceClass.getTypeDeclaration().getName().getFullyQualifiedName()).size()) {
-			FeatureEnvyDescription desc = new FeatureEnvyDescription();
-			desc.setSourceClass(sourceClass);
-			desc.setSourceMethod(method);
-			
-			Clazz targetClazz = getClass(highestKey);
-			
-			if (sourceClass.getTypeDeclaration().getSuperclassType() != null) {
-				if (sourceClass.getTypeDeclaration().getSuperclassType().resolveBinding().isEqualTo(targetClazz.getTypeDeclaration().resolveBinding())) {
-					return null;
+        	//System.out.println("Envy Level: " + this.envyLevel);
+        	//System.out.println("Invocations: "+invocations.get(sourceClass.getTypeDeclaration().getName().getFullyQualifiedName()).size());
+        	if (amount > this.envyLevel*invocations.get(sourceClass.getTypeDeclaration().getName().getFullyQualifiedName()).size()) {
+        		Clazz targetClazz = getClass(highestKey);
+    			
+        		if (targetClazz != null) {
+        			FeatureEnvyDescription desc = new FeatureEnvyDescription();
+        			desc.setSourceClass(sourceClass);
+        			desc.setSourceMethod(method);
+        			
+        			if (sourceClass.getTypeDeclaration().getSuperclassType() != null) {
+        				if (sourceClass.getTypeDeclaration().getSuperclassType().resolveBinding() != null) {
+							if (targetClazz.getTypeDeclaration().resolveBinding() != null) {
+								if (sourceClass.getTypeDeclaration().getSuperclassType().resolveBinding().isEqualTo(targetClazz.getTypeDeclaration().resolveBinding())) {
+		        					return null;
+		        				}
+							}
+						}
+        				
+        			}
+        			
+        			desc.setTargetClass(targetClazz);
+        			
+        			return desc;
 				}
-			}
-			
-			desc.setTargetClass(targetClazz);
-			
-			return desc;
-		}
+        		
+    			
+    		}
+		
 		
 		return null;
 	}

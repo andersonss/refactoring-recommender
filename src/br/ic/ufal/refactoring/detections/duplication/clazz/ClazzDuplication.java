@@ -13,16 +13,18 @@ import br.ic.ufal.refactoring.detections.BadSmell;
 public class ClazzDuplication extends BadSmell {
 
 	private List<DuplicatedStatements> duplicatedStatements = new ArrayList<DuplicatedStatements>();
+	private int similarityLevel = 10;
 
-	public ClazzDuplication(Project project) {
+	public ClazzDuplication(Project project, int similarityLevel) {
 		super(project);
+		this.similarityLevel = similarityLevel;
 	}
 
 	@Override
 	public boolean check() {
 
 		this.duplicatedStatements = retrieveDuplicatedStatements(getProject());
-		this.duplicatedStatements = filterDuplicatedStatements(this.duplicatedStatements, 2);
+		this.duplicatedStatements = filterDuplicatedStatements(this.duplicatedStatements, this.similarityLevel);
 		this.duplicatedStatements = review(this.duplicatedStatements);
 
 		return this.duplicatedStatements.size() > 0;

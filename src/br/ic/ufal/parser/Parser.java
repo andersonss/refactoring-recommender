@@ -23,8 +23,72 @@ import br.ic.ufal.util.ParseUtil;
 
 public class Parser {
 	
-	public Parser() {
 	
+	public static Project parseProject(String path){
+		
+		Project proj = new Project();
+		
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		IWorkspaceRoot root = workspace.getRoot();
+		IProject iProject = root.getProject(path);
+		
+		try {
+			if (iProject.isNatureEnabled("org.eclipse.jdt.core.javanature")) {
+				IJavaProject javaProject = JavaCore.create(iProject);
+				
+				proj.setName(javaProject.getElementName());
+				
+				proj.setJavaProject(javaProject);
+				
+				IPackageFragmentRoot[] iPackageFragmentRoots = javaProject.getPackageFragmentRoots();
+				
+				proj.setPackages(iPackageFragmentRoots);
+				
+				for(IPackageFragmentRoot iPackageFragmentRoot : iPackageFragmentRoots) {
+					IJavaElement[] children = iPackageFragmentRoot.getChildren();
+					for(IJavaElement child : children) {
+						if(child.getElementType() == IJavaElement.PACKAGE_FRAGMENT) {
+							IPackageFragment iPackageFragment = (IPackageFragment)child;
+							ICompilationUnit[] iCompilationUnits = iPackageFragment.getCompilationUnits();
+							for (ICompilationUnit unit : iCompilationUnits) {
+								Clazz clazz = new Clazz();
+								clazz.setICompilationUnit(unit);
+								
+								CompilationUnit compilationUnit = ParseUtil.toCompilationUnit(unit);
+								
+								clazz.setCompilationUnit(compilationUnit);
+								
+								TypeDeclaration typeDeclaration = ParseUtil.getTypeDeclaration(compilationUnit);
+								if (typeDeclaration != null) {
+									clazz.setTypeDeclaration(typeDeclaration);
+								}
+								
+								Document document = null;
+								
+								try {
+									document = new Document(unit.getBuffer().getContents());
+									clazz.setDocument(document);
+								} catch (JavaModelException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+								
+								if (typeDeclaration != null) {
+									proj.addClazz(clazz);
+								}
+								
+								
+							}
+						}
+					}
+				}
+			}
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+		
+		return proj;
+		
 	}
 
 	public static List<Project> parseAllProjects( ) throws JavaModelException {
