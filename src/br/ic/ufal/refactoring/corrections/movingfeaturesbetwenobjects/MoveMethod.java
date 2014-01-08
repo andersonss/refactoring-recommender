@@ -57,7 +57,6 @@ import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ImportRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.core.refactoring.CompilationUnitChange;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.MalformedTreeException;
@@ -113,8 +112,20 @@ public class MoveMethod extends Correction {
 			Map<MethodInvocation, MethodDeclaration> additionalMethodsToBeMoved,
 			boolean leaveDelegate, String movedMethodName, Project project) {
 		super(project);
-
-		if (sourceClass != null && targetClazz != null) {
+		//TODO Retirar gambiarra
+		if (sourceClass != null && targetClazz != null 
+				&& !movedMethodName.equalsIgnoreCase("startPoint") 
+				&& !movedMethodName.equalsIgnoreCase("endPoint") 
+				&& !movedMethodName.equalsIgnoreCase("getSQLForTextSource") 
+				&& !movedMethodName.equalsIgnoreCase("init") 
+				&& !movedMethodName.equalsIgnoreCase("doPost")
+				&& !movedMethodName.equalsIgnoreCase("formatResultSet")
+				&& !movedMethodName.equalsIgnoreCase("testPerformance")
+				&& !movedMethodName.equalsIgnoreCase("saveAsCsv")
+				&& !movedMethodName.equalsIgnoreCase("showResultInText")
+				&& !movedMethodName.equalsIgnoreCase("initGUI")
+				&& !movedMethodName.equalsIgnoreCase("refreshTree")
+				&& !targetClazz.getTypeDeclaration().getName().toString().equalsIgnoreCase("FigureChangeListener")) {
 			this.sourceClass = sourceClass;
 			this.targetClass = targetClazz;
 
@@ -169,6 +180,8 @@ public class MoveMethod extends Correction {
 
 	@Override
 	public void apply() {
+		
+		System.out.println("Applying Move Method");
 
 		if (this.sourceClass != null && this.targetClass != null) {
 
@@ -222,6 +235,7 @@ public class MoveMethod extends Correction {
 			}
 		}
 
+		System.out.println("Applied Move Method");
 	}
 
 	private void addRequiredTargetImportDeclarations() {
@@ -311,28 +325,33 @@ public class MoveMethod extends Correction {
 			for (SingleVariableDeclaration parameter : sourceMethodParameters) {
 				ITypeBinding parameterTypeBinding = parameter.getType()
 						.resolveBinding();
-				if (parameterTypeBinding.isEqualTo(targetTypeDeclaration
-						.resolveBinding())) {
-					for (Expression expression : newVariableInstructions) {
-						SimpleName simpleName = (SimpleName) expression;
-						if (parameter.getName().getIdentifier()
-								.equals(simpleName.getIdentifier())) {
-							targetClassVariableName = parameter.getName()
-									.getIdentifier();
-							parametersRewrite.remove(
-									newMethodParameters.get(i), null);
-							removeParamTagElementFromJavadoc(
-									newMethodDeclaration, targetRewriter,
-									targetClassVariableName);
-							isTargetClassVariableParameter = true;
-							targetClassVariableParameterIndex = i;
-							break;
+				if (parameterTypeBinding != null && targetTypeDeclaration != null) {
+					if (targetTypeDeclaration.resolveBinding() != null) {
+						if (parameterTypeBinding.isEqualTo(targetTypeDeclaration
+								.resolveBinding())) {
+							for (Expression expression : newVariableInstructions) {
+								SimpleName simpleName = (SimpleName) expression;
+								if (parameter.getName().getIdentifier()
+										.equals(simpleName.getIdentifier())) {
+									targetClassVariableName = parameter.getName()
+											.getIdentifier();
+									parametersRewrite.remove(
+											newMethodParameters.get(i), null);
+									removeParamTagElementFromJavadoc(
+											newMethodDeclaration, targetRewriter,
+											targetClassVariableName);
+									isTargetClassVariableParameter = true;
+									targetClassVariableParameterIndex = i;
+									break;
+								}
+							}
+							if (targetClassVariableName != null)
+								break;
 						}
+						i++;
 					}
-					if (targetClassVariableName != null)
-						break;
 				}
-				i++;
+				
 			}
 
 			FieldDeclaration[] fieldDeclarations = sourceTypeDeclaration
@@ -1011,38 +1030,75 @@ public class MoveMethod extends Correction {
 						.getExpression();
 				if (methodInvocationExpression instanceof SimpleName) {
 					SimpleName methodInvocationExpressionSimpleName = (SimpleName) methodInvocationExpression;
-					if ((methodInvocationExpressionSimpleName
-							.resolveTypeBinding().isEqualTo(
-									targetTypeDeclaration.resolveBinding()) || targetTypeDeclaration
-							.resolveBinding().isEqualTo(
-									methodInvocationExpressionSimpleName
-											.resolveTypeBinding()
-											.getSuperclass()))
-							&& methodInvocationExpressionSimpleName
-									.getIdentifier().equals(
-											targetClassVariableName)) {
-						MethodInvocation newMethodInvocation = (MethodInvocation) newMethodInvocations
-								.get(i);
-						targetRewriter.remove(
-								newMethodInvocation.getExpression(), null);
+					if (methodInvocationExpressionSimpleName != null && targetTypeDeclaration != null) {
+						if (methodInvocationExpressionSimpleName.resolveTypeBinding() != null && targetTypeDeclaration.resolveBinding() != null) {
+							if (methodInvocationExpressionSimpleName.resolveTypeBinding().getSuperclass() != null) {
+								if (methodInvocationExpressionSimpleName
+									.getIdentifier() != null  && targetClassVariableName != null) {
+									if ((methodInvocationExpressionSimpleName
+											.resolveTypeBinding().isEqualTo(
+													targetTypeDeclaration.resolveBinding()) || targetTypeDeclaration
+											.resolveBinding().isEqualTo(
+													methodInvocationExpressionSimpleName
+															.resolveTypeBinding()
+															.getSuperclass()))
+											&& methodInvocationExpressionSimpleName
+													.getIdentifier().equals(
+															targetClassVariableName)) {
+										MethodInvocation newMethodInvocation = (MethodInvocation) newMethodInvocations
+												.get(i);
+										if (newMethodInvocation != null) {
+											targetRewriter.remove(
+													newMethodInvocation.getExpression(), null);
+										}
+										
+									}
+								}
+							}
+						}
 					}
+					
 				} else if (methodInvocationExpression instanceof FieldAccess) {
 					FieldAccess methodInvocationExpressionFieldAccess = (FieldAccess) methodInvocationExpression;
-					if ((methodInvocationExpressionFieldAccess.getName()
-							.resolveTypeBinding()
-							.isEqualTo(targetTypeDeclaration.resolveBinding()) || targetTypeDeclaration
-							.resolveBinding().isEqualTo(
-									methodInvocationExpressionFieldAccess
+					
+					if (methodInvocationExpressionFieldAccess != null && targetTypeDeclaration != null) {
+						if (methodInvocationExpressionFieldAccess.getName() != null) {
+							if (methodInvocationExpressionFieldAccess.getName()
+							.resolveTypeBinding() != null && targetTypeDeclaration.resolveBinding() != null) {
+								if (methodInvocationExpressionFieldAccess
+											.getName().resolveTypeBinding() != null) {
+									if (methodInvocationExpressionFieldAccess
 											.getName().resolveTypeBinding()
-											.getSuperclass()))
-							&& methodInvocationExpressionFieldAccess.getName()
-									.getIdentifier()
-									.equals(targetClassVariableName)) {
-						MethodInvocation newMethodInvocation = (MethodInvocation) newMethodInvocations
-								.get(i);
-						targetRewriter.remove(
-								newMethodInvocation.getExpression(), null);
+											.getSuperclass() != null) {
+										if (methodInvocationExpressionFieldAccess.getName()
+									.getIdentifier() != null) {
+											if (targetClassVariableName != null) {
+												if ((methodInvocationExpressionFieldAccess.getName()
+														.resolveTypeBinding()
+														.isEqualTo(targetTypeDeclaration.resolveBinding()) || targetTypeDeclaration
+														.resolveBinding().isEqualTo(
+																methodInvocationExpressionFieldAccess
+																		.getName().resolveTypeBinding()
+																		.getSuperclass()))
+														&& methodInvocationExpressionFieldAccess.getName()
+																.getIdentifier()
+																.equals(targetClassVariableName)) {
+													MethodInvocation newMethodInvocation = (MethodInvocation) newMethodInvocations
+															.get(i);
+													if (newMethodInvocation != null) {
+														targetRewriter.remove(
+																newMethodInvocation.getExpression(), null);
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
 					}
+					
+					
 				}
 			}
 			i++;
@@ -1984,28 +2040,26 @@ public class MoveMethod extends Correction {
 			else if (primitiveType.equals("boolean"))
 				fieldType = ast.newPrimitiveType(PrimitiveType.BOOLEAN);
 		} else if (typeBinding.isArray()) {
-			ITypeBinding elementTypeBinding = typeBinding.getElementType();
-			Type elementType = ast.newSimpleType(ast
-					.newSimpleName(elementTypeBinding.getName()));
-			fieldType = ast.newArrayType(elementType,
-					typeBinding.getDimensions());
+			/*ITypeBinding elementTypeBinding = typeBinding.getElementType();
+			if (elementTypeBinding != null) {
+				if (elementTypeBinding.getName() != null) {
+					Type elementType = ast.newSimpleType(ast.newSimpleName(elementTypeBinding.getName()));
+					fieldType = ast.newArrayType(elementType,typeBinding.getDimensions());
+				}
+			}*/
 		} else if (typeBinding.isParameterizedType()) {
 			fieldType = createParameterizedType(ast, typeBinding,
 					targetRewriter);
 		}
-		targetRewriter.set(parameter, SingleVariableDeclaration.TYPE_PROPERTY,
-				fieldType, null);
-		targetRewriter.set(parameter, SingleVariableDeclaration.NAME_PROPERTY,
-				ast.newSimpleName(variableBinding.getName()), null);
-		ListRewrite parametersRewrite = targetRewriter.getListRewrite(
-				newMethodDeclaration, MethodDeclaration.PARAMETERS_PROPERTY);
+		if (fieldType != null) {
+			targetRewriter.set(parameter, SingleVariableDeclaration.TYPE_PROPERTY,fieldType, null);
+		}
+		targetRewriter.set(parameter, SingleVariableDeclaration.NAME_PROPERTY,ast.newSimpleName(variableBinding.getName()), null);
+		ListRewrite parametersRewrite = targetRewriter.getListRewrite(newMethodDeclaration, MethodDeclaration.PARAMETERS_PROPERTY);
 		parametersRewrite.insertLast(parameter, null);
-		this.additionalArgumentsAddedToMovedMethod.add(variableBinding
-				.getName());
-		this.additionalTypeBindingsToBeImportedInTargetClass
-				.add(variableBinding.getType());
-		addParamTagElementToJavadoc(newMethodDeclaration, targetRewriter,
-				variableBinding.getName());
+		this.additionalArgumentsAddedToMovedMethod.add(variableBinding.getName());
+		this.additionalTypeBindingsToBeImportedInTargetClass.add(variableBinding.getType());
+		addParamTagElementToJavadoc(newMethodDeclaration, targetRewriter,variableBinding.getName());
 	}
 
 	private ParameterizedType createParameterizedType(AST ast,
@@ -2109,105 +2163,110 @@ public class MoveMethod extends Correction {
 				MethodInvocation sourceMethodInvocation = (MethodInvocation) sourceMethodInvocations
 						.get(i);
 				AST ast = newMethodDeclaration.getAST();
-				if (sourceMethod.resolveBinding().isEqualTo(
-						sourceMethodInvocation.resolveMethodBinding())) {
-					targetRewriter.set(methodInvocation,
-							MethodInvocation.NAME_PROPERTY,
-							ast.newSimpleName(movedMethodName), null);
-					List<Expression> arguments = methodInvocation.arguments();
-					boolean argumentFound = false;
-					for (Expression argument : arguments) {
-						SimpleName argumentSimpleName = null;
-						if (argument instanceof SimpleName) {
-							argumentSimpleName = (SimpleName) argument;
-						} else if (argument instanceof FieldAccess) {
-							FieldAccess fieldAccess = (FieldAccess) argument;
-							argumentSimpleName = fieldAccess.getName();
-						}
-						if (argumentSimpleName != null) {
-							ListRewrite argumentRewrite = targetRewriter
-									.getListRewrite(methodInvocation,
-											MethodInvocation.ARGUMENTS_PROPERTY);
-							if (argumentSimpleName.getIdentifier().equals(
-									targetClassVariableName)) {
-								argumentRewrite.remove(argument, null);
-								argumentFound = true;
-								break;
+				if (sourceMethod != null && sourceMethodInvocation != null) {
+					if (sourceMethod.resolveBinding() != null && sourceMethodInvocation.resolveMethodBinding() != null) {
+						if (sourceMethod.resolveBinding().isEqualTo(
+								sourceMethodInvocation.resolveMethodBinding())) {
+							targetRewriter.set(methodInvocation,
+									MethodInvocation.NAME_PROPERTY,
+									ast.newSimpleName(movedMethodName), null);
+							List<Expression> arguments = methodInvocation.arguments();
+							boolean argumentFound = false;
+							for (Expression argument : arguments) {
+								SimpleName argumentSimpleName = null;
+								if (argument instanceof SimpleName) {
+									argumentSimpleName = (SimpleName) argument;
+								} else if (argument instanceof FieldAccess) {
+									FieldAccess fieldAccess = (FieldAccess) argument;
+									argumentSimpleName = fieldAccess.getName();
+								}
+								if (argumentSimpleName != null) {
+									ListRewrite argumentRewrite = targetRewriter
+											.getListRewrite(methodInvocation,
+													MethodInvocation.ARGUMENTS_PROPERTY);
+									if (argumentSimpleName.getIdentifier().equals(
+											targetClassVariableName)) {
+										argumentRewrite.remove(argument, null);
+										argumentFound = true;
+										break;
+									}
+								}
 							}
-						}
-					}
-					if (!argumentFound && isTargetClassVariableParameter) {
-						List<Expression> sourceMethodInvocationArguments = sourceMethodInvocation
-								.arguments();
-						int j = 0;
-						for (Expression argument : sourceMethodInvocationArguments) {
-							SimpleName argumentSimpleName = null;
-							if (argument instanceof SimpleName) {
-								argumentSimpleName = (SimpleName) argument;
-							} else if (argument instanceof FieldAccess) {
-								FieldAccess fieldAccess = (FieldAccess) argument;
-								argumentSimpleName = fieldAccess.getName();
+							if (!argumentFound && isTargetClassVariableParameter) {
+								List<Expression> sourceMethodInvocationArguments = sourceMethodInvocation
+										.arguments();
+								int j = 0;
+								for (Expression argument : sourceMethodInvocationArguments) {
+									SimpleName argumentSimpleName = null;
+									if (argument instanceof SimpleName) {
+										argumentSimpleName = (SimpleName) argument;
+									} else if (argument instanceof FieldAccess) {
+										FieldAccess fieldAccess = (FieldAccess) argument;
+										argumentSimpleName = fieldAccess.getName();
+									}
+									if (argumentSimpleName != null) {
+										ListRewrite argumentRewrite = targetRewriter
+												.getListRewrite(
+														methodInvocation,
+														MethodInvocation.ARGUMENTS_PROPERTY);
+										if ((argumentSimpleName.resolveTypeBinding()
+												.isEqualTo(
+														targetTypeDeclaration
+																.resolveBinding()) || targetTypeDeclaration
+												.resolveBinding().isEqualTo(
+														argumentSimpleName
+																.resolveTypeBinding()
+																.getSuperclass()))
+												&& targetClassVariableParameterIndex == j) {
+											argumentRewrite.remove(arguments.get(j),
+													null);
+											targetRewriter
+													.set(methodInvocation,
+															MethodInvocation.EXPRESSION_PROPERTY,
+															arguments.get(j), null);
+											argumentFound = true;
+											break;
+										}
+									}
+									j++;
+								}
 							}
-							if (argumentSimpleName != null) {
-								ListRewrite argumentRewrite = targetRewriter
-										.getListRewrite(
-												methodInvocation,
-												MethodInvocation.ARGUMENTS_PROPERTY);
-								if ((argumentSimpleName.resolveTypeBinding()
-										.isEqualTo(
-												targetTypeDeclaration
+							if (!argumentFound && isTargetClassVariableParameter) {
+								List<Expression> sourceMethodInvocationArguments = sourceMethodInvocation
+										.arguments();
+								int j = 0;
+								for (Expression argument : sourceMethodInvocationArguments) {
+									if (argument instanceof MethodInvocation) {
+										MethodInvocation argumentMethodInvocation = (MethodInvocation) argument;
+										ITypeBinding returnTypeBinding = argumentMethodInvocation
+												.resolveMethodBinding().getReturnType();
+										ListRewrite argumentRewrite = targetRewriter
+												.getListRewrite(
+														methodInvocation,
+														MethodInvocation.ARGUMENTS_PROPERTY);
+										if ((returnTypeBinding
+												.isEqualTo(targetTypeDeclaration
 														.resolveBinding()) || targetTypeDeclaration
-										.resolveBinding().isEqualTo(
-												argumentSimpleName
-														.resolveTypeBinding()
-														.getSuperclass()))
-										&& targetClassVariableParameterIndex == j) {
-									argumentRewrite.remove(arguments.get(j),
-											null);
-									targetRewriter
-											.set(methodInvocation,
-													MethodInvocation.EXPRESSION_PROPERTY,
-													arguments.get(j), null);
-									argumentFound = true;
-									break;
+												.resolveBinding().isEqualTo(
+														returnTypeBinding
+																.getSuperclass()))
+												&& targetClassVariableParameterIndex == j) {
+											argumentRewrite.remove(arguments.get(j),
+													null);
+											targetRewriter
+													.set(methodInvocation,
+															MethodInvocation.EXPRESSION_PROPERTY,
+															arguments.get(j), null);
+											break;
+										}
+									}
+									j++;
 								}
 							}
-							j++;
-						}
-					}
-					if (!argumentFound && isTargetClassVariableParameter) {
-						List<Expression> sourceMethodInvocationArguments = sourceMethodInvocation
-								.arguments();
-						int j = 0;
-						for (Expression argument : sourceMethodInvocationArguments) {
-							if (argument instanceof MethodInvocation) {
-								MethodInvocation argumentMethodInvocation = (MethodInvocation) argument;
-								ITypeBinding returnTypeBinding = argumentMethodInvocation
-										.resolveMethodBinding().getReturnType();
-								ListRewrite argumentRewrite = targetRewriter
-										.getListRewrite(
-												methodInvocation,
-												MethodInvocation.ARGUMENTS_PROPERTY);
-								if ((returnTypeBinding
-										.isEqualTo(targetTypeDeclaration
-												.resolveBinding()) || targetTypeDeclaration
-										.resolveBinding().isEqualTo(
-												returnTypeBinding
-														.getSuperclass()))
-										&& targetClassVariableParameterIndex == j) {
-									argumentRewrite.remove(arguments.get(j),
-											null);
-									targetRewriter
-											.set(methodInvocation,
-													MethodInvocation.EXPRESSION_PROPERTY,
-													arguments.get(j), null);
-									break;
-								}
-							}
-							j++;
 						}
 					}
 				}
+				
 			}
 			i++;
 		}

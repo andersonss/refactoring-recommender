@@ -13,12 +13,12 @@ import br.ic.ufal.refactoring.detections.duplication.subclasses.methods.up.UpMet
 
 public class PullUpMethods extends Correction {
 
-	private List<UpMethodsDesc> upMethodsDescs = null;
+	private UpMethodsDesc upMethodsDesc = null;
 	
-	public PullUpMethods(List<UpMethodsDesc> upMethodsDescs, Project project) {
+	public PullUpMethods(UpMethodsDesc upMethodsDesc, Project project) {
 		super(project);
 		
-		this.upMethodsDescs = upMethodsDescs;
+		this.upMethodsDesc = upMethodsDesc;
 	}
 
 	@Override
@@ -26,16 +26,10 @@ public class PullUpMethods extends Correction {
 		
 		System.out.println("Applying Pull Up Methods");
 		
-		
-		int count = 0;
-		
-		for (UpMethodsDesc desc : this.upMethodsDescs) {
 			
-			System.out.println("Up Method " + count + " of " + this.upMethodsDescs.size());
-			
-			Clazz superclazz = desc.getSuperclass();
-			List<Clazz> subclasses = desc.getSubclasses();
-			List<MethodDeclaration> methodsToBeUp = desc.getMethodsToBeUp();
+			Clazz superclazz = upMethodsDesc.getSuperclass();
+			List<Clazz> subclasses = upMethodsDesc.getSubclasses();
+			List<MethodDeclaration> methodsToBeUp = upMethodsDesc.getMethodsToBeUp();
 			
 			for (MethodDeclaration methodDeclaration : methodsToBeUp) {
 				Clazz sourceClazz = clazzContainMethod(methodDeclaration, subclasses);
@@ -54,10 +48,7 @@ public class PullUpMethods extends Correction {
 			//	System.out.println("Moved Method: " + methodDeclaration.getName());
 				
 			}
-			
-			count++;
-			
-		}
+		
 		
 		
 		System.out.println("Applyed Pull Up Methods");

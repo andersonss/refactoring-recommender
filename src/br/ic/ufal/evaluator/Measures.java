@@ -91,12 +91,12 @@ public class Measures {
 
 	@Override
 	public String toString() {
-		return "Measures [designsize=" + designsize + ", abstraction="
-				+ abstraction + ", encapsulation=" + encapsulation
-				+ ", coupling=" + coupling + ", cohesion=" + cohesion
-				+ ", composition=" + composition + ", inheritance="
-				+ inheritance + ", polymorphism=" + polymorphism
-				+ ", messaging=" + messaging + "]";
+		return "Designsize = " + designsize + "\n Abstraction = "
+				+ abstraction + "\n Encapsulation = " + encapsulation
+				+ "\n Coupling = " + coupling + "\n Cohesion = " + cohesion
+				+ "\n Composition = " + composition + "\n Inheritance = "
+				+ inheritance + "\n Polymorphism = " + polymorphism
+				+ "\n Messaging = " + messaging + "\n";
 	}
 
 }

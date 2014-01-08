@@ -2,6 +2,7 @@ package br.ic.ufal.evaluator;
 
 import gr.uom.java.ast.util.ExpressionExtractor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jdt.core.dom.Expression;
@@ -13,9 +14,7 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Type;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 import br.ic.ufal.parser.Clazz;
@@ -25,7 +24,6 @@ import br.ic.ufal.util.ParseUtil;
 public class Evaluator {
 
 	private Project project = new Project();
-	private int treedeep = 0;
 	
 	public Evaluator( ) {
 	}
@@ -33,7 +31,6 @@ public class Evaluator {
 	public Measures evaluateProjectQuality(Project project){
 		
 		this.project = project;
-		this.treedeep = 0;
 		
 		Measures measures = new Measures();
 		System.out.println("Measures");
@@ -63,7 +60,6 @@ public class Evaluator {
 						if (modifier.getKeyword().equals(ModifierKeyword.PUBLIC_KEYWORD)) {
 							cm++;
 						}
-						
 					}
 				}
 			}
@@ -78,24 +74,57 @@ public class Evaluator {
 		double polymorphism = 0;
 		
 		for (Clazz clazz : this.project.getClasses()) {
-			if (clazz.getTypeDeclaration().getSuperclassType() != null) {
-				polymorphism++;
+			List<Clazz> subclasses = getSubClasses(clazz, this.project.getClasses());
+			if (clazz.getTypeDeclaration().getSuperclassType() == null && subclasses.size() > 0) {
+				polymorphism = polymorphism + subclasses.size();
 			}
 		}
 		
 		return polymorphism;
 	}
-
+	
+	private List<Clazz> getSubClasses(Clazz clazz, List<Clazz> classes){
+		List<Clazz> subclasses = new ArrayList<Clazz>();
+		
+		for (Clazz sub : classes) {
+			if (isSubClass(clazz, sub)) {
+				subclasses.add(sub);
+			}
+		}
+		
+		return subclasses;
+	}
+	
+	private boolean isSubClass(Clazz clazz, Clazz sub){
+		if (sub.getTypeDeclaration().getSuperclassType() != null) {
+			
+			Clazz superclass = ParseUtil.getClazz(sub.getTypeDeclaration().getSuperclassType().resolveBinding(), this.project.getClasses());
+			
+			if (superclass != null) {
+				if (clazz.getTypeDeclaration().resolveBinding().isEqualTo(superclass.getTypeDeclaration().resolveBinding())) {
+					return true;
+				}else{
+					return isSubClass(clazz, superclass);
+				}
+			}
+		}
+		
+		return false;
+		
+	}
+	
 	private double evaluateComposition() {
 		System.out.println("Evaluate Composition");
 		double composition = 0;
 		
 		for (Clazz clazz : this.project.getClasses()) {
+			int classComposition = 0;
 			for (FieldDeclaration field : clazz.getTypeDeclaration().getFields()) {
 				if (existFieldClass(field)) {
-					composition++;
+					classComposition++;
 				}
 			}
+			composition = composition + classComposition;
 		}
 		
 		return composition;
@@ -120,81 +149,84 @@ public class Evaluator {
 		System.out.println("Evaluate Cohesion");
 		double cohesion = 0;
 		
+		for (Clazz clazz : this.project.getClasses()) {
+			double classCohesion = 0;
+			FieldDeclaration[] fields = clazz.getTypeDeclaration().getFields();
+			for (int i = 0; i < clazz.getTypeDeclaration().getMethods().length; i++) {
+				List<IVariableBinding> ivariables = getVariables(clazz.getTypeDeclaration().getMethods()[i], fields);
+				
+				for (int j = i+1; j < clazz.getTypeDeclaration().getMethods().length; j++) {
+					List<IVariableBinding> jvariables = getVariables(clazz.getTypeDeclaration().getMethods()[j], fields);
+					classCohesion = classCohesion + countSimilarVariables(ivariables, jvariables);
+					
+				}
+			}
+			cohesion = cohesion + classCohesion;
+		}
+		
+		return cohesion;
+	}
+	
+	private List<IVariableBinding> getVariables(MethodDeclaration methodDeclaration, FieldDeclaration[] fields ){
+		List<IVariableBinding> ivariables = new ArrayList<IVariableBinding>();
+		
 		ExpressionExtractor expressionExtractor = new ExpressionExtractor();
 		
-		for (Clazz clazz : this.project.getClasses()) {
+		List<Expression> variables = expressionExtractor.getVariableInstructions(methodDeclaration.getBody());
+		
+		for (Expression expression : variables) {
 			
+			SimpleName variable = (SimpleName)expression;
+			IBinding variableBinding = variable.resolveBinding();
 			
-			for (MethodDeclaration methodDeclaration : clazz.getTypeDeclaration().getMethods()) {
+			if (variableBinding != null) {
 				
-				List<Expression> variables = expressionExtractor.getVariableInstructions(methodDeclaration.getBody());
-				
-				for (Expression expression : variables) {
+				if(variableBinding.getKind() == IBinding.VARIABLE) {
+					IVariableBinding accessedVariableBinding = (IVariableBinding)variableBinding;
 					
-					SimpleName variable = (SimpleName)expression;
-					IBinding variableBinding = variable.resolveBinding();
-					if (variableBinding != null) {
-						if(variableBinding.getKind() == IBinding.VARIABLE) {
-							IVariableBinding accessedVariableBinding = (IVariableBinding)variableBinding;
-							if(accessedVariableBinding.isField()) {
-								for (FieldDeclaration fieldDeclaration : clazz.getTypeDeclaration().getFields()) {
-									List<VariableDeclarationFragment> fragments = fieldDeclaration.fragments();
-									for (VariableDeclarationFragment fragment : fragments) {
-										
-										if (accessedVariableBinding != null && fragment.resolveBinding() != null) {
-											
-										if (accessedVariableBinding.isEqualTo(fragment.resolveBinding().getVariableDeclaration())) {
-											cohesion++;
-										}
-										
-										}
-										
-										
-									}
-								}
-							}
+					if(accessedVariableBinding.isField()) {
+						
+						for (FieldDeclaration fieldDeclaration : fields) {
+							List<VariableDeclarationFragment> fragments = fieldDeclaration.fragments();
 							
+							for (VariableDeclarationFragment fragment : fragments) {
+								
+								if (accessedVariableBinding != null && fragment.resolveBinding() != null) {
+									
+									if (accessedVariableBinding.isEqualTo(fragment.resolveBinding().getVariableDeclaration())) {
+										ivariables.add(accessedVariableBinding);
+									}
+								
+								}
+								
+								
+							}
 						}
 					}
 					
+				}
+			}
+			
+		}
+		
+		return ivariables;
+		
+	}
+
+	private int countSimilarVariables(List<IVariableBinding> ivariables, List<IVariableBinding> jvariables){
+		int count = 0;
+		
+		for (IVariableBinding iVariableBinding : ivariables) {
+			for (IVariableBinding jVariableBinding : jvariables) {
+				if (iVariableBinding.isEqualTo(jVariableBinding)) {
+					count++;
 				}
 			}
 		}
 		
-		
-		
-		
-		
-		/*List<TypeDeclaration> typDeclarations = Util.getTypeDeclarations(project.getiCompilationUnits());
-		
-		for (TypeDeclaration clazz : typDeclarations) {
-			double access = 0;
-			double noaccess = 0;
-			for (FieldDeclaration field : clazz.getFields()) {
-				double count = 0;
-				double ncount = 0;
-				List<VariableDeclarationFragment> fragments = field.fragments();
-				for (VariableDeclarationFragment fragment : fragments) {
-					for (MethodDeclaration method : clazz.getMethods()) {
-						if (methodContainVar(method, fragment.getName().toString())) {
-							count++;
-						}else{
-							ncount++;
-						}
-					}
-				}
-				access+= count/2;
-				noaccess+=ncount/2;
-			}
-			cohesion+= noaccess-access;
-			if (cohesion <0 ) {
-				return 0;
-			}
-		}*/
-		
-		return cohesion;
+		return count;
 	}
-
+	
 	private double evaluateInheritance() {
 		System.out.println("Evaluate Inheritance");
 		double inheritance = 0;
@@ -204,21 +236,41 @@ public class Evaluator {
 			if (clazz.getTypeDeclaration() != null) {
 				Type superclass = clazz.getTypeDeclaration().getSuperclassType();
 				double inheritanceClasse = 0;
+				double notinheritanceClasse = 0;
+				double ratio = 0;
 				if (superclass != null) {
 					for (MethodDeclaration method : clazz.getTypeDeclaration().getMethods()) {
+						if (!method.isConstructor()) {
+							
 						IMethodBinding iMethodBinding = method.resolveBinding();
+						boolean isSub = false;
+						if (superclass.resolveBinding() != null) {
+							
 						for (IMethodBinding meth : superclass.resolveBinding().getDeclaredMethods()) {
 							if (iMethodBinding != null) {
-								if (iMethodBinding.isSubsignature(meth) &&
-										!meth.toString().contains("init")) {
-										inheritanceClasse++;
+								if (iMethodBinding.isSubsignature(meth) && !meth.toString().contains("init")) {
+									inheritanceClasse++;
+									isSub = true;
 								}
 							}
 						}
+						}
+						
+						if (!isSub) {
+							notinheritanceClasse++;
+						}
+						}
 					}
 				}
-				
-				inheritance = inheritance + inheritanceClasse;
+				if (notinheritanceClasse>0) {
+					ratio = inheritanceClasse/notinheritanceClasse;
+				}else{
+					if (notinheritanceClasse == 0 && inheritanceClasse > 0) {
+						ratio = 1;
+					}
+					
+				}
+				inheritance = inheritance + ratio;
 			}
 			
 			
@@ -248,7 +300,7 @@ public class Evaluator {
 						}
 					}
 					
-					for (MethodDeclaration method : cclazz.getTypeDeclaration().getMethods()) {
+					/*for (MethodDeclaration method : cclazz.getTypeDeclaration().getMethods()) {
 						List<SingleVariableDeclaration> parameters = method.parameters();
 						for (SingleVariableDeclaration parameter : parameters) {
 							if (parameter.getType() != null && parameter.getType().resolveBinding() != null &&
@@ -261,7 +313,7 @@ public class Evaluator {
 							}
 							
 						}
-					}
+					}*/
 				}
 			}
 			
@@ -277,14 +329,15 @@ public class Evaluator {
 		double encapsulation = 0;
 		
 		for (Clazz clazz : this.project.getClasses()) {
+			double classEncapsulation = 0;
 			if (clazz.getTypeDeclaration() != null) {
 				if (clazz.getTypeDeclaration().getFields().length > 0) {
 					double amountPrivateAttr = countPrivateAttr(clazz.getTypeDeclaration().getFields());
 					double ratio = amountPrivateAttr/numberOfFragments(clazz.getTypeDeclaration().getFields());
-					encapsulation = encapsulation + ratio;
+					classEncapsulation = classEncapsulation + ratio;
 				}
 			}
-			
+			encapsulation = encapsulation + classEncapsulation;
 		}
 		
 		return encapsulation;
@@ -321,18 +374,25 @@ public class Evaluator {
 
 	private double evaluateAbstraction() {
 		System.out.println("Evaluate Abstraction");
-		double abstraction = 0;
+		double count = 0, classabstraction = 0;
 		
 		for (Clazz clazz : this.project.getClasses()) {
-			this.treedeep = 0;
-			searchInheritanceTree(clazz.getTypeDeclaration());
-			abstraction = abstraction + treedeep;
+			List<Clazz> subclasses = getSubClasses(clazz, this.project.getClasses());
+			
+			if (clazz.getTypeDeclaration().getSuperclassType() == null && subclasses.size() > 0) {
+				classabstraction = classabstraction + subclasses.size();
+				count++;
+			}
+			
+			
 		}
-		
-		return abstraction;
+		if (count>0) {
+			return classabstraction/count;
+		}
+		return 0;
 	}
 	
-	private void searchInheritanceTree(TypeDeclaration typeDeclaration){
+	/*private void searchInheritanceTree(TypeDeclaration typeDeclaration){
 	
 		if (typeDeclaration != null) {
 			if (typeDeclaration.getSuperclassType()!= null) {
@@ -343,7 +403,7 @@ public class Evaluator {
 				searchInheritanceTree(superclass);
 			}
 		}
-	}
+	}*/
 
 	private double evaluateDesignZise() {
 		

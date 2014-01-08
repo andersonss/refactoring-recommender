@@ -44,9 +44,9 @@ public class QualityFactors {
 
 	@Override
 	public String toString() {
-		return "QualityFactors [reusability=" + this.reusability + ", flexibility="
-				+ this.flexibility + ", extensibility=" + this.extensibility
-				+ ", this.effectiveness=" + effectiveness + "]";
+		return "Reusability = " + evaluateReusability() + "\n Flexibility = "
+				+ evaluateFlexibility() + "\n Extensibility = " + evaluateExtendibility()
+				+ "\n Effectiveness = " + evaluateEffectiveness() + "\n";
 	}
 
 	

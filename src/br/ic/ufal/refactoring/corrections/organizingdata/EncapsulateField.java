@@ -48,13 +48,13 @@ public class EncapsulateField extends Correction {
 	private Document sourceDocument = null;
 	private ICompilationUnit sourceICompilationUnit = null;
 	
-	private List<FieldDeclaration> fields = null;
+	private FieldDeclaration field = null;
 	
 	private MultiTextEdit sourceMultiTextEdit;
 
-	public EncapsulateField(List<FieldDeclaration> fields, Project project) {
+	public EncapsulateField(FieldDeclaration field, Project project) {
 		super(project);
-		this.fields = fields;
+		this.field = field;
 		
 	}
 
@@ -63,15 +63,10 @@ public class EncapsulateField extends Correction {
 		
 		System.out.println("Applying Encapsulate Fields");
 		
-		int count = 0;
-		
-		for (FieldDeclaration fieldDeclaration : fields) {
-			
-			System.out.println("Encapsulate Field: " + count + " of " + fields.size());
 			
 			this.sourceMultiTextEdit = new MultiTextEdit();
 			
-			TypeDeclaration td = ParseUtil.getTypeDeclaration((CompilationUnit)fieldDeclaration.getRoot());
+			TypeDeclaration td = ParseUtil.getTypeDeclaration((CompilationUnit)this.field.getRoot());
 			
 			
 			Clazz sourceClass = ParseUtil.getClazz(td, super.getProject().getClasses());
@@ -81,8 +76,8 @@ public class EncapsulateField extends Correction {
 			this.sourceDocument = sourceClass.getDocument();
 			this.sourceICompilationUnit = sourceClass.getICompilationUnit();
 			
-			createSetterMethodInSourceClass(fieldDeclaration);
-			createGetterMethodInSourceClass(fieldDeclaration);
+			createSetterMethodInSourceClass(this.field);
+			createGetterMethodInSourceClass(this.field);
 			updateModifier( );
 			
 			try {
@@ -123,8 +118,6 @@ public class EncapsulateField extends Correction {
 			}
 			
 		
-			count++;
-		}
 		
 		System.out.println("Applied Encapsulate Fields");
 		

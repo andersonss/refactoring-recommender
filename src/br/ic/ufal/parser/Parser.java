@@ -3,6 +3,8 @@ package br.ic.ufal.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Resource;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -50,12 +52,13 @@ public class Parser {
 						if(child.getElementType() == IJavaElement.PACKAGE_FRAGMENT) {
 							IPackageFragment iPackageFragment = (IPackageFragment)child;
 							ICompilationUnit[] iCompilationUnits = iPackageFragment.getCompilationUnits();
-							for (ICompilationUnit unit : iCompilationUnits) {
+							for (ICompilationUnit originalunit : iCompilationUnits) {
+								
+								ICompilationUnit unit = originalunit.getWorkingCopy(null);
+								
 								Clazz clazz = new Clazz();
 								clazz.setICompilationUnit(unit);
-								
 								CompilationUnit compilationUnit = ParseUtil.toCompilationUnit(unit);
-								
 								clazz.setCompilationUnit(compilationUnit);
 								
 								TypeDeclaration typeDeclaration = ParseUtil.getTypeDeclaration(compilationUnit);
@@ -69,7 +72,6 @@ public class Parser {
 									document = new Document(unit.getBuffer().getContents());
 									clazz.setDocument(document);
 								} catch (JavaModelException e) {
-									// TODO Auto-generated catch block
 									e.printStackTrace();
 								}
 								

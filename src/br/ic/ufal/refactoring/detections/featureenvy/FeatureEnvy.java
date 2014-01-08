@@ -60,13 +60,22 @@ public class FeatureEnvy extends BadSmell {
 						
 						if (methodInvocation.getName() != null) {
 							IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
-							
-							Set<String> values = invocations.get(methodBinding.getDeclaringClass().getName());
-							if (values != null) {
-								values.add(methodInvocation.getName().toString());
+							if (methodBinding != null) {
+								if (methodBinding.getDeclaringClass() != null) {
+									if (methodBinding.getDeclaringClass().getName() != null) {
+										if (invocations != null) {
+											Set<String> values = invocations.get(methodBinding.getDeclaringClass().getName());
+											if (values != null) {
+												values.add(methodInvocation.getName().toString());
+											}
+											
+											invocations.put(methodBinding.getDeclaringClass().getQualifiedName(), values);
+										}
+										
+									}
+								}
 							}
 							
-							invocations.put(methodBinding.getDeclaringClass().getQualifiedName(), values);
 						}
 					}
 				}

@@ -3,7 +3,9 @@ package br.ic.ufal.refactoring.rules;
 import br.ic.ufal.parser.Project;
 import br.ic.ufal.refactoring.corrections.Correction;
 import br.ic.ufal.refactoring.corrections.movingfeaturesbetwenobjects.PushDownFragments;
+import br.ic.ufal.refactoring.detections.BadSmellType;
 import br.ic.ufal.refactoring.detections.duplication.subclasses.fields.down.DownFragments;
+import br.ic.ufal.refactoring.detections.duplication.subclasses.fields.down.DownFragmentsDesc;
 
 public class DownPushDownFrags extends Rule {
 
@@ -17,12 +19,24 @@ public class DownPushDownFrags extends Rule {
 	@Override
 	public void execute() {
 		System.out.println("Verifying Down Fragments");
-		DownFragments downFields = new DownFragments(getProject(), this.threshold);
+		DownFragments downFragments = new DownFragments(getProject(), this.threshold);
 		
-		if (downFields.check()) {
+		if (downFragments.check()) {
 			
-				Correction pushDownFragments = new PushDownFragments(downFields.getDownFragmentsDescs(), getProject());
+			
+			for (int i = 0; i < downFragments.getDownFragmentsDescs().size(); i++) {
+				
+				DownFragmentsDesc fragToBeDown = downFragments.getDownFragmentsDescs().get(i);
+				
+				System.out.println("Correct Duplicated Fragments: " + i + " of " + downFragments.getDownFragmentsDescs().size());
+				
+				Correction pushDownFragments = new PushDownFragments(fragToBeDown, getProject());
 				pushDownFragments.apply();
+				
+			}
+			
+			getProject().countSolvedBadSmells(BadSmellType.DownFragments, downFragments.getDownFragmentsDescs().size());
+			
 		}
 	}
 

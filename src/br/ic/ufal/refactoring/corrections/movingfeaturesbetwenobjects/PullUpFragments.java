@@ -1,7 +1,6 @@
 package br.ic.ufal.refactoring.corrections.movingfeaturesbetwenobjects;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.eclipse.jdt.core.dom.VariableDeclaration;
@@ -14,12 +13,11 @@ import br.ic.ufal.util.ParseUtil;
 
 public class PullUpFragments extends Correction {
 
-	private List<DuplicatedFragments> duplicatedFragmentsList = null;
+	private DuplicatedFragments duplicatedFragments = null;
 	
-	public PullUpFragments(List<DuplicatedFragments> duplicatedFragmentsList, Project project) {
+	public PullUpFragments(DuplicatedFragments duplicatedFragments, Project project) {
 		super(project);
-		
-		this.duplicatedFragmentsList = duplicatedFragmentsList;
+		this.duplicatedFragments = duplicatedFragments;
 	}
 
 	@Override
@@ -29,8 +27,6 @@ public class PullUpFragments extends Correction {
 		
 		MoveField moveField = null;
 		
-		for (DuplicatedFragments duplicatedFragments : this.duplicatedFragmentsList) {
-			
 			Set<VariableDeclaration> fragments = new HashSet<VariableDeclaration>();
 			
 			for (VariableDeclaration fragment : duplicatedFragments.getFragments()) {
@@ -69,7 +65,7 @@ public class PullUpFragments extends Correction {
 				}
 			}
 			
-		}
+		
 	
 		System.out.println("Applied Pull Up Fragments");
 	}

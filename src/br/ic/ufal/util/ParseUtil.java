@@ -44,6 +44,20 @@ public class ParseUtil {
 	    return (CompilationUnit) parser.createAST(null);
 	}
 	
+	public static Clazz getClazz(ITypeBinding iTypeBinding, List<Clazz> classes){
+		
+		for (Clazz clazz : classes) {
+			if (clazz.getTypeDeclaration() != null) {
+				if (clazz.getTypeDeclaration().resolveBinding().isEqualTo(iTypeBinding)) {
+					return clazz;
+				}
+			}
+			
+		}
+		
+		return null;
+	}
+	
 	public static TypeDeclaration getTypeDeclaration(ITypeBinding iTypeBinding, List<Clazz> classes){
 		
 		for (Clazz clazz : classes) {

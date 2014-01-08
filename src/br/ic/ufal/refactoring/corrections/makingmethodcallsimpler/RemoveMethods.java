@@ -20,11 +20,11 @@ import br.ic.ufal.util.ParseUtil;
 public class RemoveMethods extends Correction {
 
 	
-	private List<MethodDeclaration> methodsToBeRemoved = null;
+	private MethodDeclaration methodToBeRemoved = null;
 	
-	public RemoveMethods(Project project, List<MethodDeclaration> methodsToBeRemoved) {
+	public RemoveMethods(Project project, MethodDeclaration methodToBeRemoved) {
 		super(project);
-		this.methodsToBeRemoved = methodsToBeRemoved;
+		this.methodToBeRemoved = methodToBeRemoved;
 	}
 	
 	@Override
@@ -32,52 +32,49 @@ public class RemoveMethods extends Correction {
 		
 		System.out.println("Removing Unused Methods");
 		
-		
-		int count = 0;
-		
-		for (Clazz clazz : super.getProject().getClasses()) {
-			
-			System.out.println("Removing Unsued Methods in Class: " + count + " of " + super.getProject().getClasses().size());
+		List<Clazz> classes = getProject().getClasses();
+		for (Clazz clazz : classes) {
 			
 			MultiTextEdit sourceMultiTextEdit = new MultiTextEdit();
+			
 			ASTRewrite sourceRewriter = ASTRewrite.create(clazz.getCompilationUnit().getAST());
+			
 			ListRewrite classBodyRewrite = sourceRewriter.getListRewrite(clazz.getTypeDeclaration(), TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
-		
-			for (MethodDeclaration methodToBeRemoved : this.methodsToBeRemoved) {
-				for (MethodDeclaration method : clazz.getTypeDeclaration().getMethods()) {
+			boolean update = false;
+			for (MethodDeclaration method : clazz.getTypeDeclaration().getMethods()) {
 					if (methodToBeRemoved != null && method != null) {
 						if (methodToBeRemoved.resolveBinding() != null && method.resolveBinding() != null) {
 							if (methodToBeRemoved.resolveBinding().isEqualTo(method.resolveBinding())) {
 								classBodyRewrite.remove(method, null);
+								update = true;
 							}else{
 								if (methodToBeRemoved.resolveBinding().isSubsignature(method.resolveBinding())) {
 									classBodyRewrite.remove(method, null);
+									update = true;
 								}
 							}
 						}
 					}
 				}
+			if (update) {
+				TextEdit sourceEdit = sourceRewriter.rewriteAST(clazz.getDocument(), clazz.getICompilationUnit().getJavaProject().getOptions(true));
+				sourceMultiTextEdit.addChild(sourceEdit);
+				
+				try {
+					sourceMultiTextEdit.apply(clazz.getDocument());
+					
+					ParseUtil.updateClazz(clazz.getDocument(), clazz, getProject());
+					
+				} catch (MalformedTreeException e) {
+					e.printStackTrace();
+				} catch (BadLocationException e) {
+					e.printStackTrace();
+				} catch (JavaModelException e) {
+					e.printStackTrace();
+				}
 			}
 			
-			TextEdit sourceEdit = sourceRewriter.rewriteAST(clazz.getDocument(), clazz.getICompilationUnit().getJavaProject().getOptions(true));
-			sourceMultiTextEdit.addChild(sourceEdit);
 			
-			try {
-				sourceMultiTextEdit.apply(clazz.getDocument());
-				
-				ParseUtil.updateClazz(clazz.getDocument(), clazz, getProject());
-				
-				
-			} catch (MalformedTreeException e) {
-				e.printStackTrace();
-			} catch (BadLocationException e) {
-				e.printStackTrace();
-			} catch (JavaModelException e) {
-				e.printStackTrace();
-			}
-			
-			count++;
-		
 		}
 		
 		System.out.println("Removed Unused Methods");

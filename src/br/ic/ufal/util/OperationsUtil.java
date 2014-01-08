@@ -190,11 +190,17 @@ public class OperationsUtil {
 			TypeDeclaration subclassTypeDeclaration = subclass
 					.getTypeDeclaration();
 			Type superclass = subclassTypeDeclaration.getSuperclassType();
-			if (superclass != null) {
-				if (superclass.resolveBinding().isEqualTo(
-						classTypeDeclaration.resolveBinding())) {
-					subclasses.add(subclass);
+			if (superclass != null && classTypeDeclaration != null) {
+				
+				if (superclass.resolveBinding() != null && classTypeDeclaration.resolveBinding() != null) {
+					
+					if (superclass.resolveBinding().isEqualTo(classTypeDeclaration.resolveBinding())) {
+						subclasses.add(subclass);
+					}
+				
 				}
+				
+				
 			}
 
 		}

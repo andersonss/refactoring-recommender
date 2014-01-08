@@ -27,14 +27,17 @@ public class UnusedMethods extends BadSmell {
 			for (int i = 0; i < super.getProject().getClasses().size(); i++) {
 				Clazz clazz = super.getProject().getClasses().get(i);
 				
-				System.out.println("Analysing Unused Method in Class: " + clazz.getTypeDeclaration().getName() + " Position: " + i);
-				
+				System.out.println("Analysing Unused Methods in Class: " + clazz.getTypeDeclaration().getName() + " Position: " + i);
+				System.out.println("Number of Methods: " + clazz.getTypeDeclaration().getMethods().length);
+				int count = 0;
 				for (MethodDeclaration method : clazz.getTypeDeclaration().getMethods()) {
 					if (operationsUtil.useMethod(method, super.getProject()) == this.threshold && 
 						!method.isConstructor()) {
+						count ++;
 						this.unusedMethods.add(method);
 					}
 				}
+				System.out.println("Amount of Unused Methods: " + count);
 			}
 			
 		
