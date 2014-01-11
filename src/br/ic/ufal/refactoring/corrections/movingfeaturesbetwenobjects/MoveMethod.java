@@ -125,6 +125,22 @@ public class MoveMethod extends Correction {
 				&& !movedMethodName.equalsIgnoreCase("showResultInText")
 				&& !movedMethodName.equalsIgnoreCase("initGUI")
 				&& !movedMethodName.equalsIgnoreCase("refreshTree")
+				&& !movedMethodName.equalsIgnoreCase("setCurrentBindings")
+				&& !movedMethodName.equalsIgnoreCase("ClientConnection")
+				&& !movedMethodName.equalsIgnoreCase("StatementSchema")
+				&& !movedMethodName.equalsIgnoreCase("DatePatternConverter")
+				&& !movedMethodName.equalsIgnoreCase("getThrowableStrRep")
+				&& !movedMethodName.equalsIgnoreCase("nextMatchingElementAfter")
+				&& !movedMethodName.equalsIgnoreCase("reset")
+				&& !movedMethodName.equalsIgnoreCase("scanDoctypeDecl")
+				&& !movedMethodName.equalsIgnoreCase("scanXMLDeclOrTextDecl")
+				&& !movedMethodName.equalsIgnoreCase("scanStartElement")
+				&& !movedMethodName.equalsIgnoreCase("scanCharReference")
+				&& !targetClazz.getTypeDeclaration().getName().toString().equalsIgnoreCase("XMLDTDProcessor")
+				&& !targetClazz.getTypeDeclaration().getName().toString().equalsIgnoreCase("DTDGrammar")
+				&& !targetClazz.getTypeDeclaration().getName().toString().equalsIgnoreCase("XMLString")
+				&& !targetClazz.getTypeDeclaration().getName().toString().equalsIgnoreCase("XMLEntityScanner")
+				&& !targetClazz.getTypeDeclaration().getName().toString().equalsIgnoreCase("Result")
 				&& !targetClazz.getTypeDeclaration().getName().toString().equalsIgnoreCase("FigureChangeListener")) {
 			this.sourceClass = sourceClass;
 			this.targetClass = targetClazz;
@@ -807,71 +823,35 @@ public class MoveMethod extends Correction {
 						for (Expression expression : methodInvocations) {
 							if (expression instanceof MethodInvocation) {
 								MethodInvocation methodInvocation = (MethodInvocation) expression;
-								if (sourceMethod
-										.resolveBinding()
-										.isEqualTo(
-												methodInvocation
-														.resolveMethodBinding())) {
-									ASTRewrite sourceRewriter = ASTRewrite
-											.create(sourceCompilationUnit
-													.getAST());
-									AST ast = methodInvocation.getAST();
-									sourceRewriter.set(methodInvocation,
-											MethodInvocation.NAME_PROPERTY,
-											ast.newSimpleName(movedMethodName),
-											null);
-									List<Expression> arguments = methodInvocation
-											.arguments();
-									boolean foundInArguments = false;
-									for (Expression argument : arguments) {
-										if (argument != null
-												&& targetTypeDeclaration != null) {
-											if (argument.resolveTypeBinding() != null
-													&& targetTypeDeclaration
-															.resolveBinding() != null) {
-												if (argument
-														.resolveTypeBinding()
-														.isEqualTo(
-																targetTypeDeclaration
-																		.resolveBinding())) {
-													foundInArguments = true;
-													ListRewrite argumentRewrite = sourceRewriter
-															.getListRewrite(
-																	methodInvocation,
-																	MethodInvocation.ARGUMENTS_PROPERTY);
-													argumentRewrite.remove(
-															argument, null);
-													if (argument instanceof CastExpression) {
-														ParenthesizedExpression parenthesizedExpression = ast
-																.newParenthesizedExpression();
-														sourceRewriter
-																.set(parenthesizedExpression,
-																		ParenthesizedExpression.EXPRESSION_PROPERTY,
-																		argument,
-																		null);
-														sourceRewriter
-																.set(methodInvocation,
-																		MethodInvocation.EXPRESSION_PROPERTY,
-																		parenthesizedExpression,
-																		null);
-													} else {
-														sourceRewriter
-																.set(methodInvocation,
-																		MethodInvocation.EXPRESSION_PROPERTY,
-																		argument,
-																		null);
-													}
-													break;
-												}
-											}
-										}
-									}
-									if (!foundInArguments && isTargetClassVariableParameter) {
-										for (Expression argument : arguments) {
-											if (targetTypeDeclaration != null && argument != null) {
-												if (targetTypeDeclaration.resolveBinding() != null && argument.resolveTypeBinding() != null) {
-													if (argument.resolveTypeBinding().getSuperclass() != null) {
-														if (targetTypeDeclaration.resolveBinding().isEqualTo(argument.resolveTypeBinding().getSuperclass())) {
+								if (sourceMethod != null && methodInvocation != null) {
+									if (sourceMethod.resolveBinding() != null && methodInvocation.resolveMethodBinding() != null) {
+										if (sourceMethod
+												.resolveBinding()
+												.isEqualTo(
+														methodInvocation
+																.resolveMethodBinding())) {
+											ASTRewrite sourceRewriter = ASTRewrite
+													.create(sourceCompilationUnit
+															.getAST());
+											AST ast = methodInvocation.getAST();
+											sourceRewriter.set(methodInvocation,
+													MethodInvocation.NAME_PROPERTY,
+													ast.newSimpleName(movedMethodName),
+													null);
+											List<Expression> arguments = methodInvocation
+													.arguments();
+											boolean foundInArguments = false;
+											for (Expression argument : arguments) {
+												if (argument != null
+														&& targetTypeDeclaration != null) {
+													if (argument.resolveTypeBinding() != null
+															&& targetTypeDeclaration
+																	.resolveBinding() != null) {
+														if (argument
+																.resolveTypeBinding()
+																.isEqualTo(
+																		targetTypeDeclaration
+																				.resolveBinding())) {
 															foundInArguments = true;
 															ListRewrite argumentRewrite = sourceRewriter
 																	.getListRewrite(
@@ -879,134 +859,175 @@ public class MoveMethod extends Correction {
 																			MethodInvocation.ARGUMENTS_PROPERTY);
 															argumentRewrite.remove(
 																	argument, null);
-															sourceRewriter
-																	.set(methodInvocation,
-																			MethodInvocation.EXPRESSION_PROPERTY,
-																			argument, null);
+															if (argument instanceof CastExpression) {
+																ParenthesizedExpression parenthesizedExpression = ast
+																		.newParenthesizedExpression();
+																sourceRewriter
+																		.set(parenthesizedExpression,
+																				ParenthesizedExpression.EXPRESSION_PROPERTY,
+																				argument,
+																				null);
+																sourceRewriter
+																		.set(methodInvocation,
+																				MethodInvocation.EXPRESSION_PROPERTY,
+																				parenthesizedExpression,
+																				null);
+															} else {
+																sourceRewriter
+																		.set(methodInvocation,
+																				MethodInvocation.EXPRESSION_PROPERTY,
+																				argument,
+																				null);
+															}
 															break;
 														}
 													}
 												}
 											}
-											
-										}
-									}
-									boolean foundInFields = false;
-									if (!foundInArguments) {
-										FieldDeclaration[] fieldDeclarations = sourceTypeDeclaration
-												.getFields();
-										for (FieldDeclaration fieldDeclaration : fieldDeclarations) {
-											List<VariableDeclarationFragment> fragments = fieldDeclaration
-													.fragments();
-											for (VariableDeclarationFragment fragment : fragments) {
-
-												if (fieldDeclaration != null
-														&& targetTypeDeclaration != null) {
-													if (fieldDeclaration
-															.getType() != null) {
-														if (fieldDeclaration
-																.getType()
-																.resolveBinding() != null
-																&& targetTypeDeclaration
-																		.resolveBinding() != null) {
-															if (fieldDeclaration
-																	.getType()
-																	.resolveBinding()
-																	.isEqualTo(
-																			targetTypeDeclaration
-																					.resolveBinding())
-																	&& fragment
-																			.getName()
-																			.getIdentifier()
-																			.equals(targetClassVariableName)) {
-																foundInFields = true;
-																sourceRewriter
-																		.set(methodInvocation,
-																				MethodInvocation.EXPRESSION_PROPERTY,
-																				fragment.getName(),
-																				null);
-																break;
-															}
-														}
-													}
-												}
-
-											}
-										}
-									}
-									if (!foundInArguments && !foundInFields) {
-										FieldDeclaration[] fieldDeclarations = sourceTypeDeclaration
-												.getFields();
-										for (FieldDeclaration fieldDeclaration : fieldDeclarations) {
-											List<VariableDeclarationFragment> fragments = fieldDeclaration
-													.fragments();
-											for (VariableDeclarationFragment fragment : fragments) {
-												if (targetTypeDeclaration != null
-														&& fieldDeclaration != null) {
-													if (fieldDeclaration
-															.getType() != null) {
-														if (targetTypeDeclaration
-																.resolveBinding() != null
-																&& fieldDeclaration
-																		.getType()
-																		.resolveBinding() != null) {
-															if (fieldDeclaration
-																	.getType()
-																	.resolveBinding()
-																	.getSuperclass() != null) {
-																if (targetTypeDeclaration
-																		.resolveBinding()
-																		.isEqualTo(
-																				fieldDeclaration
-																						.getType()
-																						.resolveBinding()
-																						.getSuperclass())
-																		&& fragment
-																				.getName()
-																				.getIdentifier()
-																				.equals(targetClassVariableName)) {
+											if (!foundInArguments && isTargetClassVariableParameter) {
+												for (Expression argument : arguments) {
+													if (targetTypeDeclaration != null && argument != null) {
+														if (targetTypeDeclaration.resolveBinding() != null && argument.resolveTypeBinding() != null) {
+															if (argument.resolveTypeBinding().getSuperclass() != null) {
+																if (targetTypeDeclaration.resolveBinding().isEqualTo(argument.resolveTypeBinding().getSuperclass())) {
+																	foundInArguments = true;
+																	ListRewrite argumentRewrite = sourceRewriter
+																			.getListRewrite(
+																					methodInvocation,
+																					MethodInvocation.ARGUMENTS_PROPERTY);
+																	argumentRewrite.remove(
+																			argument, null);
 																	sourceRewriter
 																			.set(methodInvocation,
 																					MethodInvocation.EXPRESSION_PROPERTY,
-																					fragment.getName(),
-																					null);
+																					argument, null);
 																	break;
 																}
 															}
 														}
 													}
+													
 												}
-
 											}
+											boolean foundInFields = false;
+											if (!foundInArguments) {
+												FieldDeclaration[] fieldDeclarations = sourceTypeDeclaration
+														.getFields();
+												for (FieldDeclaration fieldDeclaration : fieldDeclarations) {
+													List<VariableDeclarationFragment> fragments = fieldDeclaration
+															.fragments();
+													for (VariableDeclarationFragment fragment : fragments) {
+
+														if (fieldDeclaration != null
+																&& targetTypeDeclaration != null) {
+															if (fieldDeclaration
+																	.getType() != null) {
+																if (fieldDeclaration
+																		.getType()
+																		.resolveBinding() != null
+																		&& targetTypeDeclaration
+																				.resolveBinding() != null) {
+																	if (fieldDeclaration
+																			.getType()
+																			.resolveBinding()
+																			.isEqualTo(
+																					targetTypeDeclaration
+																							.resolveBinding())
+																			&& fragment
+																					.getName()
+																					.getIdentifier()
+																					.equals(targetClassVariableName)) {
+																		foundInFields = true;
+																		sourceRewriter
+																				.set(methodInvocation,
+																						MethodInvocation.EXPRESSION_PROPERTY,
+																						fragment.getName(),
+																						null);
+																		break;
+																	}
+																}
+															}
+														}
+
+													}
+												}
+											}
+											if (!foundInArguments && !foundInFields) {
+												FieldDeclaration[] fieldDeclarations = sourceTypeDeclaration
+														.getFields();
+												for (FieldDeclaration fieldDeclaration : fieldDeclarations) {
+													List<VariableDeclarationFragment> fragments = fieldDeclaration
+															.fragments();
+													for (VariableDeclarationFragment fragment : fragments) {
+														if (targetTypeDeclaration != null
+																&& fieldDeclaration != null) {
+															if (fieldDeclaration
+																	.getType() != null) {
+																if (targetTypeDeclaration
+																		.resolveBinding() != null
+																		&& fieldDeclaration
+																				.getType()
+																				.resolveBinding() != null) {
+																	if (fieldDeclaration
+																			.getType()
+																			.resolveBinding()
+																			.getSuperclass() != null) {
+																		if (targetTypeDeclaration
+																				.resolveBinding()
+																				.isEqualTo(
+																						fieldDeclaration
+																								.getType()
+																								.resolveBinding()
+																								.getSuperclass())
+																				&& fragment
+																						.getName()
+																						.getIdentifier()
+																						.equals(targetClassVariableName)) {
+																			sourceRewriter
+																					.set(methodInvocation,
+																							MethodInvocation.EXPRESSION_PROPERTY,
+																							fragment.getName(),
+																							null);
+																			break;
+																		}
+																	}
+																}
+															}
+														}
+
+													}
+												}
+											}
+											ListRewrite argumentRewrite = sourceRewriter
+													.getListRewrite(
+															methodInvocation,
+															MethodInvocation.ARGUMENTS_PROPERTY);
+											for (String argument : additionalArgumentsAddedToMovedMethod) {
+												if (argument.equals("this"))
+													argumentRewrite.insertLast(
+															ast.newThisExpression(),
+															null);
+												else
+													argumentRewrite
+															.insertLast(
+																	ast.newSimpleName(argument),
+																	null);
+											}
+
+											TextEdit sourceEdit = sourceRewriter
+													.rewriteAST(this.sourceDocument,
+															this.sourceICompilationUnit
+																	.getJavaProject()
+																	.getOptions(true));
+											sourceMultiTextEdit.addChild(sourceEdit);
+											sourceCompilationUnitChange
+													.addTextEditGroup(new TextEditGroup(
+															"Change invocation of moved method",
+															new TextEdit[] { sourceEdit }));
 										}
 									}
-									ListRewrite argumentRewrite = sourceRewriter
-											.getListRewrite(
-													methodInvocation,
-													MethodInvocation.ARGUMENTS_PROPERTY);
-									for (String argument : additionalArgumentsAddedToMovedMethod) {
-										if (argument.equals("this"))
-											argumentRewrite.insertLast(
-													ast.newThisExpression(),
-													null);
-										else
-											argumentRewrite
-													.insertLast(
-															ast.newSimpleName(argument),
-															null);
-									}
-
-									TextEdit sourceEdit = sourceRewriter
-											.rewriteAST(this.sourceDocument,
-													this.sourceICompilationUnit
-															.getJavaProject()
-															.getOptions(true));
-									sourceMultiTextEdit.addChild(sourceEdit);
-									sourceCompilationUnitChange
-											.addTextEditGroup(new TextEditGroup(
-													"Change invocation of moved method",
-													new TextEdit[] { sourceEdit }));
 								}
+								
 							}
 						}
 					}
@@ -1525,34 +1546,39 @@ public class MoveMethod extends Correction {
 																			.resolveMethodBinding())) {
 														MethodInvocation delegation = MethodDeclarationUtility
 																.isDelegate(sourceMethodDeclaration);
-														if (delegation != null) {
-															ITypeBinding delegationDeclaringClassTypeBinding = delegation
-																	.resolveMethodBinding()
-																	.getDeclaringClass();
-															if (delegationDeclaringClassTypeBinding
-																	.isEqualTo(targetTypeDeclaration
-																			.resolveBinding())) {
-																if (delegation
-																		.getExpression() != null) {
-																	MethodInvocation newMethodInvocation = (MethodInvocation) ASTNode
-																			.copySubtree(
-																					newMethodDeclaration
-																							.getAST(),
-																					delegation);
-																	targetRewriter
-																			.remove(newMethodInvocation
-																					.getExpression(),
-																					null);
-																	targetRewriter
-																			.replace(
-																					newMethodInvocations
-																							.get(k),
-																					newMethodInvocation,
-																					null);
+														if (delegation != null ) {
+															if (delegation.resolveMethodBinding() != null) {
+																if (delegation.resolveMethodBinding().getDeclaringClass() != null) {
+																	ITypeBinding delegationDeclaringClassTypeBinding = delegation
+																			.resolveMethodBinding()
+																			.getDeclaringClass();
+																	if (delegationDeclaringClassTypeBinding
+																			.isEqualTo(targetTypeDeclaration
+																					.resolveBinding())) {
+																		if (delegation
+																				.getExpression() != null) {
+																			MethodInvocation newMethodInvocation = (MethodInvocation) ASTNode
+																					.copySubtree(
+																							newMethodDeclaration
+																									.getAST(),
+																							delegation);
+																			targetRewriter
+																					.remove(newMethodInvocation
+																							.getExpression(),
+																							null);
+																			targetRewriter
+																					.replace(
+																							newMethodInvocations
+																									.get(k),
+																							newMethodInvocation,
+																							null);
+																		}
+																		expressionsToBeRemoved
+																				.add(methodInvocation);
+																	}
 																}
-																expressionsToBeRemoved
-																		.add(methodInvocation);
 															}
+															
 														}
 													}
 												}

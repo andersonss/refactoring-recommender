@@ -37,13 +37,12 @@ public class Engine {
 		
 		//rulesTypes.add(RuleType.ClassDupExtMeth);
 		rulesTypes.add(RuleType.FeatureEnvyMoveMeth);
-		rulesTypes.add(RuleType.DownPushDownFrags);
 		rulesTypes.add(RuleType.PublicEncapsulateFields);
+		rulesTypes.add(RuleType.DownPushDownFrags);
 		//rulesTypes.add(RuleType.UpPullUpFrags);
 		//rulesTypes.add(RuleType.DownPushDownMethods);
 		//rulesTypes.add(RuleType.UpPullUpMethods);
 		// rulesTypes.add(RuleType.UnusedRemoveMethods);
-		
 		
 	}
 	
@@ -51,7 +50,7 @@ public class Engine {
 		
 		System.out.println("Planning");
 		
-		File file = new File("strategy1-ArgoUML.txt");
+		File file = new File("strategy2-xerces.txt");
 		
 		FileWriter fw = null;
 		BufferedWriter bw = null;
@@ -88,9 +87,8 @@ public class Engine {
 		int detectedBadSmells = detector(project);
 		evaluation = evaluation +"\n\n Amount of Detected Bad Smells: " + detectedBadSmells+"\n";
 		
-		evaluation = evaluation + applyStrategyOne(projectName);
-		
-		//evaluation = evaluation + applyStrategyTwo(projectName);
+		//evaluation = evaluation + applyStrategyOne(projectName);
+		evaluation = evaluation + applyStrategyTwo(projectName);
 		//evaluation = evaluation + applyStrategyThree(projectName);
 		
 		try {

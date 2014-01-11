@@ -320,17 +320,19 @@ public class OperationsUtil {
 							arrayVariable = fieldAccess.getName();
 						}
 						if (arrayVariable != null) {
-							IBinding arrayBinding = arrayVariable
-									.resolveBinding();
-							if (arrayBinding.getKind() == IBinding.VARIABLE) {
-								IVariableBinding arrayVariableBinding = (IVariableBinding) arrayBinding;
-								if (arrayVariableBinding.isField()
+							IBinding arrayBinding = arrayVariable.resolveBinding();
+							if (arrayBinding != null) {
+								if (arrayBinding.getKind() == IBinding.VARIABLE) {
+									IVariableBinding arrayVariableBinding = (IVariableBinding) arrayBinding;
+									if (arrayVariableBinding.isField()
 										&& verifiedFragment
 												.resolveBinding()
 												.isEqualTo(arrayVariableBinding)) {
-									useFragment++;
+										useFragment++;
+									}
 								}
 							}
+							
 						}
 					}
 				}

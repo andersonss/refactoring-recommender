@@ -20,7 +20,11 @@ public class Recommender extends AbstractHandler {
 		MessageDialog.openInformation(window.getShell(), "Recommender", "Recommender");
 		
 		Engine engine = new Engine( );
-		engine.planning("ArgoUML");
+		//engine.planning("log4j");
+		engine.planning("xerces-java-trunk");
+		//engine.planning("HSQLDB");
+		//engine.planning("JEdit");
+		//engine.planning("ArgoUML");
 		//engine.planning("JHotDraw");
 		//engine.planning("HSQLDB");
 		//engine.planning("SweetHome3D");
