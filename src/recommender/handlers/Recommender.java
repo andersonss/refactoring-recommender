@@ -21,13 +21,13 @@ public class Recommender extends AbstractHandler {
 		
 		Engine engine = new Engine( );
 		//engine.planning("log4j");
-		engine.planning("xerces-java-trunk");
+		//engine.planning("xerces-java-trunk");
 		//engine.planning("HSQLDB");
 		//engine.planning("JEdit");
 		//engine.planning("ArgoUML");
 		//engine.planning("JHotDraw");
 		//engine.planning("HSQLDB");
-		//engine.planning("SweetHome3D");
+		engine.planning("SweetHome3D");
 		
 		return null;
 	}

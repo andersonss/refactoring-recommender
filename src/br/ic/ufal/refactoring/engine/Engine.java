@@ -14,6 +14,7 @@ import br.ic.ufal.evaluator.Measures;
 import br.ic.ufal.evaluator.QualityFactors;
 import br.ic.ufal.parser.Parser;
 import br.ic.ufal.parser.Project;
+import br.ic.ufal.refactoring.detections.BadSmellType;
 import br.ic.ufal.refactoring.detections.duplication.subclasses.fields.down.DownFragments;
 import br.ic.ufal.refactoring.detections.featureenvy.FeatureEnvy;
 import br.ic.ufal.refactoring.detections.visibility.fields.PublicFields;
@@ -36,9 +37,9 @@ public class Engine {
 	public Engine( ) {
 		
 		//rulesTypes.add(RuleType.ClassDupExtMeth);
+		rulesTypes.add(RuleType.DownPushDownFrags);
 		rulesTypes.add(RuleType.FeatureEnvyMoveMeth);
 		rulesTypes.add(RuleType.PublicEncapsulateFields);
-		rulesTypes.add(RuleType.DownPushDownFrags);
 		//rulesTypes.add(RuleType.UpPullUpFrags);
 		//rulesTypes.add(RuleType.DownPushDownMethods);
 		//rulesTypes.add(RuleType.UpPullUpMethods);
@@ -50,7 +51,7 @@ public class Engine {
 		
 		System.out.println("Planning");
 		
-		File file = new File("strategy2-xerces.txt");
+		File file = new File("strategy3-xerces.txt");
 		
 		FileWriter fw = null;
 		BufferedWriter bw = null;
@@ -88,8 +89,8 @@ public class Engine {
 		evaluation = evaluation +"\n\n Amount of Detected Bad Smells: " + detectedBadSmells+"\n";
 		
 		//evaluation = evaluation + applyStrategyOne(projectName);
-		evaluation = evaluation + applyStrategyTwo(projectName);
-		//evaluation = evaluation + applyStrategyThree(projectName);
+		//evaluation = evaluation + applyStrategyTwo(projectName);
+		evaluation = evaluation + applyStrategyThree(projectName);
 		
 		try {
 			bw.write(evaluation);
@@ -131,11 +132,14 @@ public class Engine {
 					if (!rule1.equals(rule2) && 
 						!rule1.equals(rule3) && 
 						!rule2.equals(rule3)) {
-						List<RuleType> actions = new ArrayList<RuleType>();
-						actions.add(rule1);
-						actions.add(rule2);
-						actions.add(rule3);
-						strategies.add(actions);
+						if (!(rule1.equals(RuleType.DownPushDownFrags) && rule2.equals(RuleType.FeatureEnvyMoveMeth))
+							&& !(rule2.equals(RuleType.DownPushDownFrags) && rule3.equals(RuleType.FeatureEnvyMoveMeth)) ) {
+							List<RuleType> actions = new ArrayList<RuleType>();
+							actions.add(rule1);
+							actions.add(rule2);
+							actions.add(rule3);
+							strategies.add(actions);
+						}
 					}
 				}
 			}
@@ -280,10 +284,14 @@ public class Engine {
 		for (RuleType rule1 : this.rulesTypes) {
 			for (RuleType rule2 : this.rulesTypes) {
 				if (!rule1.equals(rule2)) {
+					if ( !(rule1.equals(RuleType.DownPushDownFrags) && rule2.equals(RuleType.FeatureEnvyMoveMeth))) {
+						
 					List<RuleType> actions = new ArrayList<RuleType>();
 					actions.add(rule1);
 					actions.add(rule2);
 					strategies.add(actions);
+					}
+					
 				}
 			}
 		}
