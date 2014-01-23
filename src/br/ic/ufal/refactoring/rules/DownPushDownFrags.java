@@ -6,6 +6,7 @@ import br.ic.ufal.refactoring.corrections.movingfeaturesbetwenobjects.PushDownFr
 import br.ic.ufal.refactoring.detections.BadSmellType;
 import br.ic.ufal.refactoring.detections.duplication.subclasses.fields.down.DownFragments;
 import br.ic.ufal.refactoring.detections.duplication.subclasses.fields.down.DownFragmentsDesc;
+import br.ic.ufal.refactoring.detections.duplication.subclasses.methods.down.DownMethods;
 
 public class DownPushDownFrags extends Rule {
 
@@ -22,7 +23,8 @@ public class DownPushDownFrags extends Rule {
 		DownFragments downFragments = new DownFragments(getProject(), this.threshold);
 		
 		if (downFragments.check()) {
-			
+			int amountOfBadSmellsBefore = downFragments.getDownFragmentsDescs().size();
+			getProject().countDetectedBadSmells(BadSmellType.DownFragments, amountOfBadSmellsBefore);
 			
 			for (int i = 0; i < downFragments.getDownFragmentsDescs().size(); i++) {
 				
@@ -35,7 +37,16 @@ public class DownPushDownFrags extends Rule {
 				
 			}
 			
-			getProject().countSolvedBadSmells(BadSmellType.DownFragments, downFragments.getDownFragmentsDescs().size());
+			downFragments = new DownFragments(getProject(), this.threshold);
+			
+			if (downFragments.check()) {
+				
+				int amountOfBadSmellsAfter = downFragments.getDownFragmentsDescs().size();
+				
+				getProject().countAfterBadSmells(BadSmellType.DownFragments, amountOfBadSmellsAfter);
+			}else{
+				getProject().countAfterBadSmells(BadSmellType.DownFragments, 0);
+			}
 			
 		}
 	}

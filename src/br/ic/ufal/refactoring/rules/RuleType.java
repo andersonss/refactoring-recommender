@@ -1,12 +1,23 @@
 package br.ic.ufal.refactoring.rules;
 
 public enum RuleType {
-	ClassDupExtMeth, 
-	DownPushDownFrags, 
+	
+	RefusedBequestDownPushDownMethods,
+	RefusedBequestDownPushDownFrags, 
+	
+	DataClassPublicField,
+	DataClassPublicCollectionField,
+	DataClassUnusedGettersSettersMethods,
+	
 	FeatureEnvyMoveMeth, 
-	PublicEncapsulateFields, 
-	UpPullUpFrags,
-	UnusedRemoveMethods,
-	UpPullUpMethods,
-	DownPushDownMethods
+	
+	DataClumpsFragments,
+	DataClumpsParameters,
+	
+	DuplicatedCodeMethods,
+	
+	ShotgunSurvery,
+	
+	DivergentChange
+	
 }

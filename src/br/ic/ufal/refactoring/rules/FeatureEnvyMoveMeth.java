@@ -10,6 +10,7 @@ import br.ic.ufal.refactoring.corrections.movingfeaturesbetwenobjects.MoveMethod
 import br.ic.ufal.refactoring.detections.BadSmellType;
 import br.ic.ufal.refactoring.detections.featureenvy.FeatureEnvy;
 import br.ic.ufal.refactoring.detections.featureenvy.FeatureEnvyDescription;
+import br.ic.ufal.refactoring.detections.visibility.fields.PublicFields;
 
 public class FeatureEnvyMoveMeth extends Rule {
 
@@ -26,6 +27,8 @@ public class FeatureEnvyMoveMeth extends Rule {
 		FeatureEnvy featureEnvy = new FeatureEnvy(getProject(), this.threshold);
 		if (featureEnvy.check()) {     
 			
+			int amountOfBadSmellsBefore = featureEnvy.getDescriptions().size();
+			getProject().countDetectedBadSmells(BadSmellType.FeatureEnvy, amountOfBadSmellsBefore);
 			
 			for (int i = 0; i < featureEnvy.getDescriptions().size(); i++) {
 				
@@ -37,7 +40,16 @@ public class FeatureEnvyMoveMeth extends Rule {
 				moveMethod.apply();
 				
 			}
-			getProject().countSolvedBadSmells(BadSmellType.FeatureEnvy, featureEnvy.getDescriptions().size());
+			featureEnvy = new FeatureEnvy(getProject(), this.threshold);
+			
+			if (featureEnvy.check()) {
+				
+				int amountOfBadSmellsAfter = featureEnvy.getDescriptions().size();
+				
+				getProject().countAfterBadSmells(BadSmellType.FeatureEnvy, amountOfBadSmellsAfter);
+			}else{
+				getProject().countAfterBadSmells(BadSmellType.FeatureEnvy, 0);
+			}
 			
 			
 		}else{

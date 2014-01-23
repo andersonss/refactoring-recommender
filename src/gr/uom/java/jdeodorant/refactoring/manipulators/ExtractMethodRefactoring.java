@@ -86,6 +86,7 @@ import org.eclipse.text.edits.TextEdit;
 import org.eclipse.text.edits.TextEditGroup;
 
 public class ExtractMethodRefactoring extends Refactoring {
+	
 	private ASTSlice slice;
 	private CompilationUnit sourceCompilationUnit;
 	private TypeDeclaration sourceTypeDeclaration;

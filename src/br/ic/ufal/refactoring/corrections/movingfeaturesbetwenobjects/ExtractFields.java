@@ -80,12 +80,15 @@ import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEdit;
 import org.eclipse.text.edits.TextEditGroup;
 
+import br.ic.ufal.parser.Clazz;
 import br.ic.ufal.parser.Project;
 import br.ic.ufal.refactoring.corrections.Correction;
+import br.ic.ufal.util.ParseUtil;
 
-public class ExtractClass extends Correction {
+public class ExtractFields extends Correction {
 	
 	private IFile sourceFile;
+	private List<Clazz> sourceClasses;
 	private CompilationUnit sourceCompilationUnit;
 	private ICompilationUnit sourceICompilationUnit;
 	private Document sourceDocument;
@@ -114,11 +117,8 @@ public class ExtractClass extends Correction {
 	private Set<VariableDeclaration> extractedFieldsWithThisExpressionInTheirInitializer;
 	private MultiTextEdit sourceMultiTextEdit;
 
-	public ExtractClass(IFile sourceFile, 
-			ICompilationUnit iCompilationUnit, 
-			Document sourceDocument, 
-			CompilationUnit sourceCompilationUnit, 
-			TypeDeclaration sourceTypeDeclaration,
+	public ExtractFields(IFile sourceFile, 
+			List<Clazz> sourceClasses,
 			Set<VariableDeclaration> extractedFieldFragments, 
 			Set<MethodDeclaration> extractedMethods, 
 			Set<MethodDeclaration> delegateMethods, 
@@ -127,16 +127,14 @@ public class ExtractClass extends Correction {
 		
 		super(project);
 		this.sourceFile = sourceFile;
-		this.sourceCompilationUnit = sourceCompilationUnit;
-		this.sourceTypeDeclaration = sourceTypeDeclaration;
+		this.sourceClasses = sourceClasses;
 		this.compilationUnitChanges = new LinkedHashMap<ICompilationUnit, CompilationUnitChange>();
-		this.sourceICompilationUnit = iCompilationUnit;
-		this.sourceDocument = sourceDocument;
-		this.sourceMultiTextEdit = new MultiTextEdit();
-		CompilationUnitChange sourceCompilationUnitChange = new CompilationUnitChange("", this.sourceICompilationUnit);
-		sourceCompilationUnitChange.setEdit(sourceMultiTextEdit);
-		this.compilationUnitChanges.put(this.sourceICompilationUnit, sourceCompilationUnitChange);
-		this.createCompilationUnitChanges = new LinkedHashMap<ICompilationUnit, CreateCompilationUnitChange>();
+		this.extractedFieldFragments = extractedFieldFragments;
+		
+		//CompilationUnitChange sourceCompilationUnitChange = new CompilationUnitChange("", this.sourceICompilationUnit);
+		//sourceCompilationUnitChange.setEdit(sourceMultiTextEdit);
+		//this.compilationUnitChanges.put(this.sourceICompilationUnit, sourceCompilationUnitChange);
+		//this.createCompilationUnitChanges = new LinkedHashMap<ICompilationUnit, CreateCompilationUnitChange>();
 		this.javaElementsToOpenInEditor = new LinkedHashSet<IJavaElement>();
 		this.requiredImportDeclarationsInExtractedClass = new LinkedHashSet<ITypeBinding>();
 		this.additionalArgumentsAddedToExtractedMethods = new LinkedHashMap<MethodDeclaration, Set<String>>();
@@ -165,47 +163,80 @@ public class ExtractClass extends Correction {
 
 	@Override
 	public void apply() {
-		if(leaveDelegateForPublicMethods) {
+		/*if(leaveDelegateForPublicMethods) {
 			for(MethodDeclaration method : extractedMethods) {
 				int modifiers = method.getModifiers();
 				if((modifiers & Modifier.PRIVATE) == 0)
 					delegateMethods.add(method);
 			}
-		}
+		}*/
 		
-		removeFieldFragmentsInSourceClass(extractedFieldFragments);
-		modifyExtractedFieldAssignmentsInSourceClass(extractedFieldFragments);
-		modifyExtractedFieldAccessesInSourceClass(extractedFieldFragments);
-		createExtractedTypeFieldReferenceInSourceClass();
 		
-		Set<ITypeBinding> typeBindings = new LinkedHashSet<ITypeBinding>();
-		TypeVisitor typeVisitor = new TypeVisitor();
-		for(VariableDeclaration fieldFragment : extractedFieldFragments) {
-			fieldFragment.getParent().accept(typeVisitor);
-			for(ITypeBinding typeBinding : typeVisitor.getTypeBindings()) {
-				typeBindings.add(typeBinding);
+		for (Clazz sourceClazz : this.sourceClasses) {
+			
+			this.sourceCompilationUnit = sourceClazz.getCompilationUnit();
+			this.sourceTypeDeclaration = sourceClazz.getTypeDeclaration();
+			this.sourceICompilationUnit = sourceClazz.getICompilationUnit();
+			this.sourceDocument = sourceClazz.getDocument();
+			
+			this.extractedFieldFragments = ParseUtil.getFragments(this.sourceTypeDeclaration, this.extractedFieldFragments);
+			
+			this.sourceMultiTextEdit = new MultiTextEdit();
+			
+			removeFieldFragmentsInSourceClass(extractedFieldFragments);
+			modifyExtractedFieldAssignmentsInSourceClass(extractedFieldFragments);
+			modifyExtractedFieldAccessesInSourceClass(extractedFieldFragments);
+			createExtractedTypeFieldReferenceInSourceClass();
+			
+			Set<ITypeBinding> typeBindings = new LinkedHashSet<ITypeBinding>();
+			TypeVisitor typeVisitor = new TypeVisitor();
+			for(VariableDeclaration fieldFragment : extractedFieldFragments) {
+				fieldFragment.getParent().accept(typeVisitor);
+				for(ITypeBinding typeBinding : typeVisitor.getTypeBindings()) {
+					typeBindings.add(typeBinding);
+				}
+			}
+			
+			getSimpleTypeBindings(typeBindings, requiredImportDeclarationsInExtractedClass);
+			
+			try {
+				this.sourceMultiTextEdit.apply(this.sourceDocument);
+				ParseUtil.updateClazz(this.sourceDocument, sourceClazz,getProject());
+				//this.sourceICompilationUnit.getBuffer().setContents(this.sourceDocument.get());
+				
+			} catch (MalformedTreeException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (BadLocationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (JavaModelException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
-		for(MethodDeclaration method : extractedMethods) {
+		
+		
+		
+		/*for(MethodDeclaration method : extractedMethods) {
 			method.accept(typeVisitor);
 			for(ITypeBinding typeBinding : typeVisitor.getTypeBindings()) {
 				typeBindings.add(typeBinding);
 			}
-		}
-		getSimpleTypeBindings(typeBindings, requiredImportDeclarationsInExtractedClass);
+		}*/
 		
 		createExtractedClass();
 		
-		modifyExtractedMethodInvocationsInSourceClass();
+		/*modifyExtractedMethodInvocationsInSourceClass();
 		handleInitializationOfExtractedFieldsWithThisExpressionInTheirInitializer();
 		for(Statement statement : statementRewriteMap.keySet()) {
 			ASTRewrite sourceRewriter = statementRewriteMap.get(statement);
 			TextEdit sourceEdit = sourceRewriter.rewriteAST(this.sourceDocument, null);
 			this.sourceMultiTextEdit.addChild(sourceEdit);
-			/*this.sourceICompilationUnit = (ICompilationUnit)this.sourceCompilationUnit.getJavaElement();
+			this.sourceICompilationUnit = (ICompilationUnit)this.sourceCompilationUnit.getJavaElement();
 			CompilationUnitChange change = compilationUnitChanges.get(this.sourceICompilationUnit);
 			change.getEdit().addChild(sourceEdit);
-			change.addTextEditGroup(new TextEditGroup("Change access of extracted member", new TextEdit[] {sourceEdit}));*/
+			change.addTextEditGroup(new TextEditGroup("Change access of extracted member", new TextEdit[] {sourceEdit}));
 		}
 		Set<MethodDeclaration> methodsToBeRemoved = new LinkedHashSet<MethodDeclaration>();
 		for(MethodDeclaration method : extractedMethods) {
@@ -215,21 +246,9 @@ public class ExtractClass extends Correction {
 				methodsToBeRemoved.add(method);
 		}
 		if(methodsToBeRemoved.size() > 0)
-			removeSourceMethods(methodsToBeRemoved);
+			removeSourceMethods(methodsToBeRemoved);*/
 		
-		try {
-			this.sourceMultiTextEdit.apply(this.sourceDocument);
-			this.sourceICompilationUnit.getBuffer().setContents(this.sourceDocument.get());
-		} catch (MalformedTreeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (BadLocationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JavaModelException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
 	}
 	
 	private void handleInitializationOfExtractedFieldsWithThisExpressionInTheirInitializer() {
@@ -817,6 +836,7 @@ public class ExtractClass extends Correction {
         	extractedClassEdit.apply(extractedClassDocument);
         	
         extractedClassICompilationUnit.getBuffer().setContents(extractedClassDocument.get());
+        ParseUtil.addClazz(extractedClassICompilationUnit, getProject());
         /*	CreateCompilationUnitChange createCompilationUnitChange =
         		new CreateCompilationUnitChange(extractedClassICompilationUnit, extractedClassDocument.get(), extractedClassFile.getCharset());
         	createCompilationUnitChanges.put(extractedClassICompilationUnit, createCompilationUnitChange);*/
@@ -2321,9 +2341,11 @@ public class ExtractClass extends Correction {
 			sourceRewriter.set(initializer, ClassInstanceCreation.TYPE_PROPERTY, targetType, null);
 			sourceRewriter.set(extractedReferenceFragment, VariableDeclarationFragment.INITIALIZER_PROPERTY, initializer, null);
 		}
-		else {
+		/*else {
 			ExpressionExtractor expressionExtractor = new ExpressionExtractor();
 			for(MethodDeclaration constructor : constructorFinalFieldAssignmentMap.keySet()) {
+				if (constructor.getBody() != null) {
+					
 				ASTRewrite constructorRewriter = ASTRewrite.create(sourceTypeDeclaration.getAST());
 				ListRewrite constructorBodyStatementsRewrite = constructorRewriter.getListRewrite(constructor.getBody(), Block.STATEMENTS_PROPERTY);
 				
@@ -2361,12 +2383,14 @@ public class ExtractClass extends Correction {
 	        	constructorBodyStatementsRewrite.insertFirst(assignmentStatement, null);
 	        	TextEdit sourceEdit = constructorRewriter.rewriteAST(this.sourceDocument, null);
 	        	this.sourceMultiTextEdit.addChild(sourceEdit);
-			/*	this.sourceICompilationUnit = (ICompilationUnit)this.sourceCompilationUnit.getJavaElement();
+				this.sourceICompilationUnit = (ICompilationUnit)this.sourceCompilationUnit.getJavaElement();
 				CompilationUnitChange change = compilationUnitChanges.get(this.sourceICompilationUnit);
 				change.getEdit().addChild(sourceEdit);
-				change.addTextEditGroup(new TextEditGroup("Initialize field holding a reference to the extracted class", new TextEdit[] {sourceEdit}));*/
+				change.addTextEditGroup(new TextEditGroup("Initialize field holding a reference to the extracted class", new TextEdit[] {sourceEdit}));
+				}
+				
 			}
-		}
+		}*/
 		FieldDeclaration extractedReferenceFieldDeclaration = contextAST.newFieldDeclaration(extractedReferenceFragment);
 		sourceRewriter.set(extractedReferenceFieldDeclaration, FieldDeclaration.TYPE_PROPERTY, contextAST.newSimpleName(extractedTypeName), null);
 		ListRewrite typeFieldDeclarationModifiersRewrite = sourceRewriter.getListRewrite(extractedReferenceFieldDeclaration, FieldDeclaration.MODIFIERS2_PROPERTY);
@@ -2455,6 +2479,8 @@ public class ExtractClass extends Correction {
 								String modifiedFieldName = originalFieldName.substring(0,1).toUpperCase() + originalFieldName.substring(1,originalFieldName.length());
 								if(assignedVariable != null) {
 									IBinding leftHandBinding = assignedVariable.resolveBinding();
+									if (leftHandBinding != null) {
+										
 									if(leftHandBinding.getKind() == IBinding.VARIABLE) {
 										IVariableBinding assignedVariableBinding = (IVariableBinding)leftHandBinding;
 										if(assignedVariableBinding.isField() && fieldFragment.resolveBinding().isEqualTo(assignedVariableBinding)) {
@@ -2490,6 +2516,7 @@ public class ExtractClass extends Correction {
 											rewriteAST = true;
 										}
 									}
+									}
 								}
 								for(Expression expression2 : arrayAccesses) {
 									ArrayAccess arrayAccess = (ArrayAccess)expression2;
@@ -2524,19 +2551,21 @@ public class ExtractClass extends Correction {
 								for(Expression expression2 : accessedVariables) {
 									SimpleName accessedVariable = (SimpleName)expression2;
 									IBinding rightHandBinding = accessedVariable.resolveBinding();
-									if(rightHandBinding.getKind() == IBinding.VARIABLE) {
-										IVariableBinding accessedVariableBinding = (IVariableBinding)rightHandBinding;
-										if(accessedVariableBinding.isField() && fieldFragment.resolveBinding().isEqualTo(accessedVariableBinding)) {
-											MethodInvocation getterMethodInvocation = contextAST.newMethodInvocation();
-											sourceRewriter.set(getterMethodInvocation, MethodInvocation.NAME_PROPERTY, contextAST.newSimpleName("get" + modifiedFieldName), null);
-											if((accessedVariableBinding.getModifiers() & Modifier.STATIC) != 0) {
-												sourceRewriter.set(getterMethodInvocation, MethodInvocation.EXPRESSION_PROPERTY, contextAST.newSimpleName(extractedTypeName), null);
+									if (rightHandBinding != null) {
+										if(rightHandBinding.getKind() == IBinding.VARIABLE) {
+											IVariableBinding accessedVariableBinding = (IVariableBinding)rightHandBinding;
+											if(accessedVariableBinding.isField() && fieldFragment.resolveBinding().isEqualTo(accessedVariableBinding)) {
+												MethodInvocation getterMethodInvocation = contextAST.newMethodInvocation();
+												sourceRewriter.set(getterMethodInvocation, MethodInvocation.NAME_PROPERTY, contextAST.newSimpleName("get" + modifiedFieldName), null);
+												if((accessedVariableBinding.getModifiers() & Modifier.STATIC) != 0) {
+													sourceRewriter.set(getterMethodInvocation, MethodInvocation.EXPRESSION_PROPERTY, contextAST.newSimpleName(extractedTypeName), null);
+												}
+												else {
+													sourceRewriter.set(getterMethodInvocation, MethodInvocation.EXPRESSION_PROPERTY, contextAST.newSimpleName(modifiedExtractedTypeName), null);
+												}
+												sourceRewriter.replace(accessedVariable, getterMethodInvocation, null);
+												rewriteAST = true;
 											}
-											else {
-												sourceRewriter.set(getterMethodInvocation, MethodInvocation.EXPRESSION_PROPERTY, contextAST.newSimpleName(modifiedExtractedTypeName), null);
-											}
-											sourceRewriter.replace(accessedVariable, getterMethodInvocation, null);
-											rewriteAST = true;
 										}
 									}
 								}
@@ -2588,6 +2617,8 @@ public class ExtractClass extends Correction {
 							for(Expression expression : accessedVariables) {
 								SimpleName accessedVariable = (SimpleName)expression;
 								IBinding binding = accessedVariable.resolveBinding();
+								if (binding != null) {
+									
 								if(binding.getKind() == IBinding.VARIABLE) {
 									IVariableBinding accessedVariableBinding = (IVariableBinding)binding;
 									if(accessedVariableBinding.isField() && fieldFragment.resolveBinding().isEqualTo(accessedVariableBinding)) {
@@ -2605,6 +2636,8 @@ public class ExtractClass extends Correction {
 										}
 									}
 								}
+								}
+								
 							}
 							for(Expression expression : arrayAccesses) {
 								ArrayAccess arrayAccess = (ArrayAccess)expression;
@@ -2619,6 +2652,8 @@ public class ExtractClass extends Correction {
 								}
 								if(arrayVariable != null) {
 									IBinding arrayBinding = arrayVariable.resolveBinding();
+									if (arrayBinding != null) {
+										
 									if(arrayBinding.getKind() == IBinding.VARIABLE) {
 										IVariableBinding arrayVariableBinding = (IVariableBinding)arrayBinding;
 										if(arrayVariableBinding.isField() && fieldFragment.resolveBinding().isEqualTo(arrayVariableBinding)) {
@@ -2636,6 +2671,8 @@ public class ExtractClass extends Correction {
 											}
 										}
 									}
+									}
+									
 								}
 							}
 						}

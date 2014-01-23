@@ -13,18 +13,24 @@ import br.ic.ufal.refactoring.detections.BadSmell;
 public class ParametersDataClumps extends BadSmell{
 	
 	List<DuplicatedParameters> duplicatedParametersList = new ArrayList<DuplicatedParameters>();
-	
+	int threshold = 0 ;
 
-	public ParametersDataClumps(Project project) {
+	public ParametersDataClumps(Project project, int threshold) {
 		super(project);
+		this.threshold = threshold;
 	}
 
 	@Override
 	public boolean check() {
-		return false;
+		System.out.println("Retrieve Duplicated Paramters");
+		this.duplicatedParametersList = retrieveDuplicatedParameters(getProject(), 3);
+		System.out.println("Review Duplicated Paramters");
+		this.duplicatedParametersList = review(duplicatedParametersList);
+		
+		return this.duplicatedParametersList.size() > 0;
 	}
 
-	public List<DuplicatedParameters> retrieveDuplicatedParameters(Project project){
+	public List<DuplicatedParameters> retrieveDuplicatedParameters(Project project, int threshold){
 		
 		
 		DuplicatedParameters duplicatedParameters = new DuplicatedParameters();
@@ -81,8 +87,11 @@ public class ParametersDataClumps extends BadSmell{
 									
 									duplicatedParameters.addDuplicatedClass(c1);
 									duplicatedParameters.addDuplicatedClass(c2);
+									if (duplicatedParameters.getBlock().getParamters().size() > threshold) {
+										
+										duplicatedParametersList.add(duplicatedParameters);
 									
-									duplicatedParametersList.add(duplicatedParameters);
+									}
 									
 									duplicatedParameters = new DuplicatedParameters();
 									
@@ -101,7 +110,11 @@ public class ParametersDataClumps extends BadSmell{
 								duplicatedParameters.addDuplicatedClass(c1);
 								duplicatedParameters.addDuplicatedClass(c2);
 								
-								duplicatedParametersList.add(duplicatedParameters);
+								if (duplicatedParameters.getBlock().getParamters().size() > threshold) {
+								
+									duplicatedParametersList.add(duplicatedParameters);
+								
+								}
 								
 								duplicatedParameters = new DuplicatedParameters();
 								
@@ -126,9 +139,25 @@ public class ParametersDataClumps extends BadSmell{
 
 	public List<DuplicatedParameters> review(List<DuplicatedParameters> duplicatedParameters){
 		
+		List<DuplicatedParameters> dplist = new ArrayList<DuplicatedParameters>();
+		
+		for (DuplicatedParameters dps : duplicatedParameters) {
+			if (dps.getBlock().getParamters().size() > this.threshold ) {
+				dplist.add(dps);
+			}
+		}
+		
+		duplicatedParameters = dplist;
+		
+		
+		System.out.println("Unify Parameters");
 		duplicatedParameters = unifier(duplicatedParameters);
+		System.out.println("Remove Duplicated Parameters");
 		duplicatedParameters = removeDuplicatinos(duplicatedParameters);
+		System.out.println("Remove Subset Parameters");
 		duplicatedParameters = removeSubSet(duplicatedParameters);
+		
+		
 		
 		return duplicatedParameters;
 	} 
@@ -138,6 +167,7 @@ public class ParametersDataClumps extends BadSmell{
 	private List<DuplicatedParameters> unifier(List<DuplicatedParameters> duplicatedParameters){
 		
 		for (int i = 0; i < duplicatedParameters.size(); i++) {
+			System.out.println("Unify Paramters: " + i + " of " + duplicatedParameters.size());
 			List<Clazz> iClasses = duplicatedParameters.get(i).getDuplicatedClasses();
 			List<MethodDeclaration> iDuplicatedMethods = duplicatedParameters.get(i).getDuplicatedMethods();
 			ParametersBlock iParametersBlock = duplicatedParameters.get(i).getBlock();
@@ -224,6 +254,7 @@ public class ParametersDataClumps extends BadSmell{
 		List<DuplicatedParameters> removed = new ArrayList<DuplicatedParameters>();
 		
 		for (int i = 0; i < duplicatedParameters.size(); i++) {
+			System.out.println("Remove Duplication: " + i + " of " + duplicatedParameters.size());
 			for (int j = i+1; j < duplicatedParameters.size(); j++) {
 				
 				if (duplicatedParameters.get(i).equals(duplicatedParameters.get(j))) {

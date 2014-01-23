@@ -466,14 +466,14 @@ public class PDGSliceUnion {
 	}
 
 	private boolean complyWithUserThresholds() {
-		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-		int minimumSliceSize = store.getInt(PreferenceConstants.P_MINIMUM_SLICE_SIZE);
-		int maximumSliceSize = store.getInt(PreferenceConstants.P_MAXIMUM_SLICE_SIZE);
-		int maximumDuplication = store.getInt(PreferenceConstants.P_MAXIMUM_DUPLICATION);
-		double maximumRatioOfDuplicatedToExtracted = store.getDouble(
-				PreferenceConstants.P_MAXIMUM_RATIO_OF_DUPLICATED_TO_EXTRACTED);
+		//IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+		//int minimumSliceSize = store.getInt(PreferenceConstants.P_MINIMUM_SLICE_SIZE);
+		//int maximumSliceSize = store.getInt(PreferenceConstants.P_MAXIMUM_SLICE_SIZE);
+		//int maximumDuplication = store.getInt(PreferenceConstants.P_MAXIMUM_DUPLICATION);
+	//	double maximumRatioOfDuplicatedToExtracted = store.getDouble(
+		//		PreferenceConstants.P_MAXIMUM_RATIO_OF_DUPLICATED_TO_EXTRACTED);
 		
-		int sliceSize = sliceNodes.size();
+		/*int sliceSize = sliceNodes.size();
 		int duplicatedSize = sliceSize - removableNodes.size();
 		double ratioOfDuplicatedToExtracted = (double)duplicatedSize/(double)sliceSize;
 		
@@ -484,7 +484,7 @@ public class PDGSliceUnion {
 		if(duplicatedSize > maximumDuplication)
 			return false;
 		if(ratioOfDuplicatedToExtracted > maximumRatioOfDuplicatedToExtracted)
-			return false;
+			return false;*/
 		return true;
 	}
 

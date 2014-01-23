@@ -63,9 +63,9 @@ public class PDG extends Graph {
 		}
 		createControlDependenciesFromEntryNode();
 		if(!nodes.isEmpty()) {
-			IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-			boolean enabledAliasAnalysis = store.getBoolean(PreferenceConstants.P_ENABLE_ALIAS_ANALYSIS);
-			if(enabledAliasAnalysis)
+			//IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+			//boolean enabledAliasAnalysis = store.getBoolean(PreferenceConstants.P_ENABLE_ALIAS_ANALYSIS);
+			if(false)
 				performAliasAnalysis();
 			createDataDependencies();
 		}

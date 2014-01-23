@@ -9,8 +9,6 @@ import org.eclipse.jdt.core.dom.VariableDeclaration;
 import br.ic.ufal.parser.Clazz;
 import br.ic.ufal.parser.Project;
 import br.ic.ufal.refactoring.detections.BadSmell;
-import br.ic.ufal.refactoring.detections.dataclumps.parameters.DuplicatedParameters;
-import br.ic.ufal.refactoring.detections.dataclumps.parameters.ParametersBlock;
 import br.ic.ufal.util.OperationsUtil;
 
 public class FragmentsDataClumps extends BadSmell {
@@ -30,7 +28,7 @@ public class FragmentsDataClumps extends BadSmell {
 		
 		this.fragsDuplicated = operationsUtil.retrieveDuplicatedFragments(getProject(), threshold);
 		
-		this.fragsDuplicated = review(fragsDuplicated);
+		//this.fragsDuplicated = review(fragsDuplicated);
 	
 		this.fragsDuplicated = operationsUtil.identifyNotRelatedFragmentsDuplication(fragsDuplicated);		
 		
@@ -40,8 +38,8 @@ public class FragmentsDataClumps extends BadSmell {
 	public List<DuplicatedFragments> review(List<DuplicatedFragments> duplicatedFragments){
 		
 		duplicatedFragments = unifier(duplicatedFragments);
-		duplicatedFragments = removeDuplicatinos(duplicatedFragments);
-		//duplicatedFragments = removeSubSet(duplicatedFragments);
+		duplicatedFragments = removeDuplications(duplicatedFragments);
+		duplicatedFragments = removeSubSet(duplicatedFragments);
 		
 		return duplicatedFragments;
 	} 
@@ -120,7 +118,7 @@ public class FragmentsDataClumps extends BadSmell {
 		return clazzs;
 	}
 	
-	private List<DuplicatedFragments> removeDuplicatinos(List<DuplicatedFragments> duplicatedParameters){
+	private List<DuplicatedFragments> removeDuplications(List<DuplicatedFragments> duplicatedParameters){
 		List<DuplicatedFragments> reviewed = copy(duplicatedParameters);
 		List<DuplicatedFragments> removed = new ArrayList<DuplicatedFragments>();
 		

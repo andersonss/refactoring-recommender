@@ -58,7 +58,7 @@ public class CompilationUnitCache extends Indexer {
 				parser.setResolveBindings(true);
 				CompilationUnit compilationUnit = (CompilationUnit)parser.createAST(null);
 				
-				IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+				/*IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 				int maximumCacheSize = store.getInt(PreferenceConstants.P_PROJECT_COMPILATION_UNIT_CACHE_SIZE);
 				if(iTypeRootList.size() < maximumCacheSize) {
 					iTypeRootList.add(iTypeRoot);
@@ -82,7 +82,7 @@ public class CompilationUnitCache extends Indexer {
 					}
 					iTypeRootList.add(iTypeRoot);
 					compilationUnitList.add(compilationUnit);
-				}
+				}*/
 				return compilationUnit;
 			}
 		}

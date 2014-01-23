@@ -1,6 +1,10 @@
 package br.ic.ufal.refactoring.corrections.movingfeaturesbetwenobjects;
 
+import java.util.HashMap;
+import java.util.List;
+
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.MethodInvocation;
 
 import br.ic.ufal.parser.Clazz;
 import br.ic.ufal.parser.Project;
@@ -25,14 +29,19 @@ public class PushDownMethods extends Correction {
 		
 			Clazz superclass = downMethodsDesc.getSuperclass();
 			
-			for (MethodDeclaration methodDeclaration : downMethodsDesc.getMethodsToBeDown()) {
+			List<Clazz> subclasses = downMethodsDesc.getSubclasses();
 			
-				//if (operationsUtil.useMethod(methodDeclaration, superclass, getProject()) == 0) {
-					RemoveMethod removeMethod = new RemoveMethod(superclass, methodDeclaration, super.getProject());
+			List<MethodDeclaration> methodsTobeDown = downMethodsDesc.getMethodsToBeDown();
+			
+			for (Clazz subclazz : subclasses) {
+				
+				for (MethodDeclaration methodTobeDown : methodsTobeDown) {
+					RemoveMethod removeMethod = new RemoveMethod(superclass, subclazz, methodTobeDown, new HashMap<MethodInvocation, MethodDeclaration>(), false, methodTobeDown.getName().getIdentifier(), getProject());
 					removeMethod.apply();
-				//} 
+				}
+				
+				
 			}
-			
 		
 		
 		System.out.println("Pushed Down Methods" );

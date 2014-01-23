@@ -3,13 +3,10 @@ package br.ic.ufal.refactoring.detections.dataclumps.fields;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 
 import br.ic.ufal.parser.Clazz;
 import br.ic.ufal.util.OperationsUtil;
-import br.ic.ufal.util.ParseUtil;
 
 public class DuplicatedFragments {
 	
@@ -98,7 +95,7 @@ public class DuplicatedFragments {
 			classes = classes + clazz.getTypeDeclaration().getName()+ ", ";
 		}
 		
-		return "DuplicatedFragments [classes=" + classes + ", fragments="+ fragments + "]";
+		return "\n\n\n DuplicatedFragments [classes=" + classes + ", fragments="+ fragments + "]";
 	}
 
 	

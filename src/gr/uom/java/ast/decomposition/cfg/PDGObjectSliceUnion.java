@@ -492,7 +492,7 @@ public class PDGObjectSliceUnion {
 	}
 
 	private boolean complyWithUserThresholds() {
-		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+/*		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 		int minimumSliceSize = store.getInt(PreferenceConstants.P_MINIMUM_SLICE_SIZE);
 		int maximumSliceSize = store.getInt(PreferenceConstants.P_MAXIMUM_SLICE_SIZE);
 		int maximumDuplication = store.getInt(PreferenceConstants.P_MAXIMUM_DUPLICATION);
@@ -510,7 +510,7 @@ public class PDGObjectSliceUnion {
 		if(duplicatedSize > maximumDuplication)
 			return false;
 		if(ratioOfDuplicatedToExtracted > maximumRatioOfDuplicatedToExtracted)
-			return false;
+			return false;*/
 		return true;
 	}
 

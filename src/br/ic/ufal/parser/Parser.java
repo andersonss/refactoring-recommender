@@ -41,12 +41,14 @@ public class Parser {
 				proj.setName(javaProject.getElementName());
 				
 				proj.setJavaProject(javaProject);
-				
+				proj.setiProject(iProject);
+				proj.setPackagesFragments(javaProject.getPackageFragments());
 				IPackageFragmentRoot[] iPackageFragmentRoots = javaProject.getPackageFragmentRoots();
 				
 				proj.setPackages(iPackageFragmentRoots);
 				
 				for(IPackageFragmentRoot iPackageFragmentRoot : iPackageFragmentRoots) {
+			
 					IJavaElement[] children = iPackageFragmentRoot.getChildren();
 					for(IJavaElement child : children) {
 						if(child.getElementType() == IJavaElement.PACKAGE_FRAGMENT) {

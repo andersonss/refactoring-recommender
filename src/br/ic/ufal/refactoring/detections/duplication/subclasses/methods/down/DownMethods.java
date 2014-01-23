@@ -22,7 +22,7 @@ public class DownMethods extends BadSmell {
 		super(project);
 		this.threshold = threshold;
 	}
-
+	
 	@Override
 	public boolean check() {
 	
@@ -30,10 +30,52 @@ public class DownMethods extends BadSmell {
 			
 			List<Clazz> subClasses = operationsUtil.getSubclasses(superclass, super.getProject().getClasses());
 			
+			for (MethodDeclaration method : superclass.getTypeDeclaration().getMethods()) {
+				
+				if (!method.isConstructor()) {
+				
+					int count = operationsUtil.countMethodsInClasses(method, subClasses);
+					
+					if (count == this.threshold) {
+						DownMethodsDesc desc = retrieveDownMethodDesc(superclass);
+						
+						if (desc != null) {
+							desc.getMethodsToBeDown().add(method);
+						}else{
+							DownMethodsDesc downMethodsDesc = new DownMethodsDesc();
+							
+							downMethodsDesc.setSuperclass(superclass);
+							
+							for (Clazz sub : subClasses) {
+								if (classSubsignaturenMethod(method, sub)) {
+									downMethodsDesc.addSubclass(sub);
+								}
+							}
+							System.out.println("Method to be Down: " + method);
+							downMethodsDesc.addMethod(method);
+							this.downMethodsDescs.add(downMethodsDesc);
+						}
+					}
+				}
+			}
+			
+		}
+		return this.downMethodsDescs.size() > 0;
+	}
+
+	/*@Override
+	public boolean check() {
+	
+		for (Clazz superclass : super.getProject().getClasses()) {
+			
+			List<Clazz> subClasses = operationsUtil.getSubclasses(superclass, super.getProject().getClasses());
+			
+			
+			
 			for (Clazz subclass : subClasses) {
 				
 				for (MethodDeclaration methodDeclaration : subclass.getTypeDeclaration().getMethods()) {
-					if (!methodDeclaration.isConstructor()) {
+					if (!methodDeclaration.isConstructor() && classContainMethod(methodDeclaration, superclass)) {
 						int count = operationsUtil.countMethodsInClasses(methodDeclaration, subClasses);
 						
 						if (count == this.threshold) {
@@ -49,21 +91,20 @@ public class DownMethods extends BadSmell {
 								downMethodsDesc.setSuperclass(superclass);
 								
 								for (Clazz sub : subClasses) {
-									if (classContainMethod(methodDeclaration, sub)) {
+									if (classSubsignaturenMethod(methodDeclaration, sub)) {
 										downMethodsDesc.addSubclass(sub);
 									}
 								}
-								
+								System.out.println("Method to be Down: " + methodDeclaration);
 								downMethodsDesc.addMethod(methodDeclaration);
-								
 								this.downMethodsDescs.add(downMethodsDesc);
 							}
 							
 							
-							/*if (classContainMethod(methodDeclaration, superclass) &&
+							if (classContainMethod(methodDeclaration, superclass) &&
 								!methodDeclaration.isConstructor()) {
 								this.methodsToBeDown.add(methodDeclaration);
-							}*/
+							}
 						}
 					}
 					
@@ -71,9 +112,25 @@ public class DownMethods extends BadSmell {
 			}
 		}
 		return this.downMethodsDescs.size() > 0;
-	}
+	}*/
 	
 	private boolean classContainMethod(MethodDeclaration methodDeclaration, Clazz clazz){
+		
+		for (MethodDeclaration method : clazz.getTypeDeclaration().getMethods()) {
+			if (methodDeclaration != null && method != null) {
+				if (methodDeclaration.resolveBinding() != null && method.resolveBinding() != null) {
+					if (methodDeclaration.getName().toString().equalsIgnoreCase(method.getName().toString())) {
+						return true;
+					}
+				}
+			}
+			
+		}
+		
+		return false;
+	}
+	
+	private boolean classSubsignaturenMethod(MethodDeclaration methodDeclaration, Clazz clazz){
 		
 		for (MethodDeclaration method : clazz.getTypeDeclaration().getMethods()) {
 			if (methodDeclaration != null && method != null) {

@@ -22,8 +22,8 @@ public class DownPushDownMethods extends Rule {
 		DownMethods downMethods = new DownMethods(getProject(), this.threshold);
 		
 		if (downMethods.check()) {
-			
-			getProject().countDetectedBadSmells(BadSmellType.DownMethods, downMethods.getMethodsToBeDown().size());
+			int amountOfBadSmellsBefore = downMethods.getMethodsToBeDown().size();
+			getProject().countDetectedBadSmells(BadSmellType.DownMethods, amountOfBadSmellsBefore);
 			
 			for (int i = 0; i < downMethods.getMethodsToBeDown().size(); i++) {
 				DownMethodsDesc downMethodsDesc = downMethods.getMethodsToBeDown().get(i);
@@ -34,6 +34,18 @@ public class DownPushDownMethods extends Rule {
 				pushDownMethods.apply();
 				
 			}
+			
+			downMethods = new DownMethods(getProject(), this.threshold);
+			
+			if (downMethods.check()) {
+				
+				int amountOfBadSmellsAfter = downMethods.getMethodsToBeDown().size();
+				
+				getProject().countAfterBadSmells(BadSmellType.DownMethods, amountOfBadSmellsAfter);
+			}else{
+				getProject().countAfterBadSmells(BadSmellType.DownMethods, 0);
+			}
+			
 		}else{
 			System.out.println("Not Exist Down Methods");
 		}

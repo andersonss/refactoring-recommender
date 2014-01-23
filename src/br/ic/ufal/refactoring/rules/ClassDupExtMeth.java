@@ -6,7 +6,7 @@ import br.ic.ufal.parser.Project;
 import br.ic.ufal.refactoring.corrections.Correction;
 import br.ic.ufal.refactoring.corrections.composingmethods.ExtractMethod;
 import br.ic.ufal.refactoring.detections.BadSmellType;
-import br.ic.ufal.refactoring.detections.duplication.clazz.ClazzDuplication;
+import br.ic.ufal.refactoring.detections.duplication.clazz.ClassDuplication;
 import br.ic.ufal.refactoring.detections.duplication.clazz.DuplicatedStatements;
 
 public class ClassDupExtMeth extends Rule {
@@ -20,7 +20,7 @@ public class ClassDupExtMeth extends Rule {
 
 	@Override
 	public void execute() {
-		ClazzDuplication clazzDuplication = new ClazzDuplication(getProject(), this.threshold);
+		ClassDuplication clazzDuplication = new ClassDuplication(getProject(), this.threshold);
 		
 		System.out.println("Verifying Class Duplication Statements");
 		if (clazzDuplication.check()) {

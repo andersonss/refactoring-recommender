@@ -10,12 +10,12 @@ import br.ic.ufal.parser.Clazz;
 import br.ic.ufal.parser.Project;
 import br.ic.ufal.refactoring.detections.BadSmell;
 
-public class ClazzDuplication extends BadSmell {
+public class ClassDuplication extends BadSmell {
 
 	private List<DuplicatedStatements> duplicatedStatements = new ArrayList<DuplicatedStatements>();
 	private int similarityLevel = 10;
 
-	public ClazzDuplication(Project project, int similarityLevel) {
+	public ClassDuplication(Project project, int similarityLevel) {
 		super(project);
 		this.similarityLevel = similarityLevel;
 	}
@@ -186,8 +186,7 @@ public class ClazzDuplication extends BadSmell {
 		return duplicatedStatements;
 	}
 
-	private List<MethodDeclaration> notContainMethods(
-			List<MethodDeclaration> ms, List<MethodDeclaration> ms2) {
+	private List<MethodDeclaration> notContainMethods(List<MethodDeclaration> ms, List<MethodDeclaration> ms2) {
 
 		List<MethodDeclaration> methods = new ArrayList<MethodDeclaration>();
 

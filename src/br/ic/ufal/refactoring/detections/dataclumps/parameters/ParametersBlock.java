@@ -4,24 +4,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclaration;
 
 public class ParametersBlock {
 	
-	private List<SingleVariableDeclaration> paramters = new ArrayList<SingleVariableDeclaration>();
+	private List<VariableDeclaration> paramters = new ArrayList<VariableDeclaration>();
 	
 	public ParametersBlock() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public List<SingleVariableDeclaration> getParamters() {
+	public List<VariableDeclaration> getParamters() {
 		return paramters;
 	}
 
-	public void setParamters(List<SingleVariableDeclaration> paramters) {
+	public void setParamters(List<VariableDeclaration> paramters) {
 		this.paramters = paramters;
 	}
 
-	public void addParameter(SingleVariableDeclaration parameter){
+	public void addParameter(VariableDeclaration parameter){
 		this.paramters.add(parameter);
 	}
 
@@ -30,7 +31,7 @@ public class ParametersBlock {
 		
 		ParametersBlock block = (ParametersBlock) obj;
 		
-		for (SingleVariableDeclaration parameter : block.getParamters()) {
+		for (VariableDeclaration parameter : block.getParamters()) {
 			if (!existParameter(parameter)) {
 				return false;
 			}
@@ -43,9 +44,12 @@ public class ParametersBlock {
 		return true;
 	}
 	
-	private boolean existParameter(SingleVariableDeclaration parameter){
-		for (SingleVariableDeclaration p : this.paramters) {
-			if (parameter.getType().toString().equalsIgnoreCase(p.getType().toString()) &&
+	private boolean existParameter(VariableDeclaration parameter){
+		SingleVariableDeclaration sparameter = (SingleVariableDeclaration)parameter;
+		
+		for (VariableDeclaration p : this.paramters) {
+			SingleVariableDeclaration sp = (SingleVariableDeclaration)p;
+			if (sparameter.getType().toString().equalsIgnoreCase(sp.getType().toString()) &&
 				parameter.getName().getFullyQualifiedName().equalsIgnoreCase(p.getName().getFullyQualifiedName()))  {
 				return true;
 			}

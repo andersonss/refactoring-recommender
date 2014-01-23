@@ -6,6 +6,7 @@ import br.ic.ufal.parser.Project;
 import br.ic.ufal.refactoring.corrections.Correction;
 import br.ic.ufal.refactoring.corrections.organizingdata.EncapsulateField;
 import br.ic.ufal.refactoring.detections.BadSmellType;
+import br.ic.ufal.refactoring.detections.duplication.subclasses.fields.down.DownFragments;
 import br.ic.ufal.refactoring.detections.visibility.fields.PublicFields;
 
 public class PublicEncapsulateFields extends Rule {
@@ -20,6 +21,8 @@ public class PublicEncapsulateFields extends Rule {
 		PublicFields publicFields = new PublicFields(getProject());
 		if (publicFields.check()) {
 			
+			int amountOfBadSmellsBefore = publicFields.getPublicFields().size();
+			getProject().countDetectedBadSmells(BadSmellType.PublicFields, amountOfBadSmellsBefore);
 			
 			for (int i = 0; i < publicFields.getPublicFields().size(); i++) {
 				
@@ -32,7 +35,16 @@ public class PublicEncapsulateFields extends Rule {
 				
 			}
 			
-			getProject().countSolvedBadSmells(BadSmellType.PublicFields, publicFields.getPublicFields().size());
+			publicFields = new PublicFields(getProject());
+			
+			if (publicFields.check()) {
+				
+				int amountOfBadSmellsAfter = publicFields.getPublicFields().size();
+				
+				getProject().countAfterBadSmells(BadSmellType.PublicFields, amountOfBadSmellsAfter);
+			}else{
+				getProject().countAfterBadSmells(BadSmellType.PublicFields, 0);
+			}
 			
 		}else{
 			System.out.println("Not Exist Public Fields");

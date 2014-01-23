@@ -32,8 +32,7 @@ public class OperationsUtil {
 	public OperationsUtil() {
 	}
 
-	public boolean classContainFragment(VariableDeclaration fragment,
-			Clazz clazz) {
+	public boolean classContainFragment(VariableDeclaration fragment,Clazz clazz) {
 		// TODO Melhorar condicional
 		if (clazz != null) {
 			if (clazz.getTypeDeclaration() != null) {
@@ -54,8 +53,7 @@ public class OperationsUtil {
 		return false;
 	}
 
-	public List<DuplicatedFragments> identifyRelatedFragmentsDuplication(
-			List<DuplicatedFragments> duplicatedFragments) {
+	public List<DuplicatedFragments> identifyRelatedFragmentsDuplication(List<DuplicatedFragments> duplicatedFragments) {
 
 		System.out.println("Identifying Related Fragments Duplication");
 
@@ -160,8 +158,7 @@ public class OperationsUtil {
 	public boolean classContatinMethod(MethodDeclaration methodDeclaration,
 			Clazz clazz) {
 		for (MethodDeclaration method : clazz.getTypeDeclaration().getMethods()) {
-			if (method.getName().toString()
-					.equals(methodDeclaration.getName().toString())) {
+			if (method.getName().toString().equals(methodDeclaration.getName().toString())) {
 				return true;
 			}
 			/*
@@ -479,8 +476,7 @@ public class OperationsUtil {
 
 			TypeDeclaration td1 = c1.getTypeDeclaration();
 
-			System.out.println("Analysing Class: " + td1.getName()
-					+ " Position: " + i);
+			//System.out.println("Analysing Class: " + td1.getName()+ " Position: " + i);
 
 			for (int j = i + 1; j < clazzs.size(); j++) {
 
@@ -497,85 +493,92 @@ public class OperationsUtil {
 
 						FieldDeclaration field1 = td2.getFields()[d];
 
-						if (field.getType().resolveBinding()
-								.isEqualTo(field1.getType().resolveBinding())) {
+						if (field != null && field1 != null) {
+							if (field.getType() != null && field1.getType() != null) {
+								if (field.getType().resolveBinding() != null && field1.getType().resolveBinding() != null) {
+									if (field.getType().resolveBinding().isEqualTo(field1.getType().resolveBinding())) {
 
-							List<VariableDeclarationFragment> fieldFragments = field
-									.fragments();
-							List<VariableDeclarationFragment> field1Fragments = field1
-									.fragments();
+										List<VariableDeclarationFragment> fieldFragments = field
+												.fragments();
+										List<VariableDeclarationFragment> field1Fragments = field1
+												.fragments();
 
-							for (VariableDeclarationFragment frag : fieldFragments) {
-								for (VariableDeclarationFragment fragment : field1Fragments) {
-									if (frag.getInitializer() != null
-											&& fragment.getInitializer() != null) {
-										if (frag.getName()
-												.getFullyQualifiedName()
-												.equals(fragment
-														.getName()
-														.getFullyQualifiedName())
-												&& frag.getInitializer()
-														.toString()
-														.equalsIgnoreCase(
-																(fragment
-																		.getInitializer()
-																		.toString()))) {
+										for (VariableDeclarationFragment frag : fieldFragments) {
+											for (VariableDeclarationFragment fragment : field1Fragments) {
+												if (frag.getInitializer() != null
+														&& fragment.getInitializer() != null) {
+													if (frag.getName()
+															.getFullyQualifiedName()
+															.equals(fragment
+																	.getName()
+																	.getFullyQualifiedName())
+															&& frag.getInitializer()
+																	.toString()
+																	.equalsIgnoreCase(
+																			(fragment
+																					.getInitializer()
+																					.toString()))) {
 
-											TypeDeclaration typeDeclaration = ParseUtil
-													.getTypeDeclaration((CompilationUnit) frag
-															.getRoot());
-											Clazz clazz = ParseUtil.getClazz(
-													typeDeclaration,
-													project.getClasses());
+														TypeDeclaration typeDeclaration = ParseUtil
+																.getTypeDeclaration((CompilationUnit) frag
+																		.getRoot());
+														Clazz clazz = ParseUtil.getClazz(
+																typeDeclaration,
+																project.getClasses());
 
-											description
-													.addFragment((VariableDeclarationFragment) frag);
-											description.addClazz(clazz);
+														description
+																.addFragment((VariableDeclarationFragment) frag);
+														description.addClazz(clazz);
 
-											typeDeclaration = ParseUtil
-													.getTypeDeclaration((CompilationUnit) fragment
-															.getRoot());
-											clazz = ParseUtil.getClazz(
-													typeDeclaration,
-													project.getClasses());
+														typeDeclaration = ParseUtil
+																.getTypeDeclaration((CompilationUnit) fragment
+																		.getRoot());
+														clazz = ParseUtil.getClazz(
+																typeDeclaration,
+																project.getClasses());
 
-											// description.addFragment((VariableDeclarationFragment)fragment);
-											description.addClazz(clazz);
+														// description.addFragment((VariableDeclarationFragment)fragment);
+														description.addClazz(clazz);
+													}
+												}
+												if (frag.getInitializer() == null
+														&& fragment.getInitializer() == null) {
+													if (frag.getName()
+															.getFullyQualifiedName()
+															.equals(fragment
+																	.getName()
+																	.getFullyQualifiedName())) {
+														TypeDeclaration typeDeclaration = ParseUtil
+																.getTypeDeclaration((CompilationUnit) frag
+																		.getRoot());
+														Clazz clazz = ParseUtil.getClazz(
+																typeDeclaration,
+																project.getClasses());
+
+														description
+																.addFragment((VariableDeclarationFragment) frag);
+														description.addClazz(clazz);
+
+														typeDeclaration = ParseUtil
+																.getTypeDeclaration((CompilationUnit) fragment
+																		.getRoot());
+														clazz = ParseUtil.getClazz(
+																typeDeclaration,
+																project.getClasses());
+
+														// description.addFragment((VariableDeclarationFragment)fragment);
+														description.addClazz(clazz);
+													}
+												}
+
+											}
 										}
 									}
-									if (frag.getInitializer() == null
-											&& fragment.getInitializer() == null) {
-										if (frag.getName()
-												.getFullyQualifiedName()
-												.equals(fragment
-														.getName()
-														.getFullyQualifiedName())) {
-											TypeDeclaration typeDeclaration = ParseUtil
-													.getTypeDeclaration((CompilationUnit) frag
-															.getRoot());
-											Clazz clazz = ParseUtil.getClazz(
-													typeDeclaration,
-													project.getClasses());
-
-											description
-													.addFragment((VariableDeclarationFragment) frag);
-											description.addClazz(clazz);
-
-											typeDeclaration = ParseUtil
-													.getTypeDeclaration((CompilationUnit) fragment
-															.getRoot());
-											clazz = ParseUtil.getClazz(
-													typeDeclaration,
-													project.getClasses());
-
-											// description.addFragment((VariableDeclarationFragment)fragment);
-											description.addClazz(clazz);
-										}
-									}
-
 								}
 							}
 						}
+						
+						
 					}
 				}
 				if (description.getFragments().size() > threshold) {
@@ -603,7 +606,7 @@ public class OperationsUtil {
 		System.out.println("Unifying Duplicated Fragments");
 		for (int i = 0; i < duplicatedFragments.size(); i++) {
 			
-			System.out.println("Fragment: " + i + " of " + duplicatedFragments.size());
+			//System.out.println("Fragment: " + i + " of " + duplicatedFragments.size());
 			
 			List<Clazz> iClasses = duplicatedFragments.get(i).getClasses();
 			List<VariableDeclaration> iFrags = duplicatedFragments.get(i)
@@ -641,8 +644,7 @@ public class OperationsUtil {
 		return duplicatedFragments;
 	}
 
-	public boolean similar(List<VariableDeclaration> fragments,
-			List<VariableDeclaration> fragments1) {
+	public boolean similar(List<VariableDeclaration> fragments, List<VariableDeclaration> fragments1) {
 		for (VariableDeclaration frag : fragments) {
 			if (!existFragment(frag, fragments1)) {
 				return false;
@@ -697,7 +699,7 @@ public class OperationsUtil {
 
 		for (int i = 0; i < duplicatedFragments.size(); i++) {
 			
-			System.out.println("Fragment: " + i + " of " + duplicatedFragments.size());
+			//System.out.println("Fragment: " + i + " of " + duplicatedFragments.size());
 			
 			
 			for (int j = i + 1; j < duplicatedFragments.size(); j++) {
@@ -727,7 +729,7 @@ public class OperationsUtil {
 
 		for (int i = 0; i < duplicatedFragments.size(); i++) {
 			
-			System.out.println("Fragment: " + i + " of " + duplicatedFragments.size());
+			//System.out.println("Fragment: " + i + " of " + duplicatedFragments.size());
 			
 			for (int j = i + 1; j < duplicatedFragments.size(); j++) {
 				if (isSub(duplicatedFragments.get(i),
@@ -745,8 +747,7 @@ public class OperationsUtil {
 		return reviewed;
 	}
 
-	private List<DuplicatedFragments> copy(
-			List<DuplicatedFragments> duplicatedParameters) {
+	private List<DuplicatedFragments> copy(List<DuplicatedFragments> duplicatedParameters) {
 		List<DuplicatedFragments> copy = new ArrayList<DuplicatedFragments>();
 
 		for (DuplicatedFragments dp : duplicatedParameters) {

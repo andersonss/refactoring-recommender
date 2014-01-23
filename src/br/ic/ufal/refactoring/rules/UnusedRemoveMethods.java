@@ -6,6 +6,7 @@ import br.ic.ufal.parser.Project;
 import br.ic.ufal.refactoring.corrections.Correction;
 import br.ic.ufal.refactoring.corrections.makingmethodcallsimpler.RemoveMethods;
 import br.ic.ufal.refactoring.detections.BadSmellType;
+import br.ic.ufal.refactoring.detections.featureenvy.FeatureEnvy;
 import br.ic.ufal.refactoring.detections.use.methods.UnusedMethods;
 
 public class UnusedRemoveMethods extends Rule {
@@ -25,7 +26,8 @@ public class UnusedRemoveMethods extends Rule {
 		
 		if (unusedMethods.check()) {
 			
-			getProject().countDetectedBadSmells(BadSmellType.UnsuedMethods, unusedMethods.getUnusedMethods().size());
+			int amountOfBadSmellsBefore = unusedMethods.getUnusedMethods().size();
+			getProject().countDetectedBadSmells(BadSmellType.UnsuedMethods, amountOfBadSmellsBefore);
 			
 			for (int i = 0; i < unusedMethods.getUnusedMethods().size(); i++) {
 				MethodDeclaration method = unusedMethods.getUnusedMethods().get(i);
@@ -35,6 +37,17 @@ public class UnusedRemoveMethods extends Rule {
 				Correction removeMethods = new RemoveMethods(getProject(), method);
 				removeMethods.apply();
 				
+			}
+			
+			unusedMethods = new UnusedMethods(getProject(), this.threshold);
+			
+			if (unusedMethods.check()) {
+				
+				int amountOfBadSmellsAfter = unusedMethods.getUnusedMethods().size();
+				
+				getProject().countAfterBadSmells(BadSmellType.UnsuedMethods, amountOfBadSmellsAfter);
+			}else{
+				getProject().countAfterBadSmells(BadSmellType.UnsuedMethods, 0);
 			}
 			
 			

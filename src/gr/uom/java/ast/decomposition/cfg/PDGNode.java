@@ -88,8 +88,8 @@ public class PDGNode extends GraphNode implements Comparable<PDGNode> {
 		this.usedVariables = new LinkedHashSet<AbstractVariable>();
 		this.createdTypes = new LinkedHashSet<TypeObject>();
 		this.thrownExceptionTypes = new LinkedHashSet<String>();
-		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-		this.maximumCallGraphAnalysisDepth = store.getInt(PreferenceConstants.P_MAXIMUM_CALL_GRAPH_ANALYSIS_DEPTH);
+		//IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+		//this.maximumCallGraphAnalysisDepth = store.getInt(PreferenceConstants.P_MAXIMUM_CALL_GRAPH_ANALYSIS_DEPTH);
 	}
 
 	public CFGNode getCFGNode() {

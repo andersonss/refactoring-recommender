@@ -47,18 +47,18 @@ public class LibraryClassStorage extends Indexer {
 					parser.setResolveBindings(true);
 					compilationUnit = (CompilationUnit)parser.createAST(null);
 					
-					IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-					int maximumCacheSize = store.getInt(PreferenceConstants.P_LIBRARY_COMPILATION_UNIT_CACHE_SIZE);
-					if(iClassFileList.size() < maximumCacheSize) {
+					//IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+					//int maximumCacheSize = store.getInt(PreferenceConstants.P_LIBRARY_COMPILATION_UNIT_CACHE_SIZE);
+					//if(iClassFileList.size() < maximumCacheSize) {
 						iClassFileList.add(classFile);
 						compilationUnitList.add(compilationUnit);
-					}
-					else {
+					//}
+					/*else {
 						iClassFileList.removeFirst();
 						compilationUnitList.removeFirst();
 						iClassFileList.add(classFile);
 						compilationUnitList.add(compilationUnit);
-					}
+					}*/
 				}
 			}
 			catch(IllegalStateException e) {

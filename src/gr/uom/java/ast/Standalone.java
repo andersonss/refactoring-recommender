@@ -126,12 +126,14 @@ public class Standalone {
 	
 	public static Set<ASTSliceGroup> getExtractMethodRefactoringOpportunities(IJavaProject project) {
 		CompilationUnitCache.getInstance().clearCache();
+		System.out.println("ASTReader");
 		if(ASTReader.getSystemObject() != null && project.equals(ASTReader.getExaminedProject())) {
 			new ASTReader(project, ASTReader.getSystemObject(), null);
 		}
 		else {
 			new ASTReader(project, null);
 		}
+		System.out.println("Get System Object");
 		SystemObject systemObject = ASTReader.getSystemObject();
 		
 		Set<ClassObject> classObjectsToBeExamined = new LinkedHashSet<ClassObject>();
@@ -139,23 +141,28 @@ public class Standalone {
 		
 		Set<ASTSliceGroup> extractedSliceGroups = new TreeSet<ASTSliceGroup>();
 		
+		System.out.println("Analyse Methods");
 		for(ClassObject classObject : classObjectsToBeExamined) {
+			System.out.println("Analyse Class Object: " + classObject.getName());
 			ListIterator<MethodObject> methodIterator = classObject.getMethodIterator();
 			while(methodIterator.hasNext()) {
 				MethodObject methodObject = methodIterator.next();
 				processMethod(extractedSliceGroups,classObject, methodObject);
 			}
 		}
+		
+		System.out.println("Analysed Objects");
+		
 		return extractedSliceGroups;
 	}
 	
 	private static void processMethod(Set<ASTSliceGroup> extractedSliceGroups, ClassObject classObject, MethodObject methodObject) {
 		if(methodObject.getMethodBody() != null) {
-			IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-			int minimumMethodSize = store.getInt(PreferenceConstants.P_MINIMUM_METHOD_SIZE);
+			//IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+			//int minimumMethodSize = store.getInt(PreferenceConstants.P_MINIMUM_METHOD_SIZE);
 			StatementExtractor statementExtractor = new StatementExtractor();
-			int numberOfStatements = statementExtractor.getTotalNumberOfStatements(methodObject.getMethodBody().getCompositeStatement().getStatement());
-			if(numberOfStatements >= minimumMethodSize) {
+			//int numberOfStatements = statementExtractor.getTotalNumberOfStatements(methodObject.getMethodBody().getCompositeStatement().getStatement());
+			//if(numberOfStatements >= minimumMethodSize) {
 				ITypeRoot typeRoot = classObject.getITypeRoot();
 				CompilationUnitCache.getInstance().lock(typeRoot);
 				CFG cfg = new CFG(methodObject);
@@ -221,7 +228,7 @@ public class Standalone {
 					}
 				}
 				CompilationUnitCache.getInstance().releaseLock();
-			}
+			//}
 		}
 	}
 }
