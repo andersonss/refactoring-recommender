@@ -58,28 +58,33 @@ public class Parser {
 								
 								ICompilationUnit unit = originalunit.getWorkingCopy(null);
 								
-								Clazz clazz = new Clazz();
-								clazz.setICompilationUnit(unit);
-								CompilationUnit compilationUnit = ParseUtil.toCompilationUnit(unit);
-								clazz.setCompilationUnit(compilationUnit);
+								if (!unit.getElementName().contains("NewClass")) {
+									
+									Clazz clazz = new Clazz();
+									clazz.setICompilationUnit(unit);
+									CompilationUnit compilationUnit = ParseUtil.toCompilationUnit(unit);
+									clazz.setCompilationUnit(compilationUnit);
+									
+									TypeDeclaration typeDeclaration = ParseUtil.getTypeDeclaration(compilationUnit);
+									if (typeDeclaration != null) {
+										clazz.setTypeDeclaration(typeDeclaration);
+									}
+									
+									Document document = null;
+									
+									try {
+										document = new Document(unit.getBuffer().getContents());
+										clazz.setDocument(document);
+									} catch (JavaModelException e) {
+										e.printStackTrace();
+									}
+									
+									if (typeDeclaration != null) {
+										proj.addClazz(clazz);
+									}
 								
-								TypeDeclaration typeDeclaration = ParseUtil.getTypeDeclaration(compilationUnit);
-								if (typeDeclaration != null) {
-									clazz.setTypeDeclaration(typeDeclaration);
 								}
 								
-								Document document = null;
-								
-								try {
-									document = new Document(unit.getBuffer().getContents());
-									clazz.setDocument(document);
-								} catch (JavaModelException e) {
-									e.printStackTrace();
-								}
-								
-								if (typeDeclaration != null) {
-									proj.addClazz(clazz);
-								}
 								
 								
 							}

@@ -10,13 +10,11 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 
-import br.ic.ufal.parser.Clazz;
 import br.ic.ufal.parser.Project;
 import br.ic.ufal.refactoring.corrections.movingfeaturesbetwenobjects.ExtractFields;
 import br.ic.ufal.refactoring.detections.BadSmellType;
 import br.ic.ufal.refactoring.detections.dataclumps.fields.DuplicatedFragments;
 import br.ic.ufal.refactoring.detections.dataclumps.fields.FragmentsDataClumps;
-import br.ic.ufal.refactoring.detections.use.methods.UnusedMethods;
 import br.ic.ufal.util.ParseUtil;
 
 public class DataClumpsFragExtractFields extends Rule {

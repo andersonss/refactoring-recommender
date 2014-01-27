@@ -26,6 +26,8 @@ public class FragmentsDataClumps extends BadSmell {
 	@Override
 	public boolean check() {
 		
+		System.out.println("Check Fragments Data Clumps");
+		
 		this.fragsDuplicated = operationsUtil.retrieveDuplicatedFragments(getProject(), threshold);
 		
 		//this.fragsDuplicated = review(fragsDuplicated);

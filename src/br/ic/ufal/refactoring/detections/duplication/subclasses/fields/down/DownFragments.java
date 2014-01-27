@@ -25,6 +25,8 @@ public class DownFragments extends BadSmell {
 
 	@Override
 	public boolean check() {
+		
+		System.out.println("Check Down Fragments");
 	
 		for (Clazz superclass : super.getProject().getClasses()) {
 			

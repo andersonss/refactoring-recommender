@@ -24,11 +24,14 @@ public class UnusedMethods extends BadSmell {
 
 	@Override
 	public boolean check() {
-			for (int i = 0; i < super.getProject().getClasses().size(); i++) {
+		
+		System.out.println("Check Unused Methods");
+		
+		for (int i = 0; i < super.getProject().getClasses().size(); i++) {
 				Clazz clazz = super.getProject().getClasses().get(i);
 				
-				System.out.println("Analysing Unused Methods in Class: " + clazz.getTypeDeclaration().getName() + " Position: " + i);
-				System.out.println("Number of Methods: " + clazz.getTypeDeclaration().getMethods().length);
+				//System.out.println("Analysing Unused Methods in Class: " + clazz.getTypeDeclaration().getName() + " Position: " + i +  " of " +super.getProject().getClasses().size());
+				//System.out.println("Number of Methods: " + clazz.getTypeDeclaration().getMethods().length);
 				int count = 0;
 				for (MethodDeclaration method : clazz.getTypeDeclaration().getMethods()) {
 					if (operationsUtil.useMethod(method, super.getProject()) == this.threshold && 
@@ -37,7 +40,7 @@ public class UnusedMethods extends BadSmell {
 						this.unusedMethods.add(method);
 					}
 				}
-				System.out.println("Amount of Unused Methods: " + count);
+				//System.out.println("Amount of Unused Methods: " + count);
 			}
 			
 		

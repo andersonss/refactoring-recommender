@@ -10,9 +10,12 @@ import java.util.Set;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 import br.ic.ufal.parser.Clazz;
@@ -25,14 +28,16 @@ public class DivergentChange extends BadSmell {
 	
 	public DivergentChange(Project project) {
 		super(project);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	public boolean check() {
+		
 		ExpressionExtractor expressionExtractor = new ExpressionExtractor();
 		
 		for (Clazz clazz : super.getProject().getClasses()) {
+			
+			System.out.println("Class: " + clazz.getTypeDeclaration().getName().getIdentifier());
 			
 			ICompilationUnit iCompilationUnit = clazz.getICompilationUnit();
 			
@@ -44,6 +49,7 @@ public class DivergentChange extends BadSmell {
 			
 			for (MethodDeclaration method : typeDeclaration.getMethods()) {
 				
+				System.out.println("Method: " + method.getName().getIdentifier());
 				
 				List<Expression> methodInvocations = expressionExtractor.getMethodInvocations(method.getBody());
 				
@@ -51,23 +57,34 @@ public class DivergentChange extends BadSmell {
 					
 					if (expression instanceof MethodInvocation) {
 						MethodInvocation methodInvocation = (MethodInvocation) expression;
-						
-						IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
-					
-						coupling.add(methodBinding.getDeclaringClass().getName());
-						
+						System.out.println("Invoked Method "+methodInvocation.getName().getIdentifier()+" from: " + methodInvocation.resolveMethodBinding().getDeclaringClass().getName());
 					}
 					
 				}
 				
-			}
-			
-			if (coupling.size() > 0) {
-				this.divergentClasses.add(typeDeclaration);
+				List<Expression> variables = expressionExtractor.getVariableInstructions(method.getBody());
+				
+				for (Expression expression : variables) {
+					
+					SimpleName variable = (SimpleName)expression;
+					IBinding variableBinding = variable.resolveBinding();
+					
+					if (variableBinding != null) {
+						
+						if(variableBinding.getKind() == IBinding.VARIABLE) {
+							IVariableBinding accessedVariableBinding = (IVariableBinding)variableBinding;
+							
+							if(accessedVariableBinding.isField()) {
+								System.out.println("Accessed Fields "+accessedVariableBinding.getName()+" from: " + accessedVariableBinding.getDeclaringClass().getName());
+							}
+						}
+					}
+				}	
+				
 			}
 			
 		}
-		return this.divergentClasses.size() > 0;
+		return true;
 	}
 	
 	public List<TypeDeclaration> getDivergentClasses() {

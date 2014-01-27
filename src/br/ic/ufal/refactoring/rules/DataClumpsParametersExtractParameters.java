@@ -31,7 +31,7 @@ public class DataClumpsParametersExtractParameters extends Rule {
 		
 		System.out.println("Executing Data Clumps Paramters");
 		
-		ParametersDataClumps parametersDataClumps = new ParametersDataClumps(getProject(), 1);
+		ParametersDataClumps parametersDataClumps = new ParametersDataClumps(getProject(), 3);
 		
 		if (parametersDataClumps.check()) {
 			List<DuplicatedParameters> duplicatedParametersList = parametersDataClumps.getDuplicatedParametersList();

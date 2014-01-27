@@ -237,16 +237,16 @@ public class MoveMethod extends Correction {
 				//this.sourceICompilationUnit.getBuffer().setContents(this.sourceDocument.get());
 				ParseUtil.updateClazz(sourceDocument, this.sourceClass,getProject());
 
-				 System.out.println("Source Class");
-				 System.out.println(this.sourceDocument.get());
+				// System.out.println("Source Class");
+				// System.out.println(this.sourceDocument.get());
 
 				this.targetMultiTextEdit.apply(this.targetDocument);
 
 				ParseUtil.updateClazz(targetDocument, this.targetClass, getProject());
 
 				 //this.targetICompilationUnit.getBuffer().setContents(this.targetDocument.get());
-				 System.out.println("Target Class");
-				 System.out.println(this.targetDocument.get());
+				 //System.out.println("Target Class");
+				 //System.out.println(this.targetDocument.get());
 
 			} catch (MalformedTreeException e) {
 				// TODO Auto-generated catch block

@@ -42,6 +42,8 @@ public class Project implements Cloneable {
 		detectedBadSmells.put(BadSmellType.DownMethods, 0);
 		detectedBadSmells.put(BadSmellType.UpMethods, 0);
 		detectedBadSmells.put(BadSmellType.UnsuedMethods, 0);
+		detectedBadSmells.put(BadSmellType.FragmentsDataClumps, 0);
+		detectedBadSmells.put(BadSmellType.ParametersDataClumps, 0);
 		
 		afterBadSmells.put(BadSmellType.ClassDuplication, 0);
 		afterBadSmells.put(BadSmellType.PublicFields, 0);
@@ -51,6 +53,8 @@ public class Project implements Cloneable {
 		afterBadSmells.put(BadSmellType.DownMethods, 0);
 		afterBadSmells.put(BadSmellType.UpMethods, 0);
 		afterBadSmells.put(BadSmellType.UnsuedMethods, 0);
+		afterBadSmells.put(BadSmellType.FragmentsDataClumps, 0);
+		afterBadSmells.put(BadSmellType.ParametersDataClumps, 0);
 		
 	}
 
@@ -63,6 +67,8 @@ public class Project implements Cloneable {
 		detectedBadSmells.put(BadSmellType.DownMethods, 0);
 		detectedBadSmells.put(BadSmellType.UpMethods, 0);
 		detectedBadSmells.put(BadSmellType.UnsuedMethods, 0);
+		detectedBadSmells.put(BadSmellType.FragmentsDataClumps, 0);
+		detectedBadSmells.put(BadSmellType.ParametersDataClumps, 0);
 		
 		afterBadSmells.put(BadSmellType.ClassDuplication, 0);
 		afterBadSmells.put(BadSmellType.PublicFields, 0);
@@ -72,6 +78,8 @@ public class Project implements Cloneable {
 		afterBadSmells.put(BadSmellType.DownMethods, 0);
 		afterBadSmells.put(BadSmellType.UpMethods, 0);
 		afterBadSmells.put(BadSmellType.UnsuedMethods, 0);
+		afterBadSmells.put(BadSmellType.FragmentsDataClumps, 0);
+		afterBadSmells.put(BadSmellType.ParametersDataClumps, 0);
 	}
 	
 	public String getName() {
@@ -135,7 +143,7 @@ public class Project implements Cloneable {
 	
 	public void countAfterBadSmells(BadSmellType badSmellType, int value){
 		
-		//Integer oldvalue = this.solvedBadSmells.get(badSmellType);
+		//Integer oldvalue = this.afterBadSmells.get(badSmellType);
 		
 		this.afterBadSmells.put(badSmellType, value);	
 	}

@@ -86,9 +86,14 @@ public class DuplicatedParameters {
 	
 	private boolean existMethod(MethodDeclaration method){
 		for (MethodDeclaration m : this.duplicatedMethods) {
-			if (m.resolveBinding().isEqualTo(method.resolveBinding())) {
-				return true;
+			if (m!= null && method != null) {
+				if (m.resolveBinding()!= null && method.resolveBinding() != null) {
+					if (m.resolveBinding().isEqualTo(method.resolveBinding())) {
+						return true;
+					}
+				}
 			}
+			
 		}
 		
 		return false;

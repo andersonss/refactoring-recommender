@@ -25,6 +25,8 @@ public class DownMethods extends BadSmell {
 	
 	@Override
 	public boolean check() {
+		
+		System.out.println("Check Down Methods");
 	
 		for (Clazz superclass : super.getProject().getClasses()) {
 			
@@ -51,7 +53,7 @@ public class DownMethods extends BadSmell {
 									downMethodsDesc.addSubclass(sub);
 								}
 							}
-							System.out.println("Method to be Down: " + method);
+							//System.out.println("Method to be Down: " + method);
 							downMethodsDesc.addMethod(method);
 							this.downMethodsDescs.add(downMethodsDesc);
 						}

@@ -35,7 +35,7 @@ public class FeatureEnvy extends BadSmell {
 	@Override
 	public boolean check() {
 		
-		System.out.println("Feature Envy Check");
+		System.out.println("Check Feature Envy");
 		
 		ExpressionExtractor expressionExtractor = new ExpressionExtractor();
 		

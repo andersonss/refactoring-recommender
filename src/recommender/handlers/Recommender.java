@@ -19,6 +19,8 @@ public class Recommender extends AbstractHandler {
 		IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
 		MessageDialog.openInformation(window.getShell(), "Recommender", "Recommender");
 		
+		
+		
 		Engine engine = new Engine( );
 		//engine.planning("log4j");
 		//engine.planning("xerces-java-trunk");

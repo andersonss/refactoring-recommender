@@ -92,32 +92,27 @@ public class OperationsUtil {
 
 	}
 
-	public List<DuplicatedFragments> identifyNotRelatedFragmentsDuplication(
-			List<DuplicatedFragments> duplicatedFragments) {
+	public List<DuplicatedFragments> identifyNotRelatedFragmentsDuplication(List<DuplicatedFragments> duplicatedFragments) {
 
 		List<DuplicatedFragments> notRelatedFragments = new ArrayList<DuplicatedFragments>();
 
 		for (DuplicatedFragments df : duplicatedFragments) {
 
-			boolean samesuperclass = true;
-
-			Type superclass = df.getClasses().get(0).getTypeDeclaration()
-					.getSuperclassType();
-
-			for (int i = 1; i < df.getClasses().size(); i++) {
-				if (superclass != null
-						&& df.getClasses().get(i).getTypeDeclaration()
-								.getSuperclassType() != null) {
-					if (!df.getClasses().get(i).getTypeDeclaration()
-							.getSuperclassType().resolveBinding()
-							.isEqualTo(superclass.resolveBinding())) {
-						samesuperclass = true;
+			boolean samesuperclass = false;
+			
+			for (int j = 0; j < df.getClasses().size(); j++) {
+				Type superclass = df.getClasses().get(j).getTypeDeclaration().getSuperclassType();
+				for (int i = j+1; i < df.getClasses().size(); i++) {
+					if (superclass != null && df.getClasses().get(i).getTypeDeclaration().getSuperclassType() != null) {
+						if (!df.getClasses().get(i).getTypeDeclaration().getSuperclassType().resolveBinding().isEqualTo(superclass.resolveBinding())) {
+							samesuperclass = true;
+						}
 					}
+	
 				}
-
 			}
-
-			if (samesuperclass) {
+			
+			if (!samesuperclass) {
 				notRelatedFragments.add(df);
 			}
 		}
@@ -125,6 +120,8 @@ public class OperationsUtil {
 		return notRelatedFragments;
 
 	}
+	
+	
 
 	public int countMethodsInClasses(MethodDeclaration methodDeclaration,
 			List<Clazz> classes) {
@@ -140,8 +137,7 @@ public class OperationsUtil {
 		return count;
 	}
 
-	public int countFragmentsInClasses(VariableDeclaration fragment,
-			List<Clazz> classes) {
+	public int countFragmentsInClasses(VariableDeclaration fragment,List<Clazz> classes) {
 		int count = 0;
 
 		for (Clazz clazz : classes) {
