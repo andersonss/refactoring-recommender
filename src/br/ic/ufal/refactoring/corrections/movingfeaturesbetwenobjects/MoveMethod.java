@@ -112,12 +112,13 @@ public class MoveMethod extends Correction {
 			Map<MethodInvocation, MethodDeclaration> additionalMethodsToBeMoved,
 			boolean leaveDelegate, String movedMethodName, Project project) {
 		super(project);
-		//TODO Retirar gambiarra
-		if (sourceClass != null && targetClazz != null 
-				&& !movedMethodName.equalsIgnoreCase("startPoint") 
-				&& !movedMethodName.equalsIgnoreCase("endPoint") 
-				&& !movedMethodName.equalsIgnoreCase("getSQLForTextSource") 
-				&& !movedMethodName.equalsIgnoreCase("init") 
+		// TODO Retirar gambiarra
+		if (sourceClass != null
+				&& targetClazz != null
+				&& !movedMethodName.equalsIgnoreCase("startPoint")
+				&& !movedMethodName.equalsIgnoreCase("endPoint")
+				&& !movedMethodName.equalsIgnoreCase("getSQLForTextSource")
+				&& !movedMethodName.equalsIgnoreCase("init")
 				&& !movedMethodName.equalsIgnoreCase("doPost")
 				&& !movedMethodName.equalsIgnoreCase("formatResultSet")
 				&& !movedMethodName.equalsIgnoreCase("testPerformance")
@@ -130,29 +131,46 @@ public class MoveMethod extends Correction {
 				&& !movedMethodName.equalsIgnoreCase("StatementSchema")
 				&& !movedMethodName.equalsIgnoreCase("DatePatternConverter")
 				&& !movedMethodName.equalsIgnoreCase("getThrowableStrRep")
-				&& !movedMethodName.equalsIgnoreCase("nextMatchingElementAfter")
+				&& !movedMethodName
+						.equalsIgnoreCase("nextMatchingElementAfter")
 				&& !movedMethodName.equalsIgnoreCase("reset")
 				&& !movedMethodName.equalsIgnoreCase("scanDoctypeDecl")
 				&& !movedMethodName.equalsIgnoreCase("scanXMLDeclOrTextDecl")
 				&& !movedMethodName.equalsIgnoreCase("scanStartElement")
 				&& !movedMethodName.equalsIgnoreCase("scanCharReference")
-				&& !movedMethodName.equalsIgnoreCase("addDTDDefaultAttrsAndValidate")
+				&& !movedMethodName
+						.equalsIgnoreCase("addDTDDefaultAttrsAndValidate")
 				&& !movedMethodName.equalsIgnoreCase("validateDTDattribute")
-				&& !targetClazz.getTypeDeclaration().getName().toString().equalsIgnoreCase("XMLErrorReporter")
-				&& !targetClazz.getTypeDeclaration().getName().toString().equalsIgnoreCase("XMLComponent")
-				&& !targetClazz.getTypeDeclaration().getName().toString().equalsIgnoreCase("TextImpl")
-				&& !targetClazz.getTypeDeclaration().getName().toString().equalsIgnoreCase("EntityReferenceImpl")
-				&& !targetClazz.getTypeDeclaration().getName().toString().equalsIgnoreCase("XMLAttributes")
-				&& !targetClazz.getTypeDeclaration().getName().toString().equalsIgnoreCase("XMLDTDValidator")
-				&& !targetClazz.getTypeDeclaration().getName().toString().equalsIgnoreCase("DeferredDocumentImpl")
-				&& !targetClazz.getTypeDeclaration().getName().toString().equalsIgnoreCase("XMLDTDContentModelHandler")
-				&& !targetClazz.getTypeDeclaration().getName().toString().equalsIgnoreCase("XMLDTDProcessor")
-				&& !targetClazz.getTypeDeclaration().getName().toString().equalsIgnoreCase("DTDGrammar")
-				&& !targetClazz.getTypeDeclaration().getName().toString().equalsIgnoreCase("XMLDTDHandler")
-				&& !targetClazz.getTypeDeclaration().getName().toString().equalsIgnoreCase("XMLString")
-				&& !targetClazz.getTypeDeclaration().getName().toString().equalsIgnoreCase("XMLEntityScanner")
-				&& !targetClazz.getTypeDeclaration().getName().toString().equalsIgnoreCase("Result")
-				&& !targetClazz.getTypeDeclaration().getName().toString().equalsIgnoreCase("FigureChangeListener")) {
+				&& !targetClazz.getTypeDeclaration().getName().toString()
+						.equalsIgnoreCase("XMLErrorReporter")
+				&& !targetClazz.getTypeDeclaration().getName().toString()
+						.equalsIgnoreCase("XMLComponent")
+				&& !targetClazz.getTypeDeclaration().getName().toString()
+						.equalsIgnoreCase("TextImpl")
+				&& !targetClazz.getTypeDeclaration().getName().toString()
+						.equalsIgnoreCase("EntityReferenceImpl")
+				&& !targetClazz.getTypeDeclaration().getName().toString()
+						.equalsIgnoreCase("XMLAttributes")
+				&& !targetClazz.getTypeDeclaration().getName().toString()
+						.equalsIgnoreCase("XMLDTDValidator")
+				&& !targetClazz.getTypeDeclaration().getName().toString()
+						.equalsIgnoreCase("DeferredDocumentImpl")
+				&& !targetClazz.getTypeDeclaration().getName().toString()
+						.equalsIgnoreCase("XMLDTDContentModelHandler")
+				&& !targetClazz.getTypeDeclaration().getName().toString()
+						.equalsIgnoreCase("XMLDTDProcessor")
+				&& !targetClazz.getTypeDeclaration().getName().toString()
+						.equalsIgnoreCase("DTDGrammar")
+				&& !targetClazz.getTypeDeclaration().getName().toString()
+						.equalsIgnoreCase("XMLDTDHandler")
+				&& !targetClazz.getTypeDeclaration().getName().toString()
+						.equalsIgnoreCase("XMLString")
+				&& !targetClazz.getTypeDeclaration().getName().toString()
+						.equalsIgnoreCase("XMLEntityScanner")
+				&& !targetClazz.getTypeDeclaration().getName().toString()
+						.equalsIgnoreCase("Result")
+				&& !targetClazz.getTypeDeclaration().getName().toString()
+						.equalsIgnoreCase("FigureChangeListener")) {
 			this.sourceClass = sourceClass;
 			this.targetClass = targetClazz;
 
@@ -207,7 +225,7 @@ public class MoveMethod extends Correction {
 
 	@Override
 	public void apply() {
-		
+
 		System.out.println("Applying Move Method");
 
 		if (this.sourceClass != null && this.targetClass != null) {
@@ -234,19 +252,21 @@ public class MoveMethod extends Correction {
 			try {
 				this.sourceMultiTextEdit.apply(this.sourceDocument);
 
-				//this.sourceICompilationUnit.getBuffer().setContents(this.sourceDocument.get());
-				ParseUtil.updateClazz(sourceDocument, this.sourceClass,getProject());
+				// this.sourceICompilationUnit.getBuffer().setContents(this.sourceDocument.get());
+				ParseUtil.updateClazz(sourceDocument, this.sourceClass,
+						getProject());
 
 				// System.out.println("Source Class");
 				// System.out.println(this.sourceDocument.get());
 
 				this.targetMultiTextEdit.apply(this.targetDocument);
 
-				ParseUtil.updateClazz(targetDocument, this.targetClass, getProject());
+				ParseUtil.updateClazz(targetDocument, this.targetClass,
+						getProject());
 
-				 //this.targetICompilationUnit.getBuffer().setContents(this.targetDocument.get());
-				 //System.out.println("Target Class");
-				 //System.out.println(this.targetDocument.get());
+				// this.targetICompilationUnit.getBuffer().setContents(this.targetDocument.get());
+				// System.out.println("Target Class");
+				// System.out.println(this.targetDocument.get());
 
 			} catch (MalformedTreeException e) {
 				// TODO Auto-generated catch block
@@ -350,20 +370,23 @@ public class MoveMethod extends Correction {
 			for (SingleVariableDeclaration parameter : sourceMethodParameters) {
 				ITypeBinding parameterTypeBinding = parameter.getType()
 						.resolveBinding();
-				if (parameterTypeBinding != null && targetTypeDeclaration != null) {
+				if (parameterTypeBinding != null
+						&& targetTypeDeclaration != null) {
 					if (targetTypeDeclaration.resolveBinding() != null) {
-						if (parameterTypeBinding.isEqualTo(targetTypeDeclaration
-								.resolveBinding())) {
+						if (parameterTypeBinding
+								.isEqualTo(targetTypeDeclaration
+										.resolveBinding())) {
 							for (Expression expression : newVariableInstructions) {
 								SimpleName simpleName = (SimpleName) expression;
 								if (parameter.getName().getIdentifier()
 										.equals(simpleName.getIdentifier())) {
-									targetClassVariableName = parameter.getName()
-											.getIdentifier();
+									targetClassVariableName = parameter
+											.getName().getIdentifier();
 									parametersRewrite.remove(
 											newMethodParameters.get(i), null);
 									removeParamTagElementFromJavadoc(
-											newMethodDeclaration, targetRewriter,
+											newMethodDeclaration,
+											targetRewriter,
 											targetClassVariableName);
 									isTargetClassVariableParameter = true;
 									targetClassVariableParameterIndex = i;
@@ -376,7 +399,7 @@ public class MoveMethod extends Correction {
 						i++;
 					}
 				}
-				
+
 			}
 
 			FieldDeclaration[] fieldDeclarations = sourceTypeDeclaration
@@ -643,10 +666,12 @@ public class MoveMethod extends Correction {
 
 			if (this.targetDocument != null
 					&& this.targetICompilationUnit != null
-					&& this.targetICompilationUnit.getJavaProject() != null &&
-					targetRewriter != null) {
-				
-				TextEdit targetEdit = targetRewriter.rewriteAST(this.targetDocument, this.targetICompilationUnit.getJavaProject().getOptions(true));
+					&& this.targetICompilationUnit.getJavaProject() != null
+					&& targetRewriter != null) {
+
+				TextEdit targetEdit = targetRewriter.rewriteAST(
+						this.targetDocument, this.targetICompilationUnit
+								.getJavaProject().getOptions(true));
 				targetMultiTextEdit.addChild(targetEdit);
 			}
 		}
@@ -832,8 +857,11 @@ public class MoveMethod extends Correction {
 						for (Expression expression : methodInvocations) {
 							if (expression instanceof MethodInvocation) {
 								MethodInvocation methodInvocation = (MethodInvocation) expression;
-								if (sourceMethod != null && methodInvocation != null) {
-									if (sourceMethod.resolveBinding() != null && methodInvocation.resolveMethodBinding() != null) {
+								if (sourceMethod != null
+										&& methodInvocation != null) {
+									if (sourceMethod.resolveBinding() != null
+											&& methodInvocation
+													.resolveMethodBinding() != null) {
 										if (sourceMethod
 												.resolveBinding()
 												.isEqualTo(
@@ -843,17 +871,19 @@ public class MoveMethod extends Correction {
 													.create(sourceCompilationUnit
 															.getAST());
 											AST ast = methodInvocation.getAST();
-											sourceRewriter.set(methodInvocation,
-													MethodInvocation.NAME_PROPERTY,
-													ast.newSimpleName(movedMethodName),
-													null);
+											sourceRewriter
+													.set(methodInvocation,
+															MethodInvocation.NAME_PROPERTY,
+															ast.newSimpleName(movedMethodName),
+															null);
 											List<Expression> arguments = methodInvocation
 													.arguments();
 											boolean foundInArguments = false;
 											for (Expression argument : arguments) {
 												if (argument != null
 														&& targetTypeDeclaration != null) {
-													if (argument.resolveTypeBinding() != null
+													if (argument
+															.resolveTypeBinding() != null
 															&& targetTypeDeclaration
 																	.resolveBinding() != null) {
 														if (argument
@@ -866,8 +896,9 @@ public class MoveMethod extends Correction {
 																	.getListRewrite(
 																			methodInvocation,
 																			MethodInvocation.ARGUMENTS_PROPERTY);
-															argumentRewrite.remove(
-																	argument, null);
+															argumentRewrite
+																	.remove(argument,
+																			null);
 															if (argument instanceof CastExpression) {
 																ParenthesizedExpression parenthesizedExpression = ast
 																		.newParenthesizedExpression();
@@ -893,29 +924,42 @@ public class MoveMethod extends Correction {
 													}
 												}
 											}
-											if (!foundInArguments && isTargetClassVariableParameter) {
+											if (!foundInArguments
+													&& isTargetClassVariableParameter) {
 												for (Expression argument : arguments) {
-													if (targetTypeDeclaration != null && argument != null) {
-														if (targetTypeDeclaration.resolveBinding() != null && argument.resolveTypeBinding() != null) {
-															if (argument.resolveTypeBinding().getSuperclass() != null) {
-																if (targetTypeDeclaration.resolveBinding().isEqualTo(argument.resolveTypeBinding().getSuperclass())) {
+													if (targetTypeDeclaration != null
+															&& argument != null) {
+														if (targetTypeDeclaration
+																.resolveBinding() != null
+																&& argument
+																		.resolveTypeBinding() != null) {
+															if (argument
+																	.resolveTypeBinding()
+																	.getSuperclass() != null) {
+																if (targetTypeDeclaration
+																		.resolveBinding()
+																		.isEqualTo(
+																				argument.resolveTypeBinding()
+																						.getSuperclass())) {
 																	foundInArguments = true;
 																	ListRewrite argumentRewrite = sourceRewriter
 																			.getListRewrite(
 																					methodInvocation,
 																					MethodInvocation.ARGUMENTS_PROPERTY);
-																	argumentRewrite.remove(
-																			argument, null);
+																	argumentRewrite
+																			.remove(argument,
+																					null);
 																	sourceRewriter
 																			.set(methodInvocation,
 																					MethodInvocation.EXPRESSION_PROPERTY,
-																					argument, null);
+																					argument,
+																					null);
 																	break;
 																}
 															}
 														}
 													}
-													
+
 												}
 											}
 											boolean foundInFields = false;
@@ -961,7 +1005,8 @@ public class MoveMethod extends Correction {
 													}
 												}
 											}
-											if (!foundInArguments && !foundInFields) {
+											if (!foundInArguments
+													&& !foundInFields) {
 												FieldDeclaration[] fieldDeclarations = sourceTypeDeclaration
 														.getFields();
 												for (FieldDeclaration fieldDeclaration : fieldDeclarations) {
@@ -1013,9 +1058,10 @@ public class MoveMethod extends Correction {
 															MethodInvocation.ARGUMENTS_PROPERTY);
 											for (String argument : additionalArgumentsAddedToMovedMethod) {
 												if (argument.equals("this"))
-													argumentRewrite.insertLast(
-															ast.newThisExpression(),
-															null);
+													argumentRewrite
+															.insertLast(
+																	ast.newThisExpression(),
+																	null);
 												else
 													argumentRewrite
 															.insertLast(
@@ -1024,11 +1070,14 @@ public class MoveMethod extends Correction {
 											}
 
 											TextEdit sourceEdit = sourceRewriter
-													.rewriteAST(this.sourceDocument,
+													.rewriteAST(
+															this.sourceDocument,
 															this.sourceICompilationUnit
 																	.getJavaProject()
-																	.getOptions(true));
-											sourceMultiTextEdit.addChild(sourceEdit);
+																	.getOptions(
+																			true));
+											sourceMultiTextEdit
+													.addChild(sourceEdit);
 											sourceCompilationUnitChange
 													.addTextEditGroup(new TextEditGroup(
 															"Change invocation of moved method",
@@ -1036,7 +1085,7 @@ public class MoveMethod extends Correction {
 										}
 									}
 								}
-								
+
 							}
 						}
 					}
@@ -1060,64 +1109,83 @@ public class MoveMethod extends Correction {
 						.getExpression();
 				if (methodInvocationExpression instanceof SimpleName) {
 					SimpleName methodInvocationExpressionSimpleName = (SimpleName) methodInvocationExpression;
-					if (methodInvocationExpressionSimpleName != null && targetTypeDeclaration != null) {
-						if (methodInvocationExpressionSimpleName.resolveTypeBinding() != null && targetTypeDeclaration.resolveBinding() != null) {
-							if (methodInvocationExpressionSimpleName.resolveTypeBinding().getSuperclass() != null) {
+					if (methodInvocationExpressionSimpleName != null
+							&& targetTypeDeclaration != null) {
+						if (methodInvocationExpressionSimpleName
+								.resolveTypeBinding() != null
+								&& targetTypeDeclaration.resolveBinding() != null) {
+							if (methodInvocationExpressionSimpleName
+									.resolveTypeBinding().getSuperclass() != null) {
 								if (methodInvocationExpressionSimpleName
-									.getIdentifier() != null  && targetClassVariableName != null) {
+										.getIdentifier() != null
+										&& targetClassVariableName != null) {
 									if ((methodInvocationExpressionSimpleName
 											.resolveTypeBinding().isEqualTo(
-													targetTypeDeclaration.resolveBinding()) || targetTypeDeclaration
-											.resolveBinding().isEqualTo(
+													targetTypeDeclaration
+															.resolveBinding()) || targetTypeDeclaration
+											.resolveBinding()
+											.isEqualTo(
 													methodInvocationExpressionSimpleName
 															.resolveTypeBinding()
 															.getSuperclass()))
 											&& methodInvocationExpressionSimpleName
-													.getIdentifier().equals(
-															targetClassVariableName)) {
+													.getIdentifier()
+													.equals(targetClassVariableName)) {
 										MethodInvocation newMethodInvocation = (MethodInvocation) newMethodInvocations
 												.get(i);
 										if (newMethodInvocation != null) {
 											targetRewriter.remove(
-													newMethodInvocation.getExpression(), null);
+													newMethodInvocation
+															.getExpression(),
+													null);
 										}
-										
+
 									}
 								}
 							}
 						}
 					}
-					
+
 				} else if (methodInvocationExpression instanceof FieldAccess) {
 					FieldAccess methodInvocationExpressionFieldAccess = (FieldAccess) methodInvocationExpression;
-					
-					if (methodInvocationExpressionFieldAccess != null && targetTypeDeclaration != null) {
+
+					if (methodInvocationExpressionFieldAccess != null
+							&& targetTypeDeclaration != null) {
 						if (methodInvocationExpressionFieldAccess.getName() != null) {
 							if (methodInvocationExpressionFieldAccess.getName()
-							.resolveTypeBinding() != null && targetTypeDeclaration.resolveBinding() != null) {
+									.resolveTypeBinding() != null
+									&& targetTypeDeclaration.resolveBinding() != null) {
 								if (methodInvocationExpressionFieldAccess
-											.getName().resolveTypeBinding() != null) {
+										.getName().resolveTypeBinding() != null) {
 									if (methodInvocationExpressionFieldAccess
 											.getName().resolveTypeBinding()
 											.getSuperclass() != null) {
-										if (methodInvocationExpressionFieldAccess.getName()
-									.getIdentifier() != null) {
+										if (methodInvocationExpressionFieldAccess
+												.getName().getIdentifier() != null) {
 											if (targetClassVariableName != null) {
-												if ((methodInvocationExpressionFieldAccess.getName()
+												if ((methodInvocationExpressionFieldAccess
+														.getName()
 														.resolveTypeBinding()
-														.isEqualTo(targetTypeDeclaration.resolveBinding()) || targetTypeDeclaration
-														.resolveBinding().isEqualTo(
+														.isEqualTo(
+																targetTypeDeclaration
+																		.resolveBinding()) || targetTypeDeclaration
+														.resolveBinding()
+														.isEqualTo(
 																methodInvocationExpressionFieldAccess
-																		.getName().resolveTypeBinding()
+																		.getName()
+																		.resolveTypeBinding()
 																		.getSuperclass()))
-														&& methodInvocationExpressionFieldAccess.getName()
+														&& methodInvocationExpressionFieldAccess
+																.getName()
 																.getIdentifier()
 																.equals(targetClassVariableName)) {
 													MethodInvocation newMethodInvocation = (MethodInvocation) newMethodInvocations
 															.get(i);
 													if (newMethodInvocation != null) {
-														targetRewriter.remove(
-																newMethodInvocation.getExpression(), null);
+														targetRewriter
+																.remove(newMethodInvocation
+																		.getExpression(),
+																		null);
 													}
 												}
 											}
@@ -1127,8 +1195,7 @@ public class MoveMethod extends Correction {
 							}
 						}
 					}
-					
-					
+
 				}
 			}
 			i++;
@@ -1555,9 +1622,12 @@ public class MoveMethod extends Correction {
 																			.resolveMethodBinding())) {
 														MethodInvocation delegation = MethodDeclarationUtility
 																.isDelegate(sourceMethodDeclaration);
-														if (delegation != null ) {
-															if (delegation.resolveMethodBinding() != null) {
-																if (delegation.resolveMethodBinding().getDeclaringClass() != null) {
+														if (delegation != null) {
+															if (delegation
+																	.resolveMethodBinding() != null) {
+																if (delegation
+																		.resolveMethodBinding()
+																		.getDeclaringClass() != null) {
 																	ITypeBinding delegationDeclaringClassTypeBinding = delegation
 																			.resolveMethodBinding()
 																			.getDeclaringClass();
@@ -1587,7 +1657,7 @@ public class MoveMethod extends Correction {
 																	}
 																}
 															}
-															
+
 														}
 													}
 												}
@@ -2035,10 +2105,11 @@ public class MoveMethod extends Correction {
 		this.additionalArgumentsAddedToMovedMethod.add(fieldName
 				.getIdentifier());
 		if (this.additionalTypeBindingsToBeImportedInTargetClass != null) {
-			if (fieldType != null ) {
+			if (fieldType != null) {
 				if (fieldType.resolveBinding() != null) {
-					this.additionalTypeBindingsToBeImportedInTargetClass.add(fieldType.resolveBinding());
-				} 
+					this.additionalTypeBindingsToBeImportedInTargetClass
+							.add(fieldType.resolveBinding());
+				}
 			}
 		}
 		addParamTagElementToJavadoc(newMethodDeclaration, targetRewriter,
@@ -2075,26 +2146,33 @@ public class MoveMethod extends Correction {
 			else if (primitiveType.equals("boolean"))
 				fieldType = ast.newPrimitiveType(PrimitiveType.BOOLEAN);
 		} else if (typeBinding.isArray()) {
-			/*ITypeBinding elementTypeBinding = typeBinding.getElementType();
-			if (elementTypeBinding != null) {
-				if (elementTypeBinding.getName() != null) {
-					Type elementType = ast.newSimpleType(ast.newSimpleName(elementTypeBinding.getName()));
-					fieldType = ast.newArrayType(elementType,typeBinding.getDimensions());
-				}
-			}*/
+			/*
+			 * ITypeBinding elementTypeBinding = typeBinding.getElementType();
+			 * if (elementTypeBinding != null) { if
+			 * (elementTypeBinding.getName() != null) { Type elementType =
+			 * ast.newSimpleType
+			 * (ast.newSimpleName(elementTypeBinding.getName())); fieldType =
+			 * ast.newArrayType(elementType,typeBinding.getDimensions()); } }
+			 */
 		} else if (typeBinding.isParameterizedType()) {
 			fieldType = createParameterizedType(ast, typeBinding,
 					targetRewriter);
 		}
 		if (fieldType != null) {
-			targetRewriter.set(parameter, SingleVariableDeclaration.TYPE_PROPERTY,fieldType, null);
+			targetRewriter.set(parameter,
+					SingleVariableDeclaration.TYPE_PROPERTY, fieldType, null);
 		}
-		targetRewriter.set(parameter, SingleVariableDeclaration.NAME_PROPERTY,ast.newSimpleName(variableBinding.getName()), null);
-		ListRewrite parametersRewrite = targetRewriter.getListRewrite(newMethodDeclaration, MethodDeclaration.PARAMETERS_PROPERTY);
+		targetRewriter.set(parameter, SingleVariableDeclaration.NAME_PROPERTY,
+				ast.newSimpleName(variableBinding.getName()), null);
+		ListRewrite parametersRewrite = targetRewriter.getListRewrite(
+				newMethodDeclaration, MethodDeclaration.PARAMETERS_PROPERTY);
 		parametersRewrite.insertLast(parameter, null);
-		this.additionalArgumentsAddedToMovedMethod.add(variableBinding.getName());
-		this.additionalTypeBindingsToBeImportedInTargetClass.add(variableBinding.getType());
-		addParamTagElementToJavadoc(newMethodDeclaration, targetRewriter,variableBinding.getName());
+		this.additionalArgumentsAddedToMovedMethod.add(variableBinding
+				.getName());
+		this.additionalTypeBindingsToBeImportedInTargetClass
+				.add(variableBinding.getType());
+		addParamTagElementToJavadoc(newMethodDeclaration, targetRewriter,
+				variableBinding.getName());
 	}
 
 	private ParameterizedType createParameterizedType(AST ast,
@@ -2199,13 +2277,15 @@ public class MoveMethod extends Correction {
 						.get(i);
 				AST ast = newMethodDeclaration.getAST();
 				if (sourceMethod != null && sourceMethodInvocation != null) {
-					if (sourceMethod.resolveBinding() != null && sourceMethodInvocation.resolveMethodBinding() != null) {
+					if (sourceMethod.resolveBinding() != null
+							&& sourceMethodInvocation.resolveMethodBinding() != null) {
 						if (sourceMethod.resolveBinding().isEqualTo(
 								sourceMethodInvocation.resolveMethodBinding())) {
 							targetRewriter.set(methodInvocation,
 									MethodInvocation.NAME_PROPERTY,
 									ast.newSimpleName(movedMethodName), null);
-							List<Expression> arguments = methodInvocation.arguments();
+							List<Expression> arguments = methodInvocation
+									.arguments();
 							boolean argumentFound = false;
 							for (Expression argument : arguments) {
 								SimpleName argumentSimpleName = null;
@@ -2217,17 +2297,19 @@ public class MoveMethod extends Correction {
 								}
 								if (argumentSimpleName != null) {
 									ListRewrite argumentRewrite = targetRewriter
-											.getListRewrite(methodInvocation,
+											.getListRewrite(
+													methodInvocation,
 													MethodInvocation.ARGUMENTS_PROPERTY);
-									if (argumentSimpleName.getIdentifier().equals(
-											targetClassVariableName)) {
+									if (argumentSimpleName.getIdentifier()
+											.equals(targetClassVariableName)) {
 										argumentRewrite.remove(argument, null);
 										argumentFound = true;
 										break;
 									}
 								}
 							}
-							if (!argumentFound && isTargetClassVariableParameter) {
+							if (!argumentFound
+									&& isTargetClassVariableParameter) {
 								List<Expression> sourceMethodInvocationArguments = sourceMethodInvocation
 										.arguments();
 								int j = 0;
@@ -2237,28 +2319,32 @@ public class MoveMethod extends Correction {
 										argumentSimpleName = (SimpleName) argument;
 									} else if (argument instanceof FieldAccess) {
 										FieldAccess fieldAccess = (FieldAccess) argument;
-										argumentSimpleName = fieldAccess.getName();
+										argumentSimpleName = fieldAccess
+												.getName();
 									}
 									if (argumentSimpleName != null) {
 										ListRewrite argumentRewrite = targetRewriter
 												.getListRewrite(
 														methodInvocation,
 														MethodInvocation.ARGUMENTS_PROPERTY);
-										if ((argumentSimpleName.resolveTypeBinding()
+										if ((argumentSimpleName
+												.resolveTypeBinding()
 												.isEqualTo(
 														targetTypeDeclaration
 																.resolveBinding()) || targetTypeDeclaration
-												.resolveBinding().isEqualTo(
+												.resolveBinding()
+												.isEqualTo(
 														argumentSimpleName
 																.resolveTypeBinding()
 																.getSuperclass()))
 												&& targetClassVariableParameterIndex == j) {
-											argumentRewrite.remove(arguments.get(j),
-													null);
+											argumentRewrite.remove(
+													arguments.get(j), null);
 											targetRewriter
 													.set(methodInvocation,
 															MethodInvocation.EXPRESSION_PROPERTY,
-															arguments.get(j), null);
+															arguments.get(j),
+															null);
 											argumentFound = true;
 											break;
 										}
@@ -2266,7 +2352,8 @@ public class MoveMethod extends Correction {
 									j++;
 								}
 							}
-							if (!argumentFound && isTargetClassVariableParameter) {
+							if (!argumentFound
+									&& isTargetClassVariableParameter) {
 								List<Expression> sourceMethodInvocationArguments = sourceMethodInvocation
 										.arguments();
 								int j = 0;
@@ -2274,7 +2361,8 @@ public class MoveMethod extends Correction {
 									if (argument instanceof MethodInvocation) {
 										MethodInvocation argumentMethodInvocation = (MethodInvocation) argument;
 										ITypeBinding returnTypeBinding = argumentMethodInvocation
-												.resolveMethodBinding().getReturnType();
+												.resolveMethodBinding()
+												.getReturnType();
 										ListRewrite argumentRewrite = targetRewriter
 												.getListRewrite(
 														methodInvocation,
@@ -2282,16 +2370,18 @@ public class MoveMethod extends Correction {
 										if ((returnTypeBinding
 												.isEqualTo(targetTypeDeclaration
 														.resolveBinding()) || targetTypeDeclaration
-												.resolveBinding().isEqualTo(
+												.resolveBinding()
+												.isEqualTo(
 														returnTypeBinding
 																.getSuperclass()))
 												&& targetClassVariableParameterIndex == j) {
-											argumentRewrite.remove(arguments.get(j),
-													null);
+											argumentRewrite.remove(
+													arguments.get(j), null);
 											targetRewriter
 													.set(methodInvocation,
 															MethodInvocation.EXPRESSION_PROPERTY,
-															arguments.get(j), null);
+															arguments.get(j),
+															null);
 											break;
 										}
 									}
@@ -2301,7 +2391,7 @@ public class MoveMethod extends Correction {
 						}
 					}
 				}
-				
+
 			}
 			i++;
 		}

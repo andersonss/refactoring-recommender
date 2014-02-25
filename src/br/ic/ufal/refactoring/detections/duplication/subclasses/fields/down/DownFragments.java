@@ -13,11 +13,16 @@ import br.ic.ufal.util.OperationsUtil;
 
 public class DownFragments extends BadSmell {
 
-	private OperationsUtil operationsUtil = new OperationsUtil();
-	private List<DownFragmentsDesc> downFragmentsDescs = new ArrayList<DownFragmentsDesc>();
-	
+	private final OperationsUtil operationsUtil = new OperationsUtil();
+	private final List<DownFragmentsDesc> downFragmentsDescs = new ArrayList<DownFragmentsDesc>();
+
 	private int threshold = 0;
-	
+
+	/**
+	 * 
+	 * @param project
+	 * @param threshold
+	 */
 	public DownFragments(Project project, int threshold) {
 		super(project);
 		this.threshold = threshold;
@@ -25,41 +30,47 @@ public class DownFragments extends BadSmell {
 
 	@Override
 	public boolean check() {
-		
+
 		System.out.println("Check Down Fragments");
-	
+
 		for (Clazz superclass : super.getProject().getClasses()) {
-			
-			List<Clazz> subClasses = operationsUtil.getSubclasses(superclass, super.getProject().getClasses());
-			
+
+			List<Clazz> subClasses = operationsUtil.getSubclasses(superclass,
+					super.getProject().getClasses());
+
 			if (subClasses.size() > 0) {
-				for (FieldDeclaration fieldDeclaration : superclass.getTypeDeclaration().getFields()) {
-					List<VariableDeclaration> fragments = fieldDeclaration.fragments();
-					
+				for (FieldDeclaration fieldDeclaration : superclass
+						.getTypeDeclaration().getFields()) {
+					List<VariableDeclaration> fragments = fieldDeclaration
+							.fragments();
+
 					for (VariableDeclaration fragment : fragments) {
-						int count = operationsUtil.countFragmentsInClasses(fragment, subClasses);
-					
-						if (count == 1 ) {
-							
+						int count = operationsUtil.countFragmentsInClasses(
+								fragment, subClasses);
+
+						if (count == 1) {
+
 							DownFragmentsDesc desc = retrieveDownFragmentDesc(superclass);
-							
+
 							if (desc != null) {
 								desc.getFragmentsToBeDown().add(fragment);
-							}else{
+							} else {
 								DownFragmentsDesc downFragmentsDesc = new DownFragmentsDesc();
-								
+
 								downFragmentsDesc.setSuperclass(superclass);
-								
+
 								for (Clazz subclass : subClasses) {
-									if (operationsUtil.useFragment(fragment, subclass) > this.threshold) {
+									if (operationsUtil.useFragment(fragment,
+											subclass) > this.threshold) {
 										downFragmentsDesc.addSubclass(subclass);
 									}
 								}
-								
+
 								if (downFragmentsDesc.getSubclasses().size() > 0) {
 									downFragmentsDesc.addFragment(fragment);
-									
-									this.downFragmentsDescs.add(downFragmentsDesc);
+
+									this.downFragmentsDescs
+											.add(downFragmentsDesc);
 								}
 							}
 						}
@@ -69,19 +80,33 @@ public class DownFragments extends BadSmell {
 		}
 		return this.downFragmentsDescs.size() > 0;
 	}
-	
+
+	/**
+	 * 
+	 * @return
+	 */
 	public List<DownFragmentsDesc> getDownFragmentsDescs() {
 		return downFragmentsDescs;
 	}
-	
-	private DownFragmentsDesc retrieveDownFragmentDesc(Clazz superclass){
-		
+
+	/**
+	 * 
+	 * @param superclass
+	 * @return
+	 */
+	private DownFragmentsDesc retrieveDownFragmentDesc(Clazz superclass) {
+
 		for (DownFragmentsDesc desc : this.downFragmentsDescs) {
-			if (superclass.getTypeDeclaration().resolveBinding().isEqualTo(desc.getSuperclass().getTypeDeclaration().resolveBinding())) {
+			if (superclass
+					.getTypeDeclaration()
+					.resolveBinding()
+					.isEqualTo(
+							desc.getSuperclass().getTypeDeclaration()
+									.resolveBinding())) {
 				return desc;
 			}
 		}
-		
+
 		return null;
 	}
 }

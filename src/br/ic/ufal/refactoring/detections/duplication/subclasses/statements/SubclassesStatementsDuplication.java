@@ -5,6 +5,10 @@ import br.ic.ufal.refactoring.detections.BadSmell;
 
 public class SubclassesStatementsDuplication extends BadSmell {
 
+	/**
+	 * 
+	 * @param project
+	 */
 	public SubclassesStatementsDuplication(Project project) {
 		super(project);
 		// TODO Auto-generated constructor stub

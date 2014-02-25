@@ -12,29 +12,36 @@ import br.ic.ufal.util.OperationsUtil;
 
 public class DownMethods extends BadSmell {
 
-	private OperationsUtil operationsUtil = new OperationsUtil();
-	private List<MethodDeclaration> methodsToBeDown = new ArrayList<MethodDeclaration>();
-	
+	private final OperationsUtil operationsUtil = new OperationsUtil();
+	private final List<MethodDeclaration> methodsToBeDown = new ArrayList<MethodDeclaration>();
+
+	/**
+	 * @param project
+	 */
 	public DownMethods(Project project) {
 		super(project);
 	}
 
 	@Override
 	public boolean check() {
-	
+
 		for (Clazz superclass : super.getProject().getClasses()) {
-			
-			List<Clazz> subClasses = operationsUtil.getSubclasses(superclass, super.getProject().getClasses());
-			
+
+			List<Clazz> subClasses = operationsUtil.getSubclasses(superclass,
+					super.getProject().getClasses());
+
 			for (Clazz subclass : subClasses) {
-				
-				for (MethodDeclaration methodDeclaration : subclass.getTypeDeclaration().getMethods()) {
-					
-					int count = operationsUtil.countMethodsInClasses(methodDeclaration, subClasses);
-					
-					if (count == 1 ) {
-						if (superclassContainMethod(methodDeclaration, superclass) &&
-							!methodDeclaration.isConstructor()) {
+
+				for (MethodDeclaration methodDeclaration : subclass
+						.getTypeDeclaration().getMethods()) {
+
+					int count = operationsUtil.countMethodsInClasses(
+							methodDeclaration, subClasses);
+
+					if (count == 1) {
+						if (superclassContainMethod(methodDeclaration,
+								superclass)
+								&& !methodDeclaration.isConstructor()) {
 							this.methodsToBeDown.add(methodDeclaration);
 						}
 					}
@@ -43,18 +50,29 @@ public class DownMethods extends BadSmell {
 		}
 		return this.methodsToBeDown.size() > 0;
 	}
-	
-	private boolean superclassContainMethod(MethodDeclaration methodDeclaration, Clazz superclass){
-		
-		for (MethodDeclaration method : superclass.getTypeDeclaration().getMethods()) {
-			if (methodDeclaration.resolveBinding().isSubsignature(method.resolveBinding())) {
+
+	/**
+	 * @param methodDeclaration
+	 * @param superclass
+	 * @return
+	 */
+	private boolean superclassContainMethod(
+			MethodDeclaration methodDeclaration, Clazz superclass) {
+
+		for (MethodDeclaration method : superclass.getTypeDeclaration()
+				.getMethods()) {
+			if (methodDeclaration.resolveBinding().isSubsignature(
+					method.resolveBinding())) {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 
+	/**
+	 * @return
+	 */
 	public List<MethodDeclaration> getMethodsToBeUp() {
 		return methodsToBeDown;
 	}

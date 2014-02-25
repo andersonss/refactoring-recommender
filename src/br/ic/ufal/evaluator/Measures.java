@@ -1,8 +1,7 @@
 package br.ic.ufal.evaluator;
 
-
 public class Measures {
-	
+
 	private double designsize = 0;
 	private double abstraction = 0;
 	private double encapsulation = 0;
@@ -12,9 +11,9 @@ public class Measures {
 	private double inheritance = 0;
 	private double polymorphism = 0;
 	private double messaging = 0;
-	
+
 	public Measures() {
-	
+
 	}
 
 	public double getDesignsize() {
@@ -91,15 +90,12 @@ public class Measures {
 
 	@Override
 	public String toString() {
-		return "Design Size = " +designsize + "\n" + 
-			   "Abstraction = " +abstraction + "\n" + 
-			   "Encapsulation = " +encapsulation + "\n" + 
-			   "Coupling = " +coupling + "\n" + 
-			   "Cohesion = " +cohesion + "\n" + 
-			   "Composition = " +composition + "\n" + 
-			   "Inheritance = " +inheritance + "\n" + 
-			   "Polymorphism = " +polymorphism + "\n" + 
-			   "Messaging = " +messaging + "\n";
+		return "Design Size = " + designsize + "\n" + "Abstraction = "
+				+ abstraction + "\n" + "Encapsulation = " + encapsulation
+				+ "\n" + "Coupling = " + coupling + "\n" + "Cohesion = "
+				+ cohesion + "\n" + "Composition = " + composition + "\n"
+				+ "Inheritance = " + inheritance + "\n" + "Polymorphism = "
+				+ polymorphism + "\n" + "Messaging = " + messaging + "\n";
 	}
 
 }
