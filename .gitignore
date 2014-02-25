@@ -4,6 +4,7 @@
 # Folders #
 .metadata
 .settings
+class-diagram
 
 # Package Files #
 *.jar
